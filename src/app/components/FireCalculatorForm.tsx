@@ -175,7 +175,6 @@ export default function FireCalculatorForm() {
         // Simulate retirement phase for chart data (using 4% withdrawal adjusted for inflation)
         let simulationCapital = currentCapital;
         let simulationAge = retirementAge;
-        let simulationAllowance = finalInflationAdjustedAllowance!;
 
         // Mark retirement phase in existing data
         yearlyData.forEach((data) => {
@@ -214,7 +213,6 @@ export default function FireCalculatorForm() {
 
       while (age < lifeExpectancy && iterations < maxIterations) {
         // Simulate one year of saving and growth
-        let yearStartCapital = currentCapital;
         for (let month = 0; month < 12; month++) {
           currentCapital += monthlySavings;
           currentCapital *= 1 + monthlyGrowthRate;
@@ -238,16 +236,12 @@ export default function FireCalculatorForm() {
 
         // Simulate retirement phase to check sufficiency
         while (testAge < lifeExpectancy) {
-          let yearlyStartCapital = testCapital;
-          let yearlyGrowth = 0;
-          let yearlyWithdrawal = 0;
+          const yearlyStartCapital = testCapital;
 
           for (let month = 0; month < 12; month++) {
-            let withdrawal = testAllowance;
-            yearlyWithdrawal += withdrawal;
+            const withdrawal = testAllowance;
             testCapital -= withdrawal;
-            let growth = testCapital * monthlyGrowthRate;
-            yearlyGrowth += growth;
+            const growth = testCapital * monthlyGrowthRate;
             testCapital += growth; // Apply growth *after* withdrawal for the month
             testAllowance *= 1 + monthlyInflationRate; // Inflate allowance for next month
           }
