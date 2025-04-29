@@ -33,6 +33,13 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Schema for form validation
 const formSchema = z.object({
@@ -53,6 +60,7 @@ const formSchema = z.object({
   lifeExpectancy: z.coerce
     .number()
     .min(50, "Life expectancy must be at least 50"),
+  retirementStrategy: z.enum(["Depletion", "Maintenance", "4% Rule"]),
 });
 
 // Type for form values
@@ -87,6 +95,7 @@ export default function FireCalculatorForm() {
       desiredMonthlyAllowance: 2000,
       inflationRate: 2,
       lifeExpectancy: 84,
+      retirementStrategy: "Depletion",
     },
   });
 
@@ -100,29 +109,20 @@ export default function FireCalculatorForm() {
     const initialMonthlyAllowance = values.desiredMonthlyAllowance;
     const annualInflation = values.inflationRate / 100;
     const lifeExpectancy = values.lifeExpectancy;
+    const retirementStrategy = values.retirementStrategy;
 
     const monthlyGrowthRate = Math.pow(1 + annualGrowthRate, 1 / 12) - 1;
     const monthlyInflationRate = Math.pow(1 + annualInflation, 1 / 12) - 1;
-    const maxIterations = 1000; // Safety limit for iterations
+    const maxIterations = 100; // Adjusted max iterations for age limit
 
-    // Binary search for the required retirement capital
-    let low = initialMonthlyAllowance * 12; // Minimum: one year of expenses
-    let high = initialMonthlyAllowance * 12 * 100; // Maximum: hundred years of expenses
-    let requiredCapital = 0;
-    let retirementAge = 0;
-    let finalInflationAdjustedAllowance = 0;
-
-    // First, find when retirement is possible with accumulation phase
+    let requiredCapital: number | null = null;
+    let retirementAge: number | null = null;
+    let finalInflationAdjustedAllowance: number | null = null;
     let canRetire = false;
-    let currentCapital = startingCapital;
-    let age = currentAge;
-    let monthlyAllowance = initialMonthlyAllowance;
-    let iterations = 0;
+    let errorMessage: string | undefined = undefined;
 
     // Array to store yearly data for the chart
     const yearlyData: CalculationResult["yearlyData"] = [];
-
-    // Add starting point
     yearlyData.push({
       age: currentAge,
       year: currentYear,
@@ -130,79 +130,91 @@ export default function FireCalculatorForm() {
       phase: "accumulation",
     });
 
-    // Accumulation phase simulation
-    while (age < lifeExpectancy && iterations < maxIterations) {
-      // Simulate one year of saving and growth
-      for (let month = 0; month < 12; month++) {
-        currentCapital += monthlySavings;
-        currentCapital *= 1 + monthlyGrowthRate;
-        // Update allowance for inflation
-        monthlyAllowance *= 1 + monthlyInflationRate;
-      }
-      age++;
-      iterations++;
+    let currentCapital = startingCapital;
+    let age = currentAge;
+    let monthlyAllowance = initialMonthlyAllowance;
 
-      // Record yearly data
-      yearlyData.push({
-        age: age,
-        year: currentYear + (age - currentAge),
-        balance: Math.round(currentCapital),
-        phase: "accumulation",
-      });
+    // --- Calculation Logic based on Strategy ---
 
-      // Check each possible retirement capital target through binary search
-      const mid = (low + high) / 2;
-      if (high - low < 1) {
-        // Binary search converged
-        requiredCapital = mid;
-        break;
-      }
+    if (retirementStrategy === "4% Rule") {
+      // --- 4% Rule Calculation ---
+      requiredCapital = (initialMonthlyAllowance * 12) / 0.04;
 
-      // Test if this retirement capital is sufficient
-      let testCapital = mid;
-      let testAge = age;
-      let testAllowance = monthlyAllowance;
-      let isSufficient = true;
-
-      // Simulate retirement phase with this capital
-      while (testAge < lifeExpectancy) {
-        for (let month = 0; month < 12; month++) {
-          // Withdraw inflation-adjusted allowance
-          testCapital -= testAllowance;
-          // Grow remaining capital
-          testCapital *= 1 + monthlyGrowthRate;
-          // Adjust allowance for inflation
-          testAllowance *= 1 + monthlyInflationRate;
-        }
-        testAge++;
-
-        // Check if we've depleted capital before life expectancy
-        if (testCapital <= 0) {
-          isSufficient = false;
-          break;
-        }
-      }
-
-      if (isSufficient) {
-        high = mid; // This capital or less might be enough
-        if (currentCapital >= mid) {
-          // We can retire now with this capital
+      // Simulate accumulation until the 4% rule target is met
+      while (age < lifeExpectancy) {
+        if (currentCapital >= requiredCapital) {
           canRetire = true;
           retirementAge = age;
-          requiredCapital = mid;
           finalInflationAdjustedAllowance = monthlyAllowance;
-          break;
+          break; // Found retirement age
         }
-      } else {
-        low = mid; // We need more capital
-      }
-    }
 
-    // If we didn't find retirement possible in the loop
-    if (!canRetire && iterations < maxIterations) {
-      // Continue accumulation phase until we reach sufficient capital
+        // Simulate one year of saving and growth
+        for (let month = 0; month < 12; month++) {
+          currentCapital += monthlySavings;
+          currentCapital *= 1 + monthlyGrowthRate;
+          monthlyAllowance *= 1 + monthlyInflationRate; // Keep track of inflation-adjusted allowance
+        }
+        age++;
+
+        yearlyData.push({
+          age: age,
+          year: currentYear + (age - currentAge),
+          balance: Math.round(currentCapital),
+          phase: "accumulation",
+        });
+
+        if (age >= lifeExpectancy) break; // Stop if life expectancy is reached
+      }
+
+      if (!canRetire) {
+        errorMessage =
+          "Cannot reach FIRE goal (4% Rule) before life expectancy.";
+        requiredCapital = null; // Cannot retire, so no specific FIRE number applies this way
+      } else if (retirementAge !== null) {
+        // Simulate retirement phase for chart data (using 4% withdrawal adjusted for inflation)
+        let simulationCapital = currentCapital;
+        let simulationAge = retirementAge;
+        let simulationAllowance = finalInflationAdjustedAllowance!;
+
+        // Mark retirement phase in existing data
+        yearlyData.forEach((data) => {
+          if (data.age >= retirementAge!) {
+            data.phase = "retirement";
+          }
+        });
+
+        while (simulationAge < lifeExpectancy) {
+          let yearlyWithdrawal = requiredCapital * 0.04; // Initial 4%
+          // Adjust for inflation annually from retirement start
+          yearlyWithdrawal *= Math.pow(
+            1 + annualInflation,
+            simulationAge - retirementAge,
+          );
+          const monthlyWithdrawal = yearlyWithdrawal / 12;
+
+          for (let month = 0; month < 12; month++) {
+            simulationCapital -=
+              monthlyWithdrawal * Math.pow(1 + monthlyInflationRate, month); // Approximate intra-year inflation on withdrawal
+            simulationCapital *= 1 + monthlyGrowthRate;
+          }
+          simulationAge++;
+
+          yearlyData.push({
+            age: simulationAge,
+            year: currentYear + (simulationAge - currentAge),
+            balance: Math.round(simulationCapital),
+            phase: "retirement",
+          });
+        }
+      }
+    } else {
+      // --- Depletion and Maintenance Calculation (Simulation-based) ---
+      let iterations = 0;
+
       while (age < lifeExpectancy && iterations < maxIterations) {
-        // Simulate one year
+        // Simulate one year of saving and growth
+        let yearStartCapital = currentCapital;
         for (let month = 0; month < 12; month++) {
           currentCapital += monthlySavings;
           currentCapital *= 1 + monthlyGrowthRate;
@@ -211,7 +223,6 @@ export default function FireCalculatorForm() {
         age++;
         iterations++;
 
-        // Record yearly data
         yearlyData.push({
           age: age,
           year: currentYear + (age - currentAge),
@@ -219,71 +230,120 @@ export default function FireCalculatorForm() {
           phase: "accumulation",
         });
 
-        // Test with current capital
+        // --- Check if retirement is possible at this age ---
         let testCapital = currentCapital;
         let testAge = age;
         let testAllowance = monthlyAllowance;
         let isSufficient = true;
 
-        // Simulate retirement with current capital
+        // Simulate retirement phase to check sufficiency
         while (testAge < lifeExpectancy) {
+          let yearlyStartCapital = testCapital;
+          let yearlyGrowth = 0;
+          let yearlyWithdrawal = 0;
+
           for (let month = 0; month < 12; month++) {
-            testCapital -= testAllowance;
-            testCapital *= 1 + monthlyGrowthRate;
-            testAllowance *= 1 + monthlyInflationRate;
+            let withdrawal = testAllowance;
+            yearlyWithdrawal += withdrawal;
+            testCapital -= withdrawal;
+            let growth = testCapital * monthlyGrowthRate;
+            yearlyGrowth += growth;
+            testCapital += growth; // Apply growth *after* withdrawal for the month
+            testAllowance *= 1 + monthlyInflationRate; // Inflate allowance for next month
           }
           testAge++;
 
           if (testCapital <= 0) {
+            // Depleted capital before life expectancy
             isSufficient = false;
             break;
           }
-        }
+
+          if (retirementStrategy === "Maintenance") {
+            // Maintenance check: Withdrawal should not exceed growth for the year
+            // Use average capital for a slightly more stable check? Or end-of-year growth vs start-of-year withdrawal?
+            // Let's check if end-of-year capital is less than start-of-year capital
+            if (testCapital < yearlyStartCapital) {
+              isSufficient = false;
+              break; // Capital decreased, maintenance failed
+            }
+            // Alternative check: yearlyWithdrawal > yearlyGrowth
+            // if (yearlyWithdrawal > yearlyGrowth) {
+            //     isSufficient = false;
+            //     break; // Withdrawals exceed growth, maintenance failed
+            // }
+          }
+        } // End retirement simulation check
 
         if (isSufficient) {
           canRetire = true;
           retirementAge = age;
-          requiredCapital = currentCapital;
-          finalInflationAdjustedAllowance = monthlyAllowance;
-          break;
+          requiredCapital = currentCapital; // The capital needed at this point
+          finalInflationAdjustedAllowance = monthlyAllowance; // Allowance level at retirement
+          break; // Found retirement age
         }
-      }
-    }
+      } // End accumulation simulation loop
 
-    // If retirement is possible, simulate the retirement phase for the chart
-    if (canRetire) {
-      // Update the phase for all years after retirement
-      yearlyData.forEach((data) => {
-        if (data.age >= retirementAge) {
-          data.phase = "retirement";
-        }
-      });
+      if (!canRetire) {
+        errorMessage = `Cannot reach FIRE goal (${retirementStrategy}) before life expectancy or within ${maxIterations} years.`;
+        requiredCapital = null;
+      } else if (retirementAge !== null) {
+        // Simulate the actual retirement phase for chart data if retirement is possible
+        let simulationCapital = requiredCapital!;
+        let simulationAge = retirementAge;
+        let simulationAllowance = finalInflationAdjustedAllowance!;
 
-      // Continue simulation for retirement phase if needed
-      let simulationCapital = currentCapital;
-      let simulationAllowance = monthlyAllowance;
-      let simulationAge = age;
-
-      // If we haven't simulated up to life expectancy, continue
-      while (simulationAge < lifeExpectancy) {
-        for (let month = 0; month < 12; month++) {
-          simulationCapital -= simulationAllowance;
-          simulationCapital *= 1 + monthlyGrowthRate;
-          simulationAllowance *= 1 + monthlyInflationRate;
-        }
-        simulationAge++;
-
-        // Record yearly data
-        yearlyData.push({
-          age: simulationAge,
-          year: currentYear + (simulationAge - currentAge),
-          balance: Math.round(simulationCapital),
-          phase: "retirement",
+        // Mark retirement phase in existing data
+        yearlyData.forEach((data) => {
+          if (data.age >= retirementAge!) {
+            data.phase = "retirement";
+          }
         });
-      }
-    }
 
-    if (canRetire) {
+        // Simulate remaining years until life expectancy
+        while (simulationAge < lifeExpectancy) {
+          for (let month = 0; month < 12; month++) {
+            simulationCapital -= simulationAllowance;
+            simulationCapital *= 1 + monthlyGrowthRate;
+            simulationAllowance *= 1 + monthlyInflationRate;
+          }
+          simulationAge++;
+
+          // Ensure capital doesn't go below zero for chart visibility in Depletion
+          const displayBalance =
+            retirementStrategy === "Depletion"
+              ? Math.max(0, simulationCapital)
+              : simulationCapital;
+
+          yearlyData.push({
+            age: simulationAge,
+            year: currentYear + (simulationAge - currentAge),
+            balance: Math.round(displayBalance),
+            phase: "retirement",
+          });
+        }
+      }
+    } // End Depletion/Maintenance logic
+
+    // --- Set Final Result ---
+    if (
+      canRetire &&
+      retirementAge !== null &&
+      requiredCapital !== null &&
+      finalInflationAdjustedAllowance !== null
+    ) {
+      // Ensure yearlyData covers up to lifeExpectancy if retirement happens early
+      const lastDataYear =
+        yearlyData[yearlyData.length - 1]?.year ?? currentYear;
+      const expectedEndYear = currentYear + (lifeExpectancy - currentAge);
+      if (lastDataYear < expectedEndYear) {
+        // Need to continue simulation purely for charting if the main calc stopped early
+        // (This might already be covered by the post-retirement simulation loops added above)
+        console.warn(
+          "Chart data might not extend fully to life expectancy in some scenarios.",
+        );
+      }
+
       setResult({
         fireNumber: requiredCapital,
         retirementAge: retirementAge,
@@ -298,11 +358,9 @@ export default function FireCalculatorForm() {
         retirementAge: null,
         inflationAdjustedAllowance: null,
         retirementYears: null,
-        yearlyData: yearlyData,
+        yearlyData: yearlyData, // Show accumulation data even if goal not reached
         error:
-          iterations >= maxIterations
-            ? "Calculation exceeded maximum iterations."
-            : "Cannot reach FIRE goal before life expectancy with current parameters.",
+          errorMessage ?? "Calculation failed to find a retirement scenario.",
       });
     }
   }
@@ -451,6 +509,33 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="retirementStrategy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Retirement Strategy</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a retirement strategy" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Depletion">Depletion</SelectItem>
+                          <SelectItem value="Maintenance">
+                            Maintenance
+                          </SelectItem>
+                          <SelectItem value="4% Rule">4% Rule</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <Button type="submit" className="w-full">
@@ -473,7 +558,10 @@ export default function FireCalculatorForm() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <Label>FIRE Number (Required Capital)</Label>
+                    <Label>
+                      FIRE Number (Required Capital at Retirement - Strategy:{" "}
+                      {form.getValues().retirementStrategy})
+                    </Label>
                     <p className="text-2xl font-bold">
                       {formatNumber(result.fireNumber)}
                     </p>
@@ -562,8 +650,8 @@ export default function FireCalculatorForm() {
                             <div className="bg-background border p-2 shadow-sm">
                               <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
                               <p className="text-primary">{`Balance: ${formatNumber(data.balance)}`}</p>
-                              {result.fireNumber && (
-                                <p className="text-destructive">{`FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
+                              {result.fireNumber !== null && (
+                                <p className="text-destructive">{`Target FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
                               )}
                               <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
                             </div>
