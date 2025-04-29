@@ -40,7 +40,12 @@ const formSchema = z.object({
   desiredMonthlyAllowance: z.coerce
     .number()
     .min(0, "Monthly allowance must be a non-negative number"),
-  swr: z.coerce.number().min(0.1, "Withdrawal rate must be at least 0.1%"),
+  inflationRate: z.coerce
+    .number()
+    .min(0, "Inflation rate must be a non-negative number"),
+  lifeExpectancy: z.coerce
+    .number()
+    .min(50, "Life expectancy must be at least 50"),
 });
 
 // Type for form values
@@ -49,6 +54,8 @@ type FormValues = z.infer<typeof formSchema>;
 interface CalculationResult {
   fireNumber: number | null;
   retirementAge: number | null;
+  inflationAdjustedAllowance: number | null;
+  retirementYears: number | null;
   error?: string;
 }
 
@@ -59,67 +66,169 @@ export default function FireCalculatorForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      startingCapital: 10000,
-      monthlySavings: 500,
-      currentAge: 30,
+      startingCapital: 50000,
+      monthlySavings: 1500,
+      currentAge: 25,
       cagr: 7,
       desiredMonthlyAllowance: 2000,
-      swr: 4,
+      inflationRate: 2,
+      lifeExpectancy: 90,
     },
   });
 
   function onSubmit(values: FormValues) {
     setResult(null); // Reset previous results
 
-    const sc = values.startingCapital;
-    const ms = values.monthlySavings;
-    const ca = values.currentAge;
-    const annualRate = values.cagr / 100;
-    const monthlyAllowance = values.desiredMonthlyAllowance;
-    const safeWithdrawalRate = values.swr / 100;
+    const startingCapital = values.startingCapital;
+    const monthlySavings = values.monthlySavings;
+    const currentAge = values.currentAge;
+    const annualGrowthRate = values.cagr / 100;
+    const initialMonthlyAllowance = values.desiredMonthlyAllowance;
+    const annualInflation = values.inflationRate / 100;
+    const lifeExpectancy = values.lifeExpectancy;
 
-    // Calculate FIRE number (the amount needed for retirement)
-    const fireNumber = (monthlyAllowance * 12) / safeWithdrawalRate;
+    const monthlyGrowthRate = Math.pow(1 + annualGrowthRate, 1 / 12) - 1;
+    const monthlyInflationRate = Math.pow(1 + annualInflation, 1 / 12) - 1;
+    const maxIterations = 1000; // Safety limit for iterations
 
-    let currentCapital = sc;
-    let age = ca;
-    const monthlyRate = Math.pow(1 + annualRate, 1 / 12) - 1;
-    const maxYears = 100; // Set a limit to prevent infinite loops
+    // Binary search for the required retirement capital
+    let low = initialMonthlyAllowance * 12; // Minimum: one year of expenses
+    let high = initialMonthlyAllowance * 12 * 100; // Maximum: hundred years of expenses
+    let requiredCapital = 0;
+    let retirementAge = 0;
+    let finalInflationAdjustedAllowance = 0;
 
-    if (currentCapital >= fireNumber) {
-      setResult({ fireNumber, retirementAge: age });
-      return;
-    }
+    // First, find when retirement is possible with accumulation phase
+    let canRetire = false;
+    let currentCapital = startingCapital;
+    let age = currentAge;
+    let monthlyAllowance = initialMonthlyAllowance;
+    let iterations = 0;
 
-    for (let year = 0; year < maxYears; year++) {
-      const capitalAtYearStart = currentCapital;
+    // Accumulation phase simulation
+    while (age < lifeExpectancy && iterations < maxIterations) {
+      // Simulate one year of saving and growth
       for (let month = 0; month < 12; month++) {
-        currentCapital += ms;
-        currentCapital *= 1 + monthlyRate;
+        currentCapital += monthlySavings;
+        currentCapital *= 1 + monthlyGrowthRate;
+        // Update allowance for inflation
+        monthlyAllowance *= 1 + monthlyInflationRate;
       }
       age++;
+      iterations++;
 
-      if (currentCapital >= fireNumber) {
-        setResult({ fireNumber, retirementAge: age });
-        return;
+      // Check each possible retirement capital target through binary search
+      const mid = (low + high) / 2;
+      if (high - low < 1) {
+        // Binary search converged
+        requiredCapital = mid;
+        break;
       }
-      // Prevent infinite loop if savings don't outpace growth required
-      if (currentCapital <= capitalAtYearStart && ms <= 0) {
-        setResult({
-          fireNumber: null,
-          retirementAge: null,
-          error: "Cannot reach FIRE goal with current savings and growth rate.",
-        });
-        return;
+
+      // Test if this retirement capital is sufficient
+      let testCapital = mid;
+      let testAge = age;
+      let testAllowance = monthlyAllowance;
+      let isSufficient = true;
+
+      // Simulate retirement phase with this capital
+      while (testAge < lifeExpectancy) {
+        for (let month = 0; month < 12; month++) {
+          // Withdraw inflation-adjusted allowance
+          testCapital -= testAllowance;
+          // Grow remaining capital
+          testCapital *= 1 + monthlyGrowthRate;
+          // Adjust allowance for inflation
+          testAllowance *= 1 + monthlyInflationRate;
+        }
+        testAge++;
+
+        // Check if we've depleted capital before life expectancy
+        if (testCapital <= 0) {
+          isSufficient = false;
+          break;
+        }
+      }
+
+      if (isSufficient) {
+        high = mid; // This capital or less might be enough
+        if (currentCapital >= mid) {
+          // We can retire now with this capital
+          canRetire = true;
+          retirementAge = age;
+          requiredCapital = mid;
+          finalInflationAdjustedAllowance = monthlyAllowance;
+          break;
+        }
+      } else {
+        low = mid; // We need more capital
       }
     }
 
-    // If loop finishes without reaching FIRE number
-    setResult({
-      fireNumber: null,
-      retirementAge: null,
-      error: `Could not reach FIRE goal within ${maxYears.toString()} years.`,
-    });
+    // If we didn't find retirement possible in the loop
+    if (!canRetire && iterations < maxIterations) {
+      // Continue accumulation phase until we reach sufficient capital
+      while (age < lifeExpectancy && iterations < maxIterations) {
+        // Simulate one year
+        for (let month = 0; month < 12; month++) {
+          currentCapital += monthlySavings;
+          currentCapital *= 1 + monthlyGrowthRate;
+          monthlyAllowance *= 1 + monthlyInflationRate;
+        }
+        age++;
+        iterations++;
+
+        // Test with current capital
+        let testCapital = currentCapital;
+        let testAge = age;
+        let testAllowance = monthlyAllowance;
+        let isSufficient = true;
+
+        // Simulate retirement with current capital
+        while (testAge < lifeExpectancy) {
+          for (let month = 0; month < 12; month++) {
+            testCapital -= testAllowance;
+            testCapital *= 1 + monthlyGrowthRate;
+            testAllowance *= 1 + monthlyInflationRate;
+          }
+          testAge++;
+
+          if (testCapital <= 0) {
+            isSufficient = false;
+            break;
+          }
+        }
+
+        if (isSufficient) {
+          canRetire = true;
+          retirementAge = age;
+          requiredCapital = currentCapital;
+          finalInflationAdjustedAllowance = monthlyAllowance;
+          break;
+        }
+      }
+    }
+
+    if (canRetire) {
+      setResult({
+        fireNumber: requiredCapital,
+        retirementAge: retirementAge,
+        inflationAdjustedAllowance: finalInflationAdjustedAllowance,
+        retirementYears: lifeExpectancy - retirementAge,
+        error: undefined,
+      });
+    } else {
+      setResult({
+        fireNumber: null,
+        retirementAge: null,
+        inflationAdjustedAllowance: null,
+        retirementYears: null,
+        error:
+          iterations >= maxIterations
+            ? "Calculation exceeded maximum iterations."
+            : "Cannot reach FIRE goal before life expectancy with current parameters.",
+      });
+    }
   }
 
   // Helper function to format currency
@@ -218,7 +327,7 @@ export default function FireCalculatorForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Desired Monthly Allowance in Retirement
+                        Desired Monthly Allowance (Today&apos;s Value)
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -233,15 +342,32 @@ export default function FireCalculatorForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="swr"
+                  name="inflationRate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Safe Withdrawal Rate (%)</FormLabel>
+                      <FormLabel>Annual Inflation Rate (%)</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., 4"
+                          placeholder="e.g., 2"
                           type="number"
                           step="0.1"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lifeExpectancy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Life Expectancy (Age)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 90"
+                          type="number"
                           {...field}
                         />
                       </FormControl>
@@ -281,6 +407,24 @@ export default function FireCalculatorForm() {
                     {result.retirementAge ?? "N/A"}
                   </p>
                 </div>
+                {result.inflationAdjustedAllowance && (
+                  <div>
+                    <Label>
+                      Monthly Allowance at Retirement (Inflation Adjusted)
+                    </Label>
+                    <p className="text-2xl font-bold">
+                      {formatCurrency(result.inflationAdjustedAllowance)}
+                    </p>
+                  </div>
+                )}
+                {result.retirementYears && (
+                  <div>
+                    <Label>Retirement Duration (Years)</Label>
+                    <p className="text-2xl font-bold">
+                      {result.retirementYears}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
