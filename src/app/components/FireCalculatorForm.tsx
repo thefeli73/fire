@@ -507,7 +507,7 @@ export default function FireCalculatorForm() {
             </CardContent>
           </Card>
 
-          {result && result.yearlyData && result.yearlyData.length > 0 && (
+          {result.yearlyData && result.yearlyData.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Financial Projection</CardTitle>
@@ -549,7 +549,7 @@ export default function FireCalculatorForm() {
                         } else if (value >= 1000) {
                           return `${(value / 1000).toFixed(0)}K`;
                         }
-                        return `${value}`;
+                        return value.toString();
                       }}
                       width={80}
                     />
@@ -560,7 +560,7 @@ export default function FireCalculatorForm() {
                             .payload as (typeof result.yearlyData)[0];
                           return (
                             <div className="bg-background border p-2 shadow-sm">
-                              <p className="font-medium">{`Year: ${data.year} (Age: ${data.age})`}</p>
+                              <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
                               <p className="text-primary">{`Balance: ${formatNumber(data.balance)}`}</p>
                               {result.fireNumber && (
                                 <p className="text-destructive">{`FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
