@@ -11,7 +11,7 @@ export default function HomePage() {
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-4">
       <div className="container mx-auto flex flex-col items-center justify-center gap-12 px-4 py-16">
         <h1 className="text-primary-foreground text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          FIRE Calculator
+          The #1 FIRE Calculator
         </h1>
         <FireCalculatorForm />
       </div>
@@ -215,7 +215,6 @@ export default function HomePage() {
                   <a
                     href="https://www.mrmoneymustache.com/2012/01/13/the-shockingly-simple-math-behind-early-retirement/"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Mr. Money Mustache - The Shockingly Simple Math Behind Early
@@ -226,7 +225,6 @@ export default function HomePage() {
                   <a
                     href="https://www.playingwithfire.co/resources"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Playing With FIRE - Comprehensive Resources
@@ -236,7 +234,6 @@ export default function HomePage() {
                   <a
                     href="https://www.reddit.com/r/Fire/"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     r/Fire Reddit Community
@@ -252,7 +249,6 @@ export default function HomePage() {
                   <a
                     href="https://www.amazon.com/Your-Money-Life-Transforming-Relationship/dp/0143115766"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Your Money or Your Life - Vicki Robin & Joe Dominguez
@@ -262,7 +258,6 @@ export default function HomePage() {
                   <a
                     href="https://www.playingwithfire.co/"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Playing With FIRE Documentary
@@ -272,7 +267,6 @@ export default function HomePage() {
                   <a
                     href="https://podcasts.apple.com/us/podcast/can-you-retire-now-this-fire-calculator-will-tell-you/id1330225136?i=1000683436292"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     BiggerPockets Money Podcast - FIRE Calculators
@@ -290,7 +284,6 @@ export default function HomePage() {
                   <a
                     href="https://walletburst.com/tools/coast-fire-calculator/"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Coast FIRE Calculator - For those considering a partial
@@ -301,11 +294,20 @@ export default function HomePage() {
                   <a
                     href="https://www.empower.com/retirement-calculator"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Empower Retirement Planner - Free portfolio analysis and net
                     worth tracking
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator"
+                    target="_blank"
+                    className="text-primary hover:underline"
+                  >
+                    CAGR Compound Interest Calculator - Calculate how your
+                    investments grow over time
                   </a>
                 </li>
               </ul>
@@ -320,7 +322,6 @@ export default function HomePage() {
                   <a
                     href="https://www.businessinsider.com/retiring-tech-early-coast-fire-make-me-millionaire-2025-4"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     Coast FIRE: Retiring in your 30s while becoming a
@@ -331,7 +332,6 @@ export default function HomePage() {
                   <a
                     href="https://www.businessinsider.com/financial-independence-retire-early-saving-loneliness-retreat-bali-making-friends-2025-2"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     The Social Side of FIRE: Finding Community in Financial
