@@ -5,9 +5,9 @@ import { Geist } from "next/font/google";
 
 export const metadata: Metadata = {
   title:
-    "FIRE Calculator - Plan Your Financial Independence & Early Retirement",
+    "InvestingFIRE Calculator | Plan Your Financial Independence & Early Retirement",
   description:
-    "Calculate your FIRE number, estimate your retirement age, and plan your path to financial independence with this comprehensive FIRE calculator.",
+    "Achieve Financial Independence, Retire Early (FIRE) with the InvestingFIRE calculator. Get personalized projections and investing advice to plan your journey.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

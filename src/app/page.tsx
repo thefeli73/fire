@@ -9,41 +9,54 @@ import {
 export default function HomePage() {
   return (
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-4">
-      <div className="container mx-auto flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-primary-foreground text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          The #1 FIRE Calculator
+      <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+        <h1 className="from-primary via-primary-foreground to-primary bg-gradient-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
+          InvestingFIRE
         </h1>
-        <FireCalculatorForm />
+        <p className="text-primary-foreground/90 text-xl font-semibold md:text-2xl">
+          The #1 FIRE Calculator
+        </p>
+        <div className="mt-8 w-full max-w-2xl">
+          <FireCalculatorForm />
+        </div>
       </div>
 
       {/* Added SEO Content Sections */}
       <div className="container mx-auto max-w-4xl px-4 py-8 text-left">
         <section className="mb-12">
-          <h2 className="mb-4 text-3xl font-bold">What is FIRE?</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            What is FIRE? Understanding Financial Independence and Early
+            Retirement
+          </h2>
           <p className="mb-4 text-lg leading-relaxed">
             FIRE stands for &quot;Financial Independence, Retire Early.&quot;
-            It&apos;s a movement focused on aggressive saving and investing to
-            build a large enough portfolio that the returns can cover living
-            expenses indefinitely. Achieving FIRE means you are no longer
-            dependent on traditional employment to fund your lifestyle, giving
-            you the freedom to pursue passions, travel, or simply enjoy life
-            without the need for a regular paycheck.
+            It&apos;s a movement focused on aggressive saving and strategic
+            investing to build a substantial portfolio. The goal is for
+            investment returns to cover living expenses indefinitely, freeing
+            you from traditional employment. Achieving FIRE means gaining the
+            freedom to pursue passions, travel, or simply enjoy life without
+            needing a regular paycheck. Sound investing advice is crucial for
+            building the wealth needed.
           </p>
           <p className="text-lg leading-relaxed">
-            The core principle often involves saving a high percentage of income
-            (sometimes 50% or more) and investing it wisely, typically in
-            low-cost index funds. The target amount, often called the &quot;FIRE
-            number,&quot; is usually calculated as 25 times your desired annual
-            spending, based on the 4% safe withdrawal rate rule.
+            The core principle involves maximizing your savings rate (often
+            50%+) and investing wisely, typically in low-cost, diversified
+            assets like index funds. Your &quot;FIRE number&quot; – the capital
+            needed – is often estimated as 25 times your desired annual
+            spending, derived from the 4% safe withdrawal rate guideline. This
+            FIRE calculator helps you personalize this estimate.
           </p>
         </section>
 
         <section className="mb-12">
-          <h2 className="mb-4 text-3xl font-bold">How This Calculator Works</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            How This FIRE Calculator Provides Investing Insights
+          </h2>
           <p className="mb-4 text-lg leading-relaxed">
-            This calculator helps you estimate your path to FIRE based on your
-            current financial situation and future projections. Here&apos;s a
-            breakdown of the inputs:
+            This calculator helps visualize your path to FIRE by projecting
+            investment growth based on your inputs. Understanding these
+            projections is a key piece of investing advice for long-term
+            planning. Here&apos;s a breakdown of the inputs:
           </p>
           <ul className="mb-4 ml-6 list-disc space-y-2 text-lg">
             <li>
@@ -78,19 +91,19 @@ export default function HomePage() {
           </ul>
           <p className="text-lg leading-relaxed">
             The calculator simulates your investment growth year by year,
-            factoring in monthly contributions, compound growth, and
-            inflation&apos;s effect on your target allowance. It then determines
-            the age at which your accumulated capital is sufficient to sustain
-            your desired, inflation-adjusted monthly allowance throughout your
-            expected retirement years until your specified life expectancy. It
-            estimates your &quot;FIRE Number&quot; (the capital needed at
-            retirement) and the age you might reach it.
+            incorporating monthly contributions, the power of compound growth (a
+            core investing principle), and inflation&apos;s impact on your
+            target allowance. It estimates the age at which your capital could
+            sustain your desired, inflation-adjusted monthly spending throughout
+            your expected retirement until your specified life expectancy. It
+            calculates your potential &quot;FIRE Number&quot; and the age you
+            might reach financial independence.
           </p>
         </section>
 
         <section className="mb-12">
           <h2 className="mb-4 text-3xl font-bold">
-            Frequently Asked Questions (FAQ)
+            FIRE & Investing Frequently Asked Questions (FAQ)
           </h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
@@ -110,15 +123,16 @@ export default function HomePage() {
 
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-xl font-semibold">
-                Is the Expected Growth Rate realistic?
+                Is the Expected Growth Rate realistic? Finding the right
+                investing advice often starts here.
               </AccordionTrigger>
               <AccordionContent className="text-lg leading-relaxed">
                 Historically, diversified stock market investments have returned
-                around 7-10% annually over the long term, before inflation. A
-                rate of 7% (after fees) is often used as a reasonable estimate,
-                but past performance doesn&apos;t guarantee future results.
-                It&apos;s crucial to choose a rate you feel comfortable with and
-                understand the associated risks.
+                around 7-10% annually long-term (before inflation). A rate of 7%
+                (after fees) is common, but remember past performance
+                doesn&apos;t guarantee future results, a fundamental piece of
+                investing advice. Choose a rate reflecting your risk tolerance
+                and investment strategy.
               </AccordionContent>
             </AccordionItem>
 
@@ -138,15 +152,15 @@ export default function HomePage() {
 
             <AccordionItem value="item-4">
               <AccordionTrigger className="text-xl font-semibold">
-                Can I really retire early?
+                Can I really retire early with FIRE?
               </AccordionTrigger>
               <AccordionContent className="text-lg leading-relaxed">
-                Retiring significantly earlier than traditional retirement age
-                is possible but requires discipline, a high savings rate, and
-                consistent investment growth. The feasibility depends heavily on
-                your income, expenses, savings habits, and investment returns.
-                Use this calculator as a tool for planning and motivation, but
-                remember it provides estimates based on your inputs.
+                Retiring significantly early is achievable but demands
+                discipline, a high savings rate, and smart investing. Success
+                depends on income, expenses, savings habits, and investment
+                returns. Use this FIRE calculator as a planning tool,
+                understanding it provides estimates based on your assumptions
+                and chosen investing approach.
               </AccordionContent>
             </AccordionItem>
 
@@ -182,26 +196,24 @@ export default function HomePage() {
         {/* Optional: Add a section for relevant resources/links here */}
         <section className="mb-12">
           <h2 className="mb-4 text-3xl font-bold">
-            Further Reading & Resources
+            FIRE Journey & Investing Resources
           </h2>
           <p className="mb-6 text-lg leading-relaxed">
-            Want to learn more about FIRE and continue your journey to financial
-            independence? Here are some valuable resources to explore:
+            Ready to dive deeper into FIRE and solidify your investing strategy?
+            Explore these valuable resources for financial independence planning
+            and investing advice:
           </p>
 
           <div className="bg-secondary/20 my-8 rounded-md p-4 text-lg">
             <p className="font-semibold">Getting Started with FIRE:</p>
             <ol className="ml-6 list-decimal space-y-1">
               <li>
-                Read foundational content like Mr. Money Mustache&apos;s simple
-                math article
+                Calculate your personal numbers using this FIRE calculator and
+                other tools.
               </li>
               <li>
-                Calculate your personal numbers using this and other FIRE
-                calculators
-              </li>
-              <li>
-                Join communities like r/Fire to ask questions and find support
+                Seek sound investing advice and consider joining communities
+                like r/Fire for support.
               </li>
               <li>Explore books and podcasts to deepen your understanding</li>
             </ol>
@@ -209,7 +221,9 @@ export default function HomePage() {
 
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h3 className="mb-3 text-xl font-semibold">Blogs & Websites</h3>
+              <h3 className="mb-3 text-xl font-semibold">
+                Blogs & Investing Websites
+              </h3>
               <ul className="ml-6 list-disc space-y-2 text-lg">
                 <li>
                   <a
@@ -217,8 +231,8 @@ export default function HomePage() {
                     target="_blank"
                     className="text-primary hover:underline"
                   >
-                    Mr. Money Mustache - The Shockingly Simple Math Behind Early
-                    Retirement
+                    Mr. Money Mustache - Simple Math Behind Early Retirement &
+                    Investing
                   </a>
                 </li>
                 <li>
@@ -243,7 +257,9 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h3 className="mb-3 text-xl font-semibold">Books & Learning</h3>
+              <h3 className="mb-3 text-xl font-semibold">
+                Books & Investment Learning
+              </h3>
               <ul className="ml-6 list-disc space-y-2 text-lg">
                 <li>
                   <a
@@ -251,7 +267,8 @@ export default function HomePage() {
                     target="_blank"
                     className="text-primary hover:underline"
                   >
-                    Your Money or Your Life - Vicki Robin & Joe Dominguez
+                    Your Money or Your Life - Foundational FIRE & Investing
+                    Principles
                   </a>
                 </li>
                 <li>
@@ -269,7 +286,8 @@ export default function HomePage() {
                     target="_blank"
                     className="text-primary hover:underline"
                   >
-                    BiggerPockets Money Podcast - FIRE Calculators
+                    BiggerPockets Money Podcast - FIRE Calculators & Investing
+                    Strategies
                   </a>
                 </li>
               </ul>
@@ -277,7 +295,7 @@ export default function HomePage() {
 
             <div>
               <h3 className="mb-3 text-xl font-semibold">
-                Additional Calculators & Tools
+                Additional FIRE & Investing Calculators
               </h3>
               <ul className="ml-6 list-disc space-y-2 text-lg">
                 <li>
@@ -306,8 +324,8 @@ export default function HomePage() {
                     target="_blank"
                     className="text-primary hover:underline"
                   >
-                    CAGR Compound Interest Calculator - Calculate how your
-                    investments grow over time
+                    CAGR Compound Interest Calculator - Understand Investment
+                    Growth
                   </a>
                 </li>
               </ul>
@@ -315,7 +333,7 @@ export default function HomePage() {
 
             <div>
               <h3 className="mb-3 text-xl font-semibold">
-                Recent Articles & Trends
+                Recent Investing & FIRE Articles
               </h3>
               <ul className="ml-6 list-disc space-y-2 text-lg">
                 <li>
