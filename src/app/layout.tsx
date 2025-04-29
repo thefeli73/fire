@@ -1,7 +1,8 @@
 import "@/styles/globals.css";
-
+import PlausibleProvider from "next-plausible";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { WebVitals } from "./components/web-vitals";
 
 export const metadata: Metadata = {
   title:
@@ -21,7 +22,16 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={geist.variable}>
-      <body>{children}</body>
+      <PlausibleProvider
+        domain="investingfire.com"
+        customDomain="https://analytics.schulze.network"
+        selfHosted={true}
+        enabled={true}
+        trackOutboundLinks={true}
+      >
+        <WebVitals />
+        <body>{children}</body>
+      </PlausibleProvider>
     </html>
   );
 }
