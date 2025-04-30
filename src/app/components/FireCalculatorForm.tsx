@@ -8,7 +8,6 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -66,23 +65,27 @@ const formSchema = z.object({
 // Type for form values
 type FormValues = z.infer<typeof formSchema>;
 
+interface YearlyData {
+  age: number;
+  year: number;
+  balance: number;
+  phase: "accumulation" | "retirement";
+  monthlyAllowance: number;
+  fireNumber: number | null;
+}
+
 interface CalculationResult {
   fireNumber: number | null;
   retirementAge: number | null;
   inflationAdjustedAllowance: number | null;
   retirementYears: number | null;
   error?: string;
-  yearlyData?: Array<{
-    age: number;
-    year: number;
-    balance: number;
-    phase: "accumulation" | "retirement";
-  }>;
+  yearlyData?: Record<string, YearlyData>;
 }
 
 export default function FireCalculatorForm() {
   const [result, setResult] = useState<CalculationResult | null>(null);
-  const currentYear = new Date().getFullYear();
+  const irlYear = new Date().getFullYear();
 
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -100,263 +103,103 @@ export default function FireCalculatorForm() {
   });
 
   function onSubmit(values: FormValues) {
+    /*
+    PSEUDOCODE
+    1. calculate all balances if no retirement.
+    2. calculate all required FIRE numbers for each possible year of retirement for the selected strategy.
+    2.1 calculate the monthly allowance for each year of retirement for all years, fire number is these but cumulative.
+    3. binary search the crossover
+    4. calculate new balance for each year of retirement
+    5. graph balance, balance if no retirement, fire numbers, allowances
+    */
     setResult(null); // Reset previous results
 
     const startingCapital = values.startingCapital;
     const monthlySavings = values.monthlySavings;
-    const currentAge = values.currentAge;
-    const annualGrowthRate = values.cagr / 100;
+    const age = values.currentAge;
+    const annualGrowthRate = 1 + values.cagr / 100;
     const initialMonthlyAllowance = values.desiredMonthlyAllowance;
-    const annualInflation = values.inflationRate / 100;
-    const lifeExpectancy = values.lifeExpectancy;
+    const annualInflation = 1 + values.inflationRate / 100;
+    const ageOfDeath = values.lifeExpectancy;
     const retirementStrategy = values.retirementStrategy;
-
-    const monthlyGrowthRate = Math.pow(1 + annualGrowthRate, 1 / 12) - 1;
-    const monthlyInflationRate = Math.pow(1 + annualInflation, 1 / 12) - 1;
-    const maxIterations = 100; // Adjusted max iterations for age limit
 
     let requiredCapital: number | null = null;
     let retirementAge: number | null = null;
     let finalInflationAdjustedAllowance: number | null = null;
-    let canRetire = false;
-    let errorMessage: string | undefined = undefined;
 
-    // Array to store yearly data for the chart
-    const yearlyData: CalculationResult["yearlyData"] = [];
-    yearlyData.push({
-      age: currentAge,
-      year: currentYear,
-      balance: startingCapital,
-      phase: "accumulation",
-    });
+    // Array to store yearly data for the chart with initial value
+    const yearlyData: Record<number, YearlyData> = {
+      [irlYear]: {
+        age: age,
+        year: irlYear,
+        balance: startingCapital,
+        phase: "accumulation",
+        monthlyAllowance: initialMonthlyAllowance,
+        fireNumber: null,
+      },
+    };
+    // calculate all balances if no retirement
+    for (let year = irlYear + 1; year <= irlYear + ageOfDeath - age; year++) {
+      const previousYearData = yearlyData[year - 1];
+      if (!previousYearData) {
+        continue;
+      }
+      yearlyData[year] = {
+        age: age + year - irlYear,
+        year: year,
+        balance:
+          previousYearData.balance * annualGrowthRate + monthlySavings * 12,
+        phase: "accumulation",
+        monthlyAllowance: previousYearData.monthlyAllowance * annualInflation,
+        fireNumber: null,
+      };
+    }
+    // calculate FIRE numbers based on allowances
+    for (let year = irlYear + ageOfDeath - age; year >= irlYear; year--) {
+      const yearData = yearlyData[year];
+      if (!yearData) {
+        continue;
+      }
+      yearData.fireNumber =
+        (yearlyData[year + 1]?.fireNumber ?? 0) +
+        12 * yearData.monthlyAllowance;
+    }
 
-    let currentCapital = startingCapital;
-    let age = currentAge;
-    let monthlyAllowance = initialMonthlyAllowance;
+    // calculate new balance and retirement age
+    for (let year = irlYear; year <= irlYear + ageOfDeath - age; year++) {
+      const yearData = yearlyData[year];
+      const previousYearData = yearlyData[year - 1];
+      if (!yearData?.fireNumber) {
+        continue;
+      }
+      if (!previousYearData) {
+        yearData.monthlyAllowance = 0;
+        continue;
+      }
+      if (yearData.balance > yearData.fireNumber) {
+        retirementAge ??= yearData.age;
+        requiredCapital ??= yearData.balance;
+        finalInflationAdjustedAllowance ??= yearData.monthlyAllowance;
+        yearData.phase = "retirement";
+        yearData.balance =
+          previousYearData.balance * annualGrowthRate -
+          yearData.monthlyAllowance * 12;
+      } else {
+        yearData.monthlyAllowance = 0;
+      }
+    }
 
     // --- Calculation Logic based on Strategy ---
 
-    if (retirementStrategy === "4% Rule") {
-      // --- 4% Rule Calculation ---
-      requiredCapital = (initialMonthlyAllowance * 12) / 0.04;
-
-      // Simulate accumulation until the 4% rule target is met
-      while (age < lifeExpectancy) {
-        if (currentCapital >= requiredCapital) {
-          canRetire = true;
-          retirementAge = age;
-          finalInflationAdjustedAllowance = monthlyAllowance;
-          break; // Found retirement age
-        }
-
-        // Simulate one year of saving and growth
-        for (let month = 0; month < 12; month++) {
-          currentCapital += monthlySavings;
-          currentCapital *= 1 + monthlyGrowthRate;
-          monthlyAllowance *= 1 + monthlyInflationRate; // Keep track of inflation-adjusted allowance
-        }
-        age++;
-
-        yearlyData.push({
-          age: age,
-          year: currentYear + (age - currentAge),
-          balance: Math.round(currentCapital),
-          phase: "accumulation",
-        });
-
-        if (age >= lifeExpectancy) break; // Stop if life expectancy is reached
-      }
-
-      if (!canRetire) {
-        errorMessage =
-          "Cannot reach FIRE goal (4% Rule) before life expectancy.";
-        requiredCapital = null; // Cannot retire, so no specific FIRE number applies this way
-      } else if (retirementAge !== null) {
-        // Simulate retirement phase for chart data (using 4% withdrawal adjusted for inflation)
-        let simulationCapital = currentCapital;
-        let simulationAge = retirementAge;
-
-        // Mark retirement phase in existing data
-        yearlyData.forEach((data) => {
-          if (data.age >= retirementAge!) {
-            data.phase = "retirement";
-          }
-        });
-
-        while (simulationAge < lifeExpectancy) {
-          let yearlyWithdrawal = requiredCapital * 0.04; // Initial 4%
-          // Adjust for inflation annually from retirement start
-          yearlyWithdrawal *= Math.pow(
-            1 + annualInflation,
-            simulationAge - retirementAge,
-          );
-          const monthlyWithdrawal = yearlyWithdrawal / 12;
-
-          for (let month = 0; month < 12; month++) {
-            simulationCapital -=
-              monthlyWithdrawal * Math.pow(1 + monthlyInflationRate, month); // Approximate intra-year inflation on withdrawal
-            simulationCapital *= 1 + monthlyGrowthRate;
-          }
-          simulationAge++;
-
-          yearlyData.push({
-            age: simulationAge,
-            year: currentYear + (simulationAge - currentAge),
-            balance: Math.round(simulationCapital),
-            phase: "retirement",
-          });
-        }
-      }
-    } else {
-      // --- Depletion and Maintenance Calculation (Simulation-based) ---
-      let iterations = 0;
-
-      while (age < lifeExpectancy && iterations < maxIterations) {
-        // Simulate one year of saving and growth
-        for (let month = 0; month < 12; month++) {
-          currentCapital += monthlySavings;
-          currentCapital *= 1 + monthlyGrowthRate;
-          monthlyAllowance *= 1 + monthlyInflationRate;
-        }
-        age++;
-        iterations++;
-
-        yearlyData.push({
-          age: age,
-          year: currentYear + (age - currentAge),
-          balance: Math.round(currentCapital),
-          phase: "accumulation",
-        });
-
-        // --- Check if retirement is possible at this age ---
-        let testCapital = currentCapital;
-        let testAge = age;
-        let testAllowance = monthlyAllowance;
-        let isSufficient = true;
-
-        // Simulate retirement phase to check sufficiency
-        while (testAge < lifeExpectancy) {
-          const yearlyStartCapital = testCapital;
-
-          for (let month = 0; month < 12; month++) {
-            const withdrawal = testAllowance;
-            testCapital -= withdrawal;
-            const growth = testCapital * monthlyGrowthRate;
-            testCapital += growth; // Apply growth *after* withdrawal for the month
-            testAllowance *= 1 + monthlyInflationRate; // Inflate allowance for next month
-          }
-          testAge++;
-
-          if (testCapital <= 0) {
-            // Depleted capital before life expectancy
-            isSufficient = false;
-            break;
-          }
-
-          if (retirementStrategy === "Maintenance") {
-            // Maintenance check: Withdrawal should not exceed growth for the year
-            // Use average capital for a slightly more stable check? Or end-of-year growth vs start-of-year withdrawal?
-            // Let's check if end-of-year capital is less than start-of-year capital
-            if (testCapital < yearlyStartCapital) {
-              isSufficient = false;
-              break; // Capital decreased, maintenance failed
-            }
-            // Alternative check: yearlyWithdrawal > yearlyGrowth
-            // if (yearlyWithdrawal > yearlyGrowth) {
-            //     isSufficient = false;
-            //     break; // Withdrawals exceed growth, maintenance failed
-            // }
-          }
-        } // End retirement simulation check
-
-        if (isSufficient) {
-          canRetire = true;
-          retirementAge = age;
-          requiredCapital = currentCapital; // The capital needed at this point
-          finalInflationAdjustedAllowance = monthlyAllowance; // Allowance level at retirement
-          break; // Found retirement age
-        }
-      } // End accumulation simulation loop
-
-      if (!canRetire) {
-        errorMessage = `Cannot reach FIRE goal (${retirementStrategy}) before life expectancy or within ${maxIterations} years.`;
-        requiredCapital = null;
-      } else if (retirementAge !== null) {
-        // Simulate the actual retirement phase for chart data if retirement is possible
-        let simulationCapital = requiredCapital!;
-        let simulationAge = retirementAge;
-        let simulationAllowance = finalInflationAdjustedAllowance!;
-
-        // Mark retirement phase in existing data
-        yearlyData.forEach((data) => {
-          if (data.age >= retirementAge!) {
-            data.phase = "retirement";
-          }
-        });
-
-        // Simulate remaining years until life expectancy
-        while (simulationAge < lifeExpectancy) {
-          for (let month = 0; month < 12; month++) {
-            simulationCapital -= simulationAllowance;
-            simulationCapital *= 1 + monthlyGrowthRate;
-            simulationAllowance *= 1 + monthlyInflationRate;
-          }
-          simulationAge++;
-
-          // Ensure capital doesn't go below zero for chart visibility in Depletion
-          const displayBalance =
-            retirementStrategy === "Depletion"
-              ? Math.max(0, simulationCapital)
-              : simulationCapital;
-
-          yearlyData.push({
-            age: simulationAge,
-            year: currentYear + (simulationAge - currentAge),
-            balance: Math.round(displayBalance),
-            phase: "retirement",
-          });
-        }
-      }
-    } // End Depletion/Maintenance logic
-
     // --- Set Final Result ---
-    if (
-      canRetire &&
-      retirementAge !== null &&
-      requiredCapital !== null &&
-      finalInflationAdjustedAllowance !== null
-    ) {
-      // Ensure yearlyData covers up to lifeExpectancy if retirement happens early
-      const lastDataYear =
-        yearlyData[yearlyData.length - 1]?.year ?? currentYear;
-      const expectedEndYear = currentYear + (lifeExpectancy - currentAge);
-      if (lastDataYear < expectedEndYear) {
-        // Need to continue simulation purely for charting if the main calc stopped early
-        // (This might already be covered by the post-retirement simulation loops added above)
-        console.warn(
-          "Chart data might not extend fully to life expectancy in some scenarios.",
-        );
-      }
-
-      setResult({
-        fireNumber: requiredCapital,
-        retirementAge: retirementAge,
-        inflationAdjustedAllowance: finalInflationAdjustedAllowance,
-        retirementYears: lifeExpectancy - retirementAge,
-        yearlyData: yearlyData,
-        error: undefined,
-      });
-    } else {
-      setResult({
-        fireNumber: null,
-        retirementAge: null,
-        inflationAdjustedAllowance: null,
-        retirementYears: null,
-        yearlyData: yearlyData, // Show accumulation data even if goal not reached
-        error:
-          errorMessage ?? "Calculation failed to find a retirement scenario.",
-      });
-    }
+    setResult({
+      fireNumber: requiredCapital,
+      retirementAge: retirementAge,
+      inflationAdjustedAllowance: finalInflationAdjustedAllowance,
+      retirementYears: ageOfDeath - retirementAge,
+      yearlyData: Object.values(yearlyData),
+      error: undefined,
+    });
   }
 
   // Helper function to format currency without specific symbols
@@ -615,7 +458,7 @@ export default function FireCalculatorForm() {
         </div>
       )}
 
-      {result?.yearlyData && result.yearlyData.length > 0 && (
+      {result?.yearlyData && (
         <Card>
           <CardHeader>
             <CardTitle>Financial Projection</CardTitle>
@@ -633,6 +476,10 @@ export default function FireCalculatorForm() {
                 },
                 fireNumber: {
                   label: "FIRE Number",
+                  color: "var(--chart-2)",
+                },
+                realBalance: {
+                  label: "Real Balance",
                   color: "var(--chart-3)",
                 },
               }}
@@ -669,7 +516,9 @@ export default function FireCalculatorForm() {
                       return (
                         <div className="bg-background border p-2 shadow-sm">
                           <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-                          <p className="text-primary">{`Balance: ${formatNumber(data.balance)}`}</p>
+                          <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
+                          <p className="text-chart-2">{`FIRE number: ${formatNumber(data.fireNumber)}`}</p>
+                          <p className="text-chart-4">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
                           {result.fireNumber !== null && (
                             <p className="text-destructive">{`Target FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
                           )}
@@ -693,6 +542,42 @@ export default function FireCalculatorForm() {
                       stopOpacity={0.1}
                     />
                   </linearGradient>
+                  <linearGradient
+                    id="fillFireNumber"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor="var(--chart-2)"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--chart-2)"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                  <linearGradient
+                    id="fillAllowance"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor="var(--chart-4)"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--chart-4)"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
                 </defs>
                 <Area
                   type="monotone"
@@ -700,6 +585,24 @@ export default function FireCalculatorForm() {
                   name="balance"
                   stroke="var(--chart-1)"
                   fill="url(#fillBalance)"
+                  fillOpacity={0.4}
+                  activeDot={{ r: 6 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="fireNumber"
+                  name="fireNumber"
+                  stroke="var(--chart-2)"
+                  fill="url(#fillFireNumber)"
+                  fillOpacity={0.4}
+                  activeDot={{ r: 6 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="monthlyAllowance"
+                  name="allowance"
+                  stroke="var(--chart-4)"
+                  fill="url(#fillAllowance)"
                   fillOpacity={0.4}
                   activeDot={{ r: 6 }}
                 />
@@ -718,7 +621,7 @@ export default function FireCalculatorForm() {
                 {result.retirementAge && (
                   <ReferenceLine
                     x={
-                      currentYear +
+                      irlYear +
                       (result.retirementAge - form.getValues().currentAge)
                     }
                     stroke="var(--chart-2)"
