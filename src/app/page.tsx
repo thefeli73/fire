@@ -1,3 +1,4 @@
+import Image from "next/image";
 import FireCalculatorForm from "./components/FireCalculatorForm";
 import {
   Accordion,
@@ -10,9 +11,17 @@ export default function HomePage() {
   return (
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-4">
       <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-        <h1 className="from-primary via-primary-foreground to-primary bg-gradient-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
-          InvestingFIRE
-        </h1>
+        <div className="flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
+          <Image
+            src="/investingfire_logo_no-bg.svg"
+            alt="InvestingFIRE Logo"
+            width={100}
+            height={100}
+          />
+          <h1 className="from-primary via-primary-foreground to-primary bg-gradient-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
+            InvestingFIRE
+          </h1>
+        </div>
         <p className="text-primary-foreground/90 text-xl font-semibold md:text-2xl">
           The #1 FIRE Calculator
         </p>

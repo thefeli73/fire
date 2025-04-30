@@ -22,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={geist.variable}>
+      <head>
+        <meta name="apple-mobile-web-app-title" content="FIRE" />
+      </head>
       <PlausibleProvider
         domain="investingfire.com"
         customDomain="https://analytics.schulze.network"
