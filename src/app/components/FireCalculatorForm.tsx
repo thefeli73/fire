@@ -541,180 +541,206 @@ export default function FireCalculatorForm() {
       </Card>
 
       {result && (
-        <>
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {result.error ? (
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+          {result.error ? (
+            <Card className="col-span-full">
+              <CardContent className="pt-6">
                 <p className="text-destructive">{result.error}</p>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <Label>
-                      FIRE Number (Required Capital at Retirement - Strategy:{" "}
-                      {form.getValues().retirementStrategy})
-                    </Label>
-                    <p className="text-2xl font-bold">
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>FIRE Number</CardTitle>
+                  <CardDescription className="text-xs">
+                    Required capital at retirement using{" "}
+                    {form.getValues().retirementStrategy}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold">
                       {formatNumber(result.fireNumber)}
                     </p>
                   </div>
-                  <div>
-                    <Label>Estimated Retirement Age</Label>
-                    <p className="text-2xl font-bold">
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Retirement Age</CardTitle>
+                  <CardDescription className="text-xs">
+                    Estimated age when you can retire
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold">
                       {result.retirementAge ?? "N/A"}
                     </p>
                   </div>
-                  {result.inflationAdjustedAllowance && (
-                    <div>
-                      <Label>
-                        Monthly Allowance at Retirement (Inflation Adjusted)
-                      </Label>
-                      <p className="text-2xl font-bold">
+                </CardContent>
+              </Card>
+
+              {result.inflationAdjustedAllowance && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Monthly Allowance</CardTitle>
+                    <CardDescription className="text-xs">
+                      At retirement (inflation adjusted)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-3xl font-bold">
                         {formatNumber(result.inflationAdjustedAllowance)}
                       </p>
                     </div>
-                  )}
-                  {result.retirementYears && (
-                    <div>
-                      <Label>Retirement Duration (Years)</Label>
-                      <p className="text-2xl font-bold">
+                  </CardContent>
+                </Card>
+              )}
+
+              {result.retirementYears && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Retirement Duration</CardTitle>
+                    <CardDescription className="text-xs">
+                      Years in retirement
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-3xl font-bold">
                         {result.retirementYears}
                       </p>
                     </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-
-          {result.yearlyData && result.yearlyData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Financial Projection</CardTitle>
-                <CardDescription>
-                  Projected balance growth and FIRE number threshold
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  className="h-80"
-                  config={{
-                    balance: {
-                      label: "Balance",
-                      color: "var(--chart-1)",
-                    },
-                    fireNumber: {
-                      label: "FIRE Number",
-                      color: "var(--chart-3)",
-                    },
-                  }}
-                >
-                  <AreaChart
-                    data={result.yearlyData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="year"
-                      label={{
-                        value: "Year",
-                        position: "insideBottom",
-                        offset: -10,
-                      }}
-                    />
-                    <YAxis
-                      tickFormatter={(value: number) => {
-                        if (value >= 1000000) {
-                          return `${(value / 1000000).toFixed(1)}M`;
-                        } else if (value >= 1000) {
-                          return `${(value / 1000).toFixed(0)}K`;
-                        }
-                        return value.toString();
-                      }}
-                      width={80}
-                    />
-                    <ChartTooltip
-                      content={({ active, payload }) => {
-                        if (active && payload?.[0]?.payload) {
-                          const data = payload[0]
-                            .payload as (typeof result.yearlyData)[0];
-                          return (
-                            <div className="bg-background border p-2 shadow-sm">
-                              <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-                              <p className="text-primary">{`Balance: ${formatNumber(data.balance)}`}</p>
-                              {result.fireNumber !== null && (
-                                <p className="text-destructive">{`Target FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
-                              )}
-                              <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <defs>
-                      <linearGradient
-                        id="fillBalance"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--chart-1)"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--chart-1)"
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <Area
-                      type="monotone"
-                      dataKey="balance"
-                      name="balance"
-                      stroke="var(--chart-1)"
-                      fill="url(#fillBalance)"
-                      fillOpacity={0.4}
-                      activeDot={{ r: 6 }}
-                    />
-                    {result.fireNumber && (
-                      <ReferenceLine
-                        y={result.fireNumber}
-                        stroke="var(--chart-3)"
-                        strokeWidth={2}
-                        strokeDasharray="5 5"
-                        label={{
-                          value: "FIRE Number",
-                          position: "insideBottomRight",
-                        }}
-                      />
-                    )}
-                    {result.retirementAge && (
-                      <ReferenceLine
-                        x={
-                          currentYear +
-                          (result.retirementAge - form.getValues().currentAge)
-                        }
-                        stroke="var(--chart-2)"
-                        strokeWidth={2}
-                        label={{
-                          value: "Retirement",
-                          position: "insideTopRight",
-                        }}
-                      />
-                    )}
-                  </AreaChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+            </>
           )}
-        </>
+        </div>
+      )}
+
+      {result?.yearlyData && result.yearlyData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Financial Projection</CardTitle>
+            <CardDescription>
+              Projected balance growth and FIRE number threshold
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              className="h-80"
+              config={{
+                balance: {
+                  label: "Balance",
+                  color: "var(--chart-1)",
+                },
+                fireNumber: {
+                  label: "FIRE Number",
+                  color: "var(--chart-3)",
+                },
+              }}
+            >
+              <AreaChart
+                data={result.yearlyData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="year"
+                  label={{
+                    value: "Year",
+                    position: "insideBottom",
+                    offset: -10,
+                  }}
+                />
+                <YAxis
+                  tickFormatter={(value: number) => {
+                    if (value >= 1000000) {
+                      return `${(value / 1000000).toFixed(1)}M`;
+                    } else if (value >= 1000) {
+                      return `${(value / 1000).toFixed(0)}K`;
+                    }
+                    return value.toString();
+                  }}
+                  width={80}
+                />
+                <ChartTooltip
+                  content={({ active, payload }) => {
+                    if (active && payload?.[0]?.payload) {
+                      const data = payload[0]
+                        .payload as (typeof result.yearlyData)[0];
+                      return (
+                        <div className="bg-background border p-2 shadow-sm">
+                          <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
+                          <p className="text-primary">{`Balance: ${formatNumber(data.balance)}`}</p>
+                          {result.fireNumber !== null && (
+                            <p className="text-destructive">{`Target FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
+                          )}
+                          <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <defs>
+                  <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor="var(--chart-1)"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--chart-1)"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="monotone"
+                  dataKey="balance"
+                  name="balance"
+                  stroke="var(--chart-1)"
+                  fill="url(#fillBalance)"
+                  fillOpacity={0.4}
+                  activeDot={{ r: 6 }}
+                />
+                {result.fireNumber && (
+                  <ReferenceLine
+                    y={result.fireNumber}
+                    stroke="var(--chart-3)"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    label={{
+                      value: "FIRE Number",
+                      position: "insideBottomRight",
+                    }}
+                  />
+                )}
+                {result.retirementAge && (
+                  <ReferenceLine
+                    x={
+                      currentYear +
+                      (result.retirementAge - form.getValues().currentAge)
+                    }
+                    stroke="var(--chart-2)"
+                    strokeWidth={2}
+                    label={{
+                      value: "Retirement",
+                      position: "insideTopRight",
+                    }}
+                  />
+                )}
+              </AreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
