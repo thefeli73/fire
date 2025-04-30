@@ -368,8 +368,8 @@ export default function FireCalculatorForm() {
   };
 
   return (
-    <div className="w-full max-w-3xl">
-      <Card className="mb-8">
+    <>
+      <Card className="mb-4">
         <CardHeader>
           <CardTitle className="text-2xl">FIRE Calculator</CardTitle>
           <CardDescription>
@@ -541,7 +541,7 @@ export default function FireCalculatorForm() {
       </Card>
 
       {result && (
-        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mb-4 grid grid-cols-1 gap-2 md:grid-cols-2">
           {result.error ? (
             <Card className="col-span-full">
               <CardContent className="pt-6">
@@ -559,11 +559,9 @@ export default function FireCalculatorForm() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-3xl font-bold">
-                      {formatNumber(result.fireNumber)}
-                    </p>
-                  </div>
+                  <p className="text-3xl font-bold">
+                    {formatNumber(result.fireNumber)}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -575,11 +573,9 @@ export default function FireCalculatorForm() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-3xl font-bold">
-                      {result.retirementAge ?? "N/A"}
-                    </p>
-                  </div>
+                  <p className="text-3xl font-bold">
+                    {result.retirementAge ?? "N/A"}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -592,11 +588,9 @@ export default function FireCalculatorForm() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      <p className="text-3xl font-bold">
-                        {formatNumber(result.inflationAdjustedAllowance)}
-                      </p>
-                    </div>
+                    <p className="text-3xl font-bold">
+                      {formatNumber(result.inflationAdjustedAllowance)}
+                    </p>
                   </CardContent>
                 </Card>
               )}
@@ -610,11 +604,9 @@ export default function FireCalculatorForm() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      <p className="text-3xl font-bold">
-                        {result.retirementYears}
-                      </p>
-                    </div>
+                    <p className="text-3xl font-bold">
+                      {result.retirementYears}
+                    </p>
                   </CardContent>
                 </Card>
               )}
@@ -633,7 +625,7 @@ export default function FireCalculatorForm() {
           </CardHeader>
           <CardContent>
             <ChartContainer
-              className="h-80"
+              className="aspect-auto h-80 w-full"
               config={{
                 balance: {
                   label: "Balance",
@@ -661,13 +653,13 @@ export default function FireCalculatorForm() {
                 <YAxis
                   tickFormatter={(value: number) => {
                     if (value >= 1000000) {
-                      return `${(value / 1000000).toFixed(1)}M`;
+                      return `${(value / 1000000).toPrecision(3)}M`;
                     } else if (value >= 1000) {
-                      return `${(value / 1000).toFixed(0)}K`;
+                      return `${(value / 1000).toPrecision(3)}K`;
                     }
                     return value.toString();
                   }}
-                  width={80}
+                  width={25}
                 />
                 <ChartTooltip
                   content={({ active, payload }) => {
@@ -742,6 +734,6 @@ export default function FireCalculatorForm() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </>
   );
 }

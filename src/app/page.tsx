@@ -10,7 +10,7 @@ import {
 export default function HomePage() {
   return (
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-4">
-      <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+      <div className="mx-auto flex flex-col items-center justify-center gap-4 text-center">
         <div className="flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
           <Image
             src="/investingfire_logo_no-bg.svg"
@@ -31,7 +31,7 @@ export default function HomePage() {
       </div>
 
       {/* Added SEO Content Sections */}
-      <div className="container mx-auto max-w-4xl px-4 py-8 text-left">
+      <div className="mx-auto max-w-2xl py-12 text-left">
         <section className="mb-12">
           <h2 className="mb-4 text-3xl font-bold">
             What is FIRE? Understanding Financial Independence and Early
