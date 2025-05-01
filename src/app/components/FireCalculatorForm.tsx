@@ -31,9 +31,14 @@ import {
   XAxis,
   YAxis,
   ReferenceLine,
+  type TooltipProps,
 } from "recharts";
 import { Slider } from "@/components/ui/slider";
 import assert from "assert";
+import type {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 // Schema for form validation
 const formSchema = z.object({
@@ -78,6 +83,33 @@ interface CalculationResult {
   yearlyData: YearlyData[];
   error?: string;
 }
+
+// Helper function to format currency without specific symbols
+const formatNumber = (value: number | null) => {
+  if (!value) return "N/A";
+  return new Intl.NumberFormat("en", {
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+// Helper function to render tooltip for chart
+const tooltipRenderer = ({
+  active,
+  payload,
+}: TooltipProps<ValueType, NameType>) => {
+  if (active && payload?.[0]?.payload) {
+    const data = payload[0].payload as YearlyData;
+    return (
+      <div className="bg-background border p-2 shadow-sm">
+        <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
+        <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
+        <p className="text-chart-2">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
+        <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function FireCalculatorForm() {
   const [result, setResult] = useState<CalculationResult | null>(null);
@@ -175,14 +207,6 @@ export default function FireCalculatorForm() {
       });
     }
   }
-
-  // Helper function to format currency without specific symbols
-  const formatNumber = (value: number | null) => {
-    if (value === null) return "N/A";
-    return new Intl.NumberFormat("en", {
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
     <>
@@ -398,23 +422,7 @@ export default function FireCalculatorForm() {
                           }}
                           width={25}
                         />
-                        <ChartTooltip
-                          content={({ active, payload }) => {
-                            if (active && payload?.[0]?.payload) {
-                              const data = payload[0]
-                                .payload as (typeof result.yearlyData)[0];
-                              return (
-                                <div className="bg-background border p-2 shadow-sm">
-                                  <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-                                  <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
-                                  <p className="text-chart-2">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
-                                  <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
+                        <ChartTooltip content={tooltipRenderer} />
                         <defs>
                           <linearGradient
                             id="fillBalance"
