@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -232,6 +231,10 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 10000"
                           type="number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -249,6 +252,10 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 500"
                           type="number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -266,6 +273,10 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 30"
                           type="number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -283,6 +294,10 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 90"
                           type="number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -301,6 +316,10 @@ export default function FireCalculatorForm() {
                           type="number"
                           step="0.1"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -319,6 +338,10 @@ export default function FireCalculatorForm() {
                           type="number"
                           step="0.1"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -338,6 +361,10 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 2000"
                           type="number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -354,11 +381,15 @@ export default function FireCalculatorForm() {
                       <FormLabel>Retirement Age: {field.value}</FormLabel>
                       <FormControl>
                         <Slider
+                          name="retirementAge"
                           value={[field.value]}
-                          min={form.getValues().currentAge + 1}
-                          max={form.getValues().lifeExpectancy - 1}
+                          min={18}
+                          max={form.getValues("lifeExpectancy")}
                           step={1}
-                          onValueChange={field.onChange}
+                          onValueChange={(value) => {
+                            field.onChange(...value);
+                            void form.handleSubmit(onSubmit)();
+                          }}
                           className="py-4"
                         />
                       </FormControl>
@@ -366,12 +397,13 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                <FormItem className="col-span-full"></FormItem>
               </div>
 
-              <Button type="submit" className="w-full">
-                Calculate
-              </Button>
+              {!result && (
+                <Button type="submit" className="w-full">
+                  Calculate
+                </Button>
+              )}
               {result?.yearlyData && (
                 <Card className="rounded-md shadow-none">
                   <CardHeader>
@@ -494,8 +526,8 @@ export default function FireCalculatorForm() {
                         <ReferenceLine
                           x={
                             irlYear +
-                            (form.getValues().retirementAge -
-                              form.getValues().currentAge)
+                            (form.getValues("retirementAge") -
+                              form.getValues("currentAge"))
                           }
                           stroke="var(--chart-2)"
                           strokeWidth={2}
@@ -547,8 +579,8 @@ export default function FireCalculatorForm() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {form.getValues().lifeExpectancy -
-                      form.getValues().retirementAge}
+                    {form.getValues("lifeExpectancy") -
+                      form.getValues("retirementAge")}
                   </p>
                 </CardContent>
               </Card>
