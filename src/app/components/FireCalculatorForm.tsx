@@ -32,23 +32,19 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import assert from "assert";
 
 // Schema for form validation
 const formSchema = z.object({
-  startingCapital: z.coerce
-    .number()
-    .min(0, "Starting capital must be a non-negative number"),
+  startingCapital: z.coerce.number(),
   monthlySavings: z.coerce
     .number()
     .min(0, "Monthly savings must be a non-negative number"),
-  currentAge: z.coerce.number().min(18, "Age must be at least 18"),
+  currentAge: z.coerce
+    .number()
+    .min(1, "Age must be at least 1")
+    .max(100, "No point in starting this late"),
   cagr: z.coerce.number().min(0, "Growth rate must be a non-negative number"),
   desiredMonthlyAllowance: z.coerce
     .number()
@@ -58,8 +54,12 @@ const formSchema = z.object({
     .min(0, "Inflation rate must be a non-negative number"),
   lifeExpectancy: z.coerce
     .number()
-    .min(50, "Life expectancy must be at least 50"),
-  retirementStrategy: z.enum(["Depletion", "Maintenance", "4% Rule"]),
+    .min(40, "Be a bit more optimistic buddy :(")
+    .max(100, "You should be more realistic..."),
+  retirementAge: z.coerce
+    .number()
+    .min(18, "Retirement age must be at least 18")
+    .max(100, "Retirement age must be at most 100"),
 });
 
 // Type for form values
@@ -71,16 +71,12 @@ interface YearlyData {
   balance: number;
   phase: "accumulation" | "retirement";
   monthlyAllowance: number;
-  fireNumber: number | null;
 }
 
 interface CalculationResult {
   fireNumber: number | null;
-  retirementAge: number | null;
-  inflationAdjustedAllowance: number | null;
-  retirementYears: number | null;
+  yearlyData: YearlyData[];
   error?: string;
-  yearlyData?: Record<string, YearlyData>;
 }
 
 export default function FireCalculatorForm() {
@@ -95,23 +91,14 @@ export default function FireCalculatorForm() {
       monthlySavings: 1500,
       currentAge: 25,
       cagr: 7,
-      desiredMonthlyAllowance: 2000,
+      desiredMonthlyAllowance: 3000,
       inflationRate: 2,
       lifeExpectancy: 84,
-      retirementStrategy: "Depletion",
+      retirementAge: 55,
     },
   });
 
   function onSubmit(values: FormValues) {
-    /*
-    PSEUDOCODE
-    1. calculate all balances if no retirement.
-    2. calculate all required FIRE numbers for each possible year of retirement for the selected strategy.
-    2.1 calculate the monthly allowance for each year of retirement for all years, fire number is these but cumulative.
-    3. binary search the crossover
-    4. calculate new balance for each year of retirement
-    5. graph balance, balance if no retirement, fire numbers, allowances
-    */
     setResult(null); // Reset previous results
 
     const startingCapital = values.startingCapital;
@@ -121,85 +108,72 @@ export default function FireCalculatorForm() {
     const initialMonthlyAllowance = values.desiredMonthlyAllowance;
     const annualInflation = 1 + values.inflationRate / 100;
     const ageOfDeath = values.lifeExpectancy;
-    const retirementStrategy = values.retirementStrategy;
+    const retirementAge = values.retirementAge;
 
-    let requiredCapital: number | null = null;
-    let retirementAge: number | null = null;
-    let finalInflationAdjustedAllowance: number | null = null;
+    // Array to store yearly data for the chart
+    const yearlyData: YearlyData[] = [];
 
-    // Array to store yearly data for the chart with initial value
-    const yearlyData: Record<number, YearlyData> = {
-      [irlYear]: {
-        age: age,
-        year: irlYear,
-        balance: startingCapital,
-        phase: "accumulation",
-        monthlyAllowance: initialMonthlyAllowance,
-        fireNumber: null,
-      },
-    };
-    // calculate all balances if no retirement
-    for (let year = irlYear + 1; year <= irlYear + ageOfDeath - age; year++) {
-      const previousYearData = yearlyData[year - 1];
-      if (!previousYearData) {
-        continue;
-      }
-      yearlyData[year] = {
-        age: age + year - irlYear,
-        year: year,
-        balance:
-          previousYearData.balance * annualGrowthRate + monthlySavings * 12,
-        phase: "accumulation",
-        monthlyAllowance: previousYearData.monthlyAllowance * annualInflation,
-        fireNumber: null,
-      };
-    }
-    // calculate FIRE numbers based on allowances
-    for (let year = irlYear + ageOfDeath - age; year >= irlYear; year--) {
-      const yearData = yearlyData[year];
-      if (!yearData) {
-        continue;
-      }
-      yearData.fireNumber =
-        (yearlyData[year + 1]?.fireNumber ?? 0) +
-        12 * yearData.monthlyAllowance;
-    }
-
-    // calculate new balance and retirement age
-    for (let year = irlYear; year <= irlYear + ageOfDeath - age; year++) {
-      const yearData = yearlyData[year];
-      const previousYearData = yearlyData[year - 1];
-      if (!yearData?.fireNumber) {
-        continue;
-      }
-      if (!previousYearData) {
-        yearData.monthlyAllowance = 0;
-        continue;
-      }
-      if (yearData.balance > yearData.fireNumber) {
-        retirementAge ??= yearData.age;
-        requiredCapital ??= yearData.balance;
-        finalInflationAdjustedAllowance ??= yearData.monthlyAllowance;
-        yearData.phase = "retirement";
-        yearData.balance =
-          previousYearData.balance * annualGrowthRate -
-          yearData.monthlyAllowance * 12;
-      } else {
-        yearData.monthlyAllowance = 0;
-      }
-    }
-
-    // --- Calculation Logic based on Strategy ---
-
-    // --- Set Final Result ---
-    setResult({
-      fireNumber: requiredCapital,
-      retirementAge: retirementAge,
-      inflationAdjustedAllowance: finalInflationAdjustedAllowance,
-      retirementYears: ageOfDeath - retirementAge,
-      yearlyData: Object.values(yearlyData),
-      error: undefined,
+    // Initial year data
+    yearlyData.push({
+      age: age,
+      year: irlYear,
+      balance: startingCapital,
+      phase: "accumulation",
+      monthlyAllowance: initialMonthlyAllowance,
     });
+
+    // Calculate accumulation phase (before retirement)
+    for (let year = irlYear + 1; year <= irlYear + (ageOfDeath - age); year++) {
+      const currentAge = age + (year - irlYear);
+      const previousYearData = yearlyData[yearlyData.length - 1];
+      const inflatedAllowance =
+        initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
+
+      const isRetirementYear = currentAge >= retirementAge;
+      const phase = isRetirementYear ? "retirement" : "accumulation";
+
+      assert(!!previousYearData);
+      // Calculate balance based on phase
+      let newBalance;
+      if (phase === "accumulation") {
+        // During accumulation: grow previous balance + add savings
+        newBalance =
+          previousYearData.balance * annualGrowthRate + monthlySavings * 12;
+      } else {
+        // During retirement: grow previous balance - withdraw allowance
+        newBalance =
+          previousYearData.balance * annualGrowthRate - inflatedAllowance * 12;
+      }
+
+      yearlyData.push({
+        age: currentAge,
+        year: year,
+        balance: newBalance,
+        phase: phase,
+        monthlyAllowance: inflatedAllowance,
+      });
+    }
+
+    // Calculate FIRE number at retirement
+    const retirementYear = irlYear + (retirementAge - age);
+    const retirementIndex = yearlyData.findIndex(
+      (data) => data.year === retirementYear,
+    );
+    const retirementData = yearlyData[retirementIndex];
+
+    if (retirementIndex === -1 || !retirementData) {
+      setResult({
+        fireNumber: null,
+        error: "Could not calculate retirement data",
+        yearlyData: yearlyData,
+      });
+    } else {
+      // Set the result
+      setResult({
+        fireNumber: retirementData.balance,
+        yearlyData: yearlyData,
+      });
+    }
   }
 
   // Helper function to format currency without specific symbols
@@ -276,6 +250,23 @@ export default function FireCalculatorForm() {
                 />
                 <FormField
                   control={form.control}
+                  name="lifeExpectancy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Life Expectancy (Age)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 90"
+                          type="number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="cagr"
                   render={({ field }) => (
                     <FormItem>
@@ -283,6 +274,24 @@ export default function FireCalculatorForm() {
                       <FormControl>
                         <Input
                           placeholder="e.g., 7"
+                          type="number"
+                          step="0.1"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="inflationRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Annual Inflation Rate (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 2"
                           type="number"
                           step="0.1"
                           {...field}
@@ -311,73 +320,187 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
+
+                {/* Retirement Age Slider */}
                 <FormField
                   control={form.control}
-                  name="inflationRate"
+                  name="retirementAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Annual Inflation Rate (%)</FormLabel>
+                      <FormLabel>Retirement Age: {field.value}</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="e.g., 2"
-                          type="number"
-                          step="0.1"
-                          {...field}
+                        <Slider
+                          value={[field.value]}
+                          min={form.getValues().currentAge + 1}
+                          max={form.getValues().lifeExpectancy - 1}
+                          step={1}
+                          onValueChange={field.onChange}
+                          className="py-4"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="lifeExpectancy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Life Expectancy (Age)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 90"
-                          type="number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="retirementStrategy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Retirement Strategy</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a retirement strategy" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Depletion">Depletion</SelectItem>
-                          <SelectItem value="Maintenance">
-                            Maintenance
-                          </SelectItem>
-                          <SelectItem value="4% Rule">4% Rule</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem className="col-span-full"></FormItem>
               </div>
 
               <Button type="submit" className="w-full">
                 Calculate
               </Button>
+              {result?.yearlyData && (
+                <Card className="rounded-md shadow-none">
+                  <CardHeader>
+                    <CardTitle>Financial Projection</CardTitle>
+                    <CardDescription>
+                      Projected balance growth with your selected retirement age
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      className="aspect-auto h-80 w-full"
+                      config={{
+                        balance: {
+                          label: "Balance",
+                          color: "var(--chart-1)",
+                        },
+                        realBalance: {
+                          label: "Real Balance",
+                          color: "var(--chart-3)",
+                        },
+                      }}
+                    >
+                      <AreaChart
+                        data={result.yearlyData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="year"
+                          label={{
+                            value: "Year",
+                            position: "insideBottom",
+                            offset: -10,
+                          }}
+                        />
+                        <YAxis
+                          tickFormatter={(value: number) => {
+                            if (value >= 1000000) {
+                              return `${(value / 1000000).toPrecision(3)}M`;
+                            } else if (value >= 1000) {
+                              return `${(value / 1000).toPrecision(3)}K`;
+                            } else if (value <= -1000000) {
+                              return `${(value / 1000000).toPrecision(3)}M`;
+                            } else if (value <= -1000) {
+                              return `${(value / 1000).toPrecision(3)}K`;
+                            }
+                            return value.toString();
+                          }}
+                          width={25}
+                        />
+                        <ChartTooltip
+                          content={({ active, payload }) => {
+                            if (active && payload?.[0]?.payload) {
+                              const data = payload[0]
+                                .payload as (typeof result.yearlyData)[0];
+                              return (
+                                <div className="bg-background border p-2 shadow-sm">
+                                  <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
+                                  <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
+                                  <p className="text-chart-2">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
+                                  <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <defs>
+                          <linearGradient
+                            id="fillBalance"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="var(--chart-1)"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="var(--chart-1)"
+                              stopOpacity={0.1}
+                            />
+                          </linearGradient>
+                          <linearGradient
+                            id="fillAllowance"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="var(--chart-2)"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="var(--chart-2)"
+                              stopOpacity={0.1}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <Area
+                          type="monotone"
+                          dataKey="balance"
+                          name="balance"
+                          stroke="var(--chart-1)"
+                          fill="url(#fillBalance)"
+                          fillOpacity={0.4}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="monthlyAllowance"
+                          name="allowance"
+                          stroke="var(--chart-2)"
+                          fill="url(#fillAllowance)"
+                          fillOpacity={0.4}
+                          activeDot={{ r: 6 }}
+                        />
+                        {result.fireNumber && (
+                          <ReferenceLine
+                            y={result.fireNumber}
+                            stroke="var(--chart-3)"
+                            strokeWidth={1}
+                            strokeDasharray="2 2"
+                            label={{
+                              value: "FIRE Number",
+                              position: "insideBottomRight",
+                            }}
+                          />
+                        )}
+                        <ReferenceLine
+                          x={
+                            irlYear +
+                            (form.getValues().retirementAge -
+                              form.getValues().currentAge)
+                          }
+                          stroke="var(--chart-2)"
+                          strokeWidth={2}
+                          label={{
+                            value: "Retirement",
+                            position: "insideTopRight",
+                          }}
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+              )}
             </form>
           </Form>
         </CardContent>
@@ -397,8 +520,7 @@ export default function FireCalculatorForm() {
                 <CardHeader>
                   <CardTitle>FIRE Number</CardTitle>
                   <CardDescription className="text-xs">
-                    Required capital at retirement using{" "}
-                    {form.getValues().retirementStrategy}
+                    Capital at retirement
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -410,232 +532,21 @@ export default function FireCalculatorForm() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Retirement Age</CardTitle>
+                  <CardTitle>Retirement Duration</CardTitle>
                   <CardDescription className="text-xs">
-                    Estimated age when you can retire
+                    Years to enjoy your financial independence
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {result.retirementAge ?? "N/A"}
+                    {form.getValues().lifeExpectancy -
+                      form.getValues().retirementAge}
                   </p>
                 </CardContent>
               </Card>
-
-              {result.inflationAdjustedAllowance && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Monthly Allowance</CardTitle>
-                    <CardDescription className="text-xs">
-                      At retirement (inflation adjusted)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold">
-                      {formatNumber(result.inflationAdjustedAllowance)}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {result.retirementYears && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Retirement Duration</CardTitle>
-                    <CardDescription className="text-xs">
-                      Years in retirement
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold">
-                      {result.retirementYears}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
             </>
           )}
         </div>
-      )}
-
-      {result?.yearlyData && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Financial Projection</CardTitle>
-            <CardDescription>
-              Projected balance growth and FIRE number threshold
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              className="aspect-auto h-80 w-full"
-              config={{
-                balance: {
-                  label: "Balance",
-                  color: "var(--chart-1)",
-                },
-                fireNumber: {
-                  label: "FIRE Number",
-                  color: "var(--chart-2)",
-                },
-                realBalance: {
-                  label: "Real Balance",
-                  color: "var(--chart-3)",
-                },
-              }}
-            >
-              <AreaChart
-                data={result.yearlyData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="year"
-                  label={{
-                    value: "Year",
-                    position: "insideBottom",
-                    offset: -10,
-                  }}
-                />
-                <YAxis
-                  tickFormatter={(value: number) => {
-                    if (value >= 1000000) {
-                      return `${(value / 1000000).toPrecision(3)}M`;
-                    } else if (value >= 1000) {
-                      return `${(value / 1000).toPrecision(3)}K`;
-                    }
-                    return value.toString();
-                  }}
-                  width={25}
-                />
-                <ChartTooltip
-                  content={({ active, payload }) => {
-                    if (active && payload?.[0]?.payload) {
-                      const data = payload[0]
-                        .payload as (typeof result.yearlyData)[0];
-                      return (
-                        <div className="bg-background border p-2 shadow-sm">
-                          <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-                          <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
-                          <p className="text-chart-2">{`FIRE number: ${formatNumber(data.fireNumber)}`}</p>
-                          <p className="text-chart-4">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
-                          {result.fireNumber !== null && (
-                            <p className="text-destructive">{`Target FIRE Number: ${formatNumber(result.fireNumber)}`}</p>
-                          )}
-                          <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <defs>
-                  <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-1)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-1)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="fillFireNumber"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-2)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-2)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="fillAllowance"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-4)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-4)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <Area
-                  type="monotone"
-                  dataKey="balance"
-                  name="balance"
-                  stroke="var(--chart-1)"
-                  fill="url(#fillBalance)"
-                  fillOpacity={0.4}
-                  activeDot={{ r: 6 }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="fireNumber"
-                  name="fireNumber"
-                  stroke="var(--chart-2)"
-                  fill="url(#fillFireNumber)"
-                  fillOpacity={0.4}
-                  activeDot={{ r: 6 }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="monthlyAllowance"
-                  name="allowance"
-                  stroke="var(--chart-4)"
-                  fill="url(#fillAllowance)"
-                  fillOpacity={0.4}
-                  activeDot={{ r: 6 }}
-                />
-                {result.fireNumber && (
-                  <ReferenceLine
-                    y={result.fireNumber}
-                    stroke="var(--chart-3)"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    label={{
-                      value: "FIRE Number",
-                      position: "insideBottomRight",
-                    }}
-                  />
-                )}
-                {result.retirementAge && (
-                  <ReferenceLine
-                    x={
-                      irlYear +
-                      (result.retirementAge - form.getValues().currentAge)
-                    }
-                    stroke="var(--chart-2)"
-                    strokeWidth={2}
-                    label={{
-                      value: "Retirement",
-                      position: "insideTopRight",
-                    }}
-                  />
-                )}
-              </AreaChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
       )}
     </>
   );
