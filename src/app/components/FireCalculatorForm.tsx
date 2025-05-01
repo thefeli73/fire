@@ -383,8 +383,8 @@ export default function FireCalculatorForm() {
                         <Slider
                           name="retirementAge"
                           value={[field.value]}
-                          min={18}
-                          max={form.getValues("lifeExpectancy")}
+                          min={25}
+                          max={75}
                           step={1}
                           onValueChange={(value) => {
                             field.onChange(...value);
@@ -412,23 +412,14 @@ export default function FireCalculatorForm() {
                       Projected balance growth with your selected retirement age
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="px-2">
                     <ChartContainer
                       className="aspect-auto h-80 w-full"
-                      config={{
-                        balance: {
-                          label: "Balance",
-                          color: "var(--chart-1)",
-                        },
-                        realBalance: {
-                          label: "Real Balance",
-                          color: "var(--chart-3)",
-                        },
-                      }}
+                      config={{}}
                     >
                       <AreaChart
                         data={result.yearlyData}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                        margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
@@ -439,7 +430,10 @@ export default function FireCalculatorForm() {
                             offset: -10,
                           }}
                         />
+                        {/* Left Y axis */}
                         <YAxis
+                          yAxisId={"left"}
+                          orientation="left"
                           tickFormatter={(value: number) => {
                             if (value >= 1000000) {
                               return `${(value / 1000000).toPrecision(3)}M`;
@@ -452,7 +446,21 @@ export default function FireCalculatorForm() {
                             }
                             return value.toString();
                           }}
-                          width={25}
+                          width={30}
+                        />
+                        {/* Right Y axis */}
+                        <YAxis
+                          yAxisId="right"
+                          orientation="right"
+                          tickFormatter={(value: number) => {
+                            if (value >= 1000000) {
+                              return `${(value / 1000000).toPrecision(3)}M`;
+                            } else if (value >= 1000) {
+                              return `${(value / 1000).toPrecision(3)}K`;
+                            }
+                            return value.toString();
+                          }}
+                          width={30}
                         />
                         <ChartTooltip content={tooltipRenderer} />
                         <defs>
@@ -474,24 +482,6 @@ export default function FireCalculatorForm() {
                               stopOpacity={0.1}
                             />
                           </linearGradient>
-                          <linearGradient
-                            id="fillAllowance"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="5%"
-                              stopColor="var(--chart-2)"
-                              stopOpacity={0.8}
-                            />
-                            <stop
-                              offset="95%"
-                              stopColor="var(--chart-2)"
-                              stopOpacity={0.1}
-                            />
-                          </linearGradient>
                         </defs>
                         <Area
                           type="monotone"
@@ -499,17 +489,20 @@ export default function FireCalculatorForm() {
                           name="balance"
                           stroke="var(--chart-1)"
                           fill="url(#fillBalance)"
-                          fillOpacity={0.4}
+                          fillOpacity={0.9}
                           activeDot={{ r: 6 }}
+                          yAxisId={"left"}
+                          stackId={"a"}
                         />
                         <Area
                           type="monotone"
                           dataKey="monthlyAllowance"
                           name="allowance"
                           stroke="var(--chart-2)"
-                          fill="url(#fillAllowance)"
-                          fillOpacity={0.4}
+                          fill="none"
                           activeDot={{ r: 6 }}
+                          yAxisId="right"
+                          stackId={"a"}
                         />
                         {result.fireNumber && (
                           <ReferenceLine
@@ -521,6 +514,7 @@ export default function FireCalculatorForm() {
                               value: "FIRE Number",
                               position: "insideBottomRight",
                             }}
+                            yAxisId={"left"}
                           />
                         )}
                         <ReferenceLine
@@ -535,6 +529,7 @@ export default function FireCalculatorForm() {
                             value: "Retirement",
                             position: "insideTopRight",
                           }}
+                          yAxisId={"left"}
                         />
                       </AreaChart>
                     </ChartContainer>
