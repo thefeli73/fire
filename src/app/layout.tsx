@@ -9,7 +9,6 @@ export const metadata: Metadata = {
     "InvestingFIRE Calculator | Plan Your Financial Independence & Early Retirement",
   description:
     "Achieve Financial Independence, Retire Early (FIRE) with the InvestingFIRE calculator. Get personalized projections and investing advice to plan your journey.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 const geist = Geist({
@@ -24,17 +23,16 @@ export default function RootLayout({
     <html lang="en" className={geist.variable}>
       <head>
         <meta name="apple-mobile-web-app-title" content="FIRE" />
+        <PlausibleProvider
+          domain="investingfire.com"
+          customDomain="https://analytics.schulze.network"
+          selfHosted={true}
+          enabled={true}
+          trackOutboundLinks={true}
+        />
       </head>
-      <PlausibleProvider
-        domain="investingfire.com"
-        customDomain="https://analytics.schulze.network"
-        selfHosted={true}
-        enabled={true}
-        trackOutboundLinks={true}
-      >
-        <WebVitals />
-        <body>{children}</body>
-      </PlausibleProvider>
+      <WebVitals />
+      <body>{children}</body>
     </html>
   );
 }
