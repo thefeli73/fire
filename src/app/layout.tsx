@@ -1,8 +1,12 @@
 import "@/styles/globals.css";
 import PlausibleProvider from "next-plausible";
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 import { Geist } from "next/font/google";
 import { WebVitals } from "./components/web-vitals";
+
+export const viewport: Viewport = {
+  themeColor: [{ color: "oklch(0.97 0.0228 95.96)" }],
+};
 
 export const metadata: Metadata = {
   title:
