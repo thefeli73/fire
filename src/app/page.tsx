@@ -7,11 +7,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Footer from "./components/footer";
+import BackgroundPattern from "./components/BackgroundPattern";
 
 export default function HomePage() {
   return (
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-2">
-      <div className="mx-auto flex flex-col items-center justify-center gap-4 text-center">
+      <BackgroundPattern />
+      <div className="z-10 mx-auto flex flex-col items-center justify-center gap-4 text-center">
         <div className="mt-8 flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
           <Image
             src="/investingfire_logo_no-bg.svg"
@@ -32,7 +34,7 @@ export default function HomePage() {
       </div>
 
       {/* Added SEO Content Sections */}
-      <div className="mx-auto max-w-2xl py-12 text-left">
+      <div className="z-10 mx-auto max-w-2xl py-12 text-left">
         <section className="mb-12">
           <h2 className="mb-4 text-3xl font-bold">
             What Is FIRE? Understanding Financial Independence and Early
@@ -247,7 +249,7 @@ export default function HomePage() {
             financial independence and smart investing.
           </p>
 
-          <div className="bg-secondary/20 my-8 rounded-md p-4 text-lg">
+          <div className="bg-foreground my-8 rounded-md p-4 text-lg">
             <p className="font-semibold">Getting Started with FIRE:</p>
             <ol className="ml-6 list-decimal space-y-1">
               <li>
