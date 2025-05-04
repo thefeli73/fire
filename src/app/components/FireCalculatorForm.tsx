@@ -73,12 +73,16 @@ interface YearlyData {
   age: number;
   year: number;
   balance: number;
+  untouchedBalance: number;
   phase: "accumulation" | "retirement";
   monthlyAllowance: number;
+  untouchedMonthlyAllowance: number;
 }
 
 interface CalculationResult {
   fireNumber: number | null;
+  fireNumber4percent: number | null;
+  retirementAge4percent: number | null;
   yearlyData: YearlyData[];
   error?: string;
 }
@@ -101,8 +105,8 @@ const tooltipRenderer = ({
     return (
       <div className="bg-background border p-2 shadow-sm">
         <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-        <p className="text-chart-1">{`Balance: ${formatNumber(data.balance)}`}</p>
-        <p className="text-chart-2">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
+        <p className="text-orange-500">{`Balance: ${formatNumber(data.balance)}`}</p>
+        <p className="text-red-600">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
         <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
       </div>
     );
@@ -113,6 +117,7 @@ const tooltipRenderer = ({
 export default function FireCalculatorForm() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
+  const [showing4percent, setShowing4percent] = useState(false);
 
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -149,8 +154,10 @@ export default function FireCalculatorForm() {
       age: age,
       year: irlYear,
       balance: startingCapital,
+      untouchedBalance: startingCapital,
       phase: "accumulation",
-      monthlyAllowance: initialMonthlyAllowance,
+      monthlyAllowance: 0,
+      untouchedMonthlyAllowance: initialMonthlyAllowance,
     });
 
     // Calculate accumulation phase (before retirement)
@@ -175,13 +182,18 @@ export default function FireCalculatorForm() {
         newBalance =
           previousYearData.balance * annualGrowthRate - inflatedAllowance * 12;
       }
-
+      const untouchedBalance =
+        previousYearData.untouchedBalance * annualGrowthRate +
+        monthlySavings * 12;
+      const allowance = phase === "retirement" ? inflatedAllowance : 0;
       yearlyData.push({
         age: currentAge,
         year: year,
         balance: newBalance,
+        untouchedBalance: untouchedBalance,
         phase: phase,
-        monthlyAllowance: inflatedAllowance,
+        monthlyAllowance: allowance,
+        untouchedMonthlyAllowance: inflatedAllowance,
       });
     }
 
@@ -192,9 +204,23 @@ export default function FireCalculatorForm() {
     );
     const retirementData = yearlyData[retirementIndex];
 
+    const [fireNumber4percent, retirementAge4percent] = (() => {
+      for (const yearData of yearlyData) {
+        if (
+          yearData.untouchedBalance >
+          (yearData.untouchedMonthlyAllowance * 12) / 0.04
+        ) {
+          return [yearData.untouchedBalance, yearData.age];
+        }
+      }
+      return [0, 0];
+    })();
+
     if (retirementIndex === -1 || !retirementData) {
       setResult({
         fireNumber: null,
+        fireNumber4percent: null,
+        retirementAge4percent: null,
         error: "Could not calculate retirement data",
         yearlyData: yearlyData,
       });
@@ -202,6 +228,8 @@ export default function FireCalculatorForm() {
       // Set the result
       setResult({
         fireNumber: retirementData.balance,
+        fireNumber4percent: fireNumber4percent,
+        retirementAge4percent: retirementAge4percent,
         yearlyData: yearlyData,
       });
     }
@@ -430,10 +458,10 @@ export default function FireCalculatorForm() {
                             offset: -10,
                           }}
                         />
-                        {/* Left Y axis */}
+                        {/* Right Y axis */}
                         <YAxis
-                          yAxisId={"left"}
-                          orientation="left"
+                          yAxisId={"right"}
+                          orientation="right"
                           tickFormatter={(value: number) => {
                             if (value >= 1000000) {
                               return `${(value / 1000000).toPrecision(3)}M`;
@@ -448,10 +476,10 @@ export default function FireCalculatorForm() {
                           }}
                           width={30}
                         />
-                        {/* Right Y axis */}
+                        {/* Left Y axis */}
                         <YAxis
-                          yAxisId="right"
-                          orientation="right"
+                          yAxisId="left"
+                          orientation="left"
                           tickFormatter={(value: number) => {
                             if (value >= 1000000) {
                               return `${(value / 1000000).toPrecision(3)}M`;
@@ -473,12 +501,12 @@ export default function FireCalculatorForm() {
                           >
                             <stop
                               offset="5%"
-                              stopColor="var(--chart-1)"
+                              stopColor="var(--color-orange-500)"
                               stopOpacity={0.8}
                             />
                             <stop
                               offset="95%"
-                              stopColor="var(--chart-1)"
+                              stopColor="var(--color-orange-500)"
                               stopOpacity={0.1}
                             />
                           </linearGradient>
@@ -487,34 +515,46 @@ export default function FireCalculatorForm() {
                           type="monotone"
                           dataKey="balance"
                           name="balance"
-                          stroke="var(--chart-1)"
+                          stroke="var(--color-orange-500)"
                           fill="url(#fillBalance)"
                           fillOpacity={0.9}
                           activeDot={{ r: 6 }}
-                          yAxisId={"left"}
+                          yAxisId={"right"}
                           stackId={"a"}
                         />
                         <Area
-                          type="monotone"
+                          type="step"
                           dataKey="monthlyAllowance"
                           name="allowance"
-                          stroke="var(--chart-2)"
+                          stroke="var(--color-red-600)"
                           fill="none"
                           activeDot={{ r: 6 }}
-                          yAxisId="right"
-                          stackId={"a"}
+                          yAxisId="left"
                         />
                         {result.fireNumber && (
                           <ReferenceLine
                             y={result.fireNumber}
-                            stroke="var(--chart-3)"
-                            strokeWidth={1}
-                            strokeDasharray="2 2"
+                            stroke="var(--primary)"
+                            strokeWidth={2}
+                            strokeDasharray="2 1"
                             label={{
                               value: "FIRE Number",
                               position: "insideBottomRight",
                             }}
-                            yAxisId={"left"}
+                            yAxisId={"right"}
+                          />
+                        )}
+                        {result.fireNumber4percent && showing4percent && (
+                          <ReferenceLine
+                            y={result.fireNumber4percent}
+                            stroke="var(--secondary)"
+                            strokeWidth={1}
+                            strokeDasharray="1 1"
+                            label={{
+                              value: "4%-Rule FIRE Number",
+                              position: "insideBottomLeft",
+                            }}
+                            yAxisId={"right"}
                           />
                         )}
                         <ReferenceLine
@@ -523,7 +563,7 @@ export default function FireCalculatorForm() {
                             (form.getValues("retirementAge") -
                               form.getValues("currentAge"))
                           }
-                          stroke="var(--chart-2)"
+                          stroke="var(--primary)"
                           strokeWidth={2}
                           label={{
                             value: "Retirement",
@@ -531,10 +571,35 @@ export default function FireCalculatorForm() {
                           }}
                           yAxisId={"left"}
                         />
+                        {result.retirementAge4percent && showing4percent && (
+                          <ReferenceLine
+                            x={
+                              irlYear +
+                              (result.retirementAge4percent -
+                                form.getValues("currentAge"))
+                            }
+                            stroke="var(--secondary)"
+                            strokeWidth={1}
+                            label={{
+                              value: "4%-Rule Retirement",
+                              position: "insideBottomLeft",
+                            }}
+                            yAxisId={"left"}
+                          />
+                        )}
                       </AreaChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
+              )}
+              {result && (
+                <Button
+                  onClick={() => setShowing4percent(!showing4percent)}
+                  variant={showing4percent ? "secondary" : "default"}
+                  size={"sm"}
+                >
+                  {showing4percent ? "Hide" : "Show"} 4%-Rule
+                </Button>
               )}
             </form>
           </Form>
@@ -579,6 +644,40 @@ export default function FireCalculatorForm() {
                   </p>
                 </CardContent>
               </Card>
+              {showing4percent && (
+                <>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>4%-Rule FIRE Number</CardTitle>
+                      <CardDescription className="text-xs">
+                        Capital needed for 4% of it to be greater than your
+                        yearly allowance
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold">
+                        {formatNumber(result.fireNumber4percent)}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>4%-Rule Retirement Duration</CardTitle>
+                      <CardDescription className="text-xs">
+                        Years to enjoy your financial independence if you follow
+                        the 4% rule
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold">
+                        {form.getValues("lifeExpectancy") -
+                          (result.retirementAge4percent ?? 0)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
             </>
           )}
         </div>
