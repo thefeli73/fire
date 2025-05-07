@@ -128,7 +128,7 @@ export default function FireCalculatorForm() {
       currentAge: 25,
       cagr: 7,
       desiredMonthlyAllowance: 3000,
-      inflationRate: 2,
+      inflationRate: 2.3,
       lifeExpectancy: 84,
       retirementAge: 55,
     },
