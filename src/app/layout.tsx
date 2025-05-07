@@ -9,10 +9,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title:
-    "InvestingFIRE Calculator | Plan Your Financial Independence & Early Retirement",
+  title: "InvestingFIRE | Finance and Retirement Calculator",
   description:
-    "Achieve Financial Independence, Retire Early (FIRE) with the InvestingFIRE calculator. Get personalized projections and investing advice to plan your journey.",
+    "Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personalized projections in buttersmooth graphs.",
 };
 
 const geist = Geist({
