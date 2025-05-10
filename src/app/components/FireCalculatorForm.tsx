@@ -414,8 +414,8 @@ export default function FireCalculatorForm() {
                           min={25}
                           max={75}
                           step={1}
-                          onValueChange={(value) => {
-                            field.onChange(...value);
+                          onValueChange={(value: number[]) => {
+                            field.onChange(value[0]);
                             void form.handleSubmit(onSubmit)();
                           }}
                           className="py-4"
@@ -475,6 +475,8 @@ export default function FireCalculatorForm() {
                             return value.toString();
                           }}
                           width={30}
+                          stroke="var(--color-orange-500)"
+                          tick={{}}
                         />
                         {/* Left Y axis */}
                         <YAxis
@@ -489,6 +491,7 @@ export default function FireCalculatorForm() {
                             return value.toString();
                           }}
                           width={30}
+                          stroke="var(--color-red-600)"
                         />
                         <ChartTooltip content={tooltipRenderer} />
                         <defs>
