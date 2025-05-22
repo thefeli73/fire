@@ -16,6 +16,8 @@ export default function HomePage() {
       <div className="z-10 mx-auto flex flex-col items-center justify-center gap-4 text-center">
         <div className="mt-8 flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
           <Image
+            priority
+            unoptimized
             src="/investingfire_logo_no-bg.svg"
             alt="InvestingFIRE Logo"
             width={100}
