@@ -29,7 +29,6 @@ The project’s code is structured using React/Next.js with TypeScript, focusing
 The calculator models your FIRE journey in two phases:
 
 1. **Accumulation:**
-
    - Your starting capital is grown by your expected CAGR (~7% by default).
    - Monthly savings are added for each year until retirement.
    - Every variable can be adjusted live (capital, savings, age, growth, inflation, spending, target retirement).
@@ -58,11 +57,11 @@ To run locally:
    ```
 2. **Install dependencies**
    ```bash
-   npm install
+   pnpm install
    ```
 3. **Run the app**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 4. Visit [http://localhost:3000](http://localhost:3000) and unleash the fire.
 
