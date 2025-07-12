@@ -120,7 +120,7 @@ export default function FireCalculatorForm() {
   const [showing4percent, setShowing4percent] = useState(false);
 
   // Initialize form with default values
-  const form = useForm<FormValues>({
+  const form = useForm<z.input<typeof formSchema>, undefined, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       startingCapital: 50000,
@@ -258,11 +258,18 @@ export default function FireCalculatorForm() {
                         <Input
                           placeholder="e.g., 10000"
                           type="number"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -279,11 +286,18 @@ export default function FireCalculatorForm() {
                         <Input
                           placeholder="e.g., 500"
                           type="number"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -300,11 +314,18 @@ export default function FireCalculatorForm() {
                         <Input
                           placeholder="e.g., 30"
                           type="number"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -321,11 +342,18 @@ export default function FireCalculatorForm() {
                         <Input
                           placeholder="e.g., 90"
                           type="number"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -343,11 +371,18 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 7"
                           type="number"
                           step="0.1"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -365,11 +400,18 @@ export default function FireCalculatorForm() {
                           placeholder="e.g., 2"
                           type="number"
                           step="0.1"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -388,11 +430,18 @@ export default function FireCalculatorForm() {
                         <Input
                           placeholder="e.g., 2000"
                           type="number"
-                          {...field}
-                          onChange={(value) => {
-                            field.onChange(value);
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
                             void form.handleSubmit(onSubmit)();
                           }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -406,11 +455,13 @@ export default function FireCalculatorForm() {
                   name="retirementAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Retirement Age: {field.value}</FormLabel>
+                      <FormLabel>
+                        Retirement Age: {field.value as number}
+                      </FormLabel>
                       <FormControl>
                         <Slider
                           name="retirementAge"
-                          value={[field.value]}
+                          value={[field.value as number]}
                           min={25}
                           max={75}
                           step={1}
@@ -563,8 +614,8 @@ export default function FireCalculatorForm() {
                         <ReferenceLine
                           x={
                             irlYear +
-                            (form.getValues("retirementAge") -
-                              form.getValues("currentAge"))
+                            (Number(form.getValues("retirementAge")) -
+                              Number(form.getValues("currentAge")))
                           }
                           stroke="var(--primary)"
                           strokeWidth={2}
@@ -579,7 +630,7 @@ export default function FireCalculatorForm() {
                             x={
                               irlYear +
                               (result.retirementAge4percent -
-                                form.getValues("currentAge"))
+                                Number(form.getValues("currentAge")))
                             }
                             stroke="var(--secondary)"
                             strokeWidth={1}
@@ -642,8 +693,8 @@ export default function FireCalculatorForm() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {form.getValues("lifeExpectancy") -
-                      form.getValues("retirementAge")}
+                    {Number(form.getValues("lifeExpectancy")) -
+                      Number(form.getValues("retirementAge"))}
                   </p>
                 </CardContent>
               </Card>
@@ -674,7 +725,7 @@ export default function FireCalculatorForm() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-3xl font-bold">
-                        {form.getValues("lifeExpectancy") -
+                        {Number(form.getValues("lifeExpectancy")) -
                           (result.retirementAge4percent ?? 0)}
                       </p>
                     </CardContent>
