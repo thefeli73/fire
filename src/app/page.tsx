@@ -10,6 +10,61 @@ import Footer from "./components/footer";
 import BackgroundPattern from "./components/BackgroundPattern";
 
 export default function HomePage() {
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What methodology does this calculator use?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "We run a multi-year projection in two phases: 1. Accumulation: Your balance grows by CAGR and you add monthly savings. 2. Retirement: The balance continues compounding, but you withdraw an inflation-adjusted monthly allowance. The result: a precise estimate of the capital you'll have at retirement (your “FIRE Number”) and how long it will last until your chosen life expectancy.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Why isn't this just the 4% rule?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "The 4% rule is a useful starting point (25× annual spending), but it assumes a fixed withdrawal rate with inflation adjustments and doesn't model ongoing savings or dynamic market returns. Our calculator simulates each year's growth, contributions, and inflation-indexed withdrawals to give you a tailored picture.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How do I choose a realistic growth rate?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Historically, a diversified portfolio of equities and bonds has returned around 7-10% per year before inflation. We recommend starting around 6-8% (net of fees), then running “what-if” scenarios—5% on the conservative side, 10% on the aggressive side—to see how they affect your timeline.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How does inflation factor into my FIRE Number?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Cost of living rises. To maintain today's lifestyle, your monthly allowance must grow each year by your inflation rate. This calculator automatically inflates your desired monthly spending and subtracts it from your portfolio during retirement, ensuring your FIRE Number keeps pace with rising expenses.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I really retire early with FIRE?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Early retirement is achievable with disciplined saving, smart investing, and realistic assumptions. This tool helps you set targets, visualize outcomes, and adjust inputs—so you can build confidence in your plan and make informed trade-offs between lifestyle, risk, and timeline.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How should I use this calculator effectively?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Start with your actual numbers (capital, savings, age). Set conservative - mid - aggressive growth rates to bound possibilities. Slide your retirement age to explore “early” vs. “traditional” scenarios. Review the chart—especially the reference lines—to see when you hit FI and how withdrawals impact your balance. Experiment with higher savings rates or lower target spending to accelerate your path.",
+        },
+      },
+    ],
+  };
+
   return (
     <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-2">
       <BackgroundPattern />
@@ -129,9 +184,14 @@ export default function HomePage() {
         </section>
 
         <section className="mb-12">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
+          />
           <h2 className="mb-4 text-3xl font-bold">
             FIRE & Investing Frequently Asked Questions (FAQ)
           </h2>
+
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
               <AccordionTrigger className="text-xl font-semibold">
