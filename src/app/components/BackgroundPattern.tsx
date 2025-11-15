@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import type React from "react";
 import {
   type LucideIcon,
   HandCoins,
@@ -112,14 +113,15 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     Target,
   ];
 
-  const renderIcons = ({
-    rows,
-    columns,
-  }: {
-    rows: number;
-    columns: number;
-  }) => {
-    const icons = [];
+  const [icons, setIcons] = useState<React.ReactElement[]>([]);
+
+  useEffect(() => {
+    if (rows === 0 || columns === 0) {
+      setIcons([]);
+      return;
+    }
+
+    const iconElements: React.ReactElement[] = [];
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < columns; x++) {
         // Pick a random icon component from the array
@@ -130,28 +132,30 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
         const size = 28 + Math.floor(Math.random() * 8);
         const xOffset = Math.floor(Math.random() * (spacing / 1.618));
         const yOffset = Math.floor(Math.random() * (spacing / 1.618));
+        const rotation = Math.round((Math.random() - 0.5) * 30);
 
-        icons.push(
+        iconElements.push(
           <IconComponent
-            key={`icon-${x}-${y}`}
+            key={`icon-${String(x)}-${String(y)}`}
             size={size}
             className="text-primary fixed"
             style={{
-              left: `${x * spacing + xOffset}px`,
-              top: `${y * spacing + yOffset}px`,
+              left: `${String(x * spacing + xOffset)}px`,
+              top: `${String(y * spacing + yOffset)}px`,
               opacity: opacity,
-              transform: `rotate(${Math.round((Math.random() - 0.5) * 30)}deg)`,
+              transform: `rotate(${String(rotation)}deg)`,
             }}
           />,
         );
       }
     }
-    return icons;
-  };
+    setIcons(iconElements);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, columns, spacing, opacity]);
 
   return (
     <div className="absolute h-full w-full">
-      {width > 0 && renderIcons({ rows, columns })}
+      {width > 0 && icons}
     </div>
   );
 }

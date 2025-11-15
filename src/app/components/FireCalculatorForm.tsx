@@ -216,7 +216,7 @@ export default function FireCalculatorForm() {
       return [0, 0];
     })();
 
-    if (retirementIndex === -1 || !retirementData) {
+    if (retirementIndex === -1) {
       setResult({
         fireNumber: null,
         fireNumber4percent: null,
@@ -246,7 +246,13 @@ export default function FireCalculatorForm() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void form.handleSubmit(onSubmit)(e);
+              }}
+              className="space-y-8"
+            >
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -265,7 +271,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -293,7 +300,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -321,7 +329,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -349,7 +358,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -378,7 +388,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -407,7 +418,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -437,7 +449,8 @@ export default function FireCalculatorForm() {
                                 ? undefined
                                 : Number(e.target.value),
                             );
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -467,7 +480,8 @@ export default function FireCalculatorForm() {
                           step={1}
                           onValueChange={(value: number[]) => {
                             field.onChange(value[0]);
-                            void form.handleSubmit(onSubmit)();
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
                           }}
                           className="py-4"
                         />
