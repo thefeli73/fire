@@ -124,7 +124,7 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
       for (let x = 0; x < columns; x++) {
         // Pick a random icon component from the array
         const randomIndex = Math.floor(Math.random() * iconComponents.length);
-        const IconComponent = iconComponents[randomIndex]!;
+        const IconComponent = iconComponents[randomIndex];
 
         // Slightly randomize size and position for more organic feel
         const size = 28 + Math.floor(Math.random() * 8);

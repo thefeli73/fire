@@ -648,7 +648,7 @@ export default function FireCalculatorForm() {
               )}
               {result && (
                 <Button
-                  onClick={() => setShowing4percent(!showing4percent)}
+                  onClick={() => { setShowing4percent(!showing4percent); }}
                   variant={showing4percent ? "secondary" : "default"}
                   size={"sm"}
                 >
