@@ -66,7 +66,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-gradient-to-b p-2">
+    <main className="text-primary-foreground to-destructive from-secondary flex min-h-screen flex-col items-center bg-linear-to-b p-2">
       <BackgroundPattern />
       <div className="z-10 mx-auto flex flex-col items-center justify-center gap-4 text-center">
         <div className="mt-8 flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
@@ -78,7 +78,7 @@ export default function HomePage() {
             width={100}
             height={100}
           />
-          <h1 className="from-primary via-primary-foreground to-primary bg-gradient-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
+          <h1 className="from-primary via-primary-foreground to-primary bg-linear-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
             InvestingFIRE
           </h1>
         </div>
