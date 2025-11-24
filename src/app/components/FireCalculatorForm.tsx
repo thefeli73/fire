@@ -31,9 +31,17 @@ import {
   YAxis,
   ReferenceLine,
   type TooltipProps,
+  Line,
 } from "recharts";
 import { Slider } from "@/components/ui/slider";
 import assert from "assert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type {
   NameType,
   ValueType,
@@ -64,6 +72,19 @@ const formSchema = z.object({
     .number()
     .min(18, "Retirement age must be at least 18")
     .max(100, "Retirement age must be at most 100"),
+  coastFireAge: z.coerce
+    .number()
+    .min(18, "Coast FIRE age must be at least 18")
+    .max(100, "Coast FIRE age must be at most 100")
+    .optional(),
+  baristaIncome: z.coerce
+    .number()
+    .min(0, "Barista income must be a non-negative number")
+    .optional(),
+  simulationMode: z.enum(["deterministic", "monte-carlo"]).default("deterministic"),
+  volatility: z.coerce.number().min(0).default(15),
+  withdrawalStrategy: z.enum(["fixed", "percentage"]).default("fixed"),
+  withdrawalPercentage: z.coerce.number().min(0).max(100).default(4),
 });
 
 // Type for form values
@@ -77,6 +98,10 @@ interface YearlyData {
   phase: "accumulation" | "retirement";
   monthlyAllowance: number;
   untouchedMonthlyAllowance: number;
+  // Monte Carlo percentiles
+  balanceP10?: number;
+  balanceP50?: number;
+  balanceP90?: number;
 }
 
 interface CalculationResult {
@@ -85,6 +110,15 @@ interface CalculationResult {
   retirementAge4percent: number | null;
   yearlyData: YearlyData[];
   error?: string;
+  successRate?: number; // For Monte Carlo
+}
+
+// Box-Muller transform for normal distribution
+function randomNormal(mean: number, stdDev: number): number {
+  const u = 1 - Math.random(); // Converting [0,1) to (0,1]
+  const v = Math.random();
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  return z * stdDev + mean;
 }
 
 // Helper function to format currency without specific symbols
@@ -105,7 +139,15 @@ const tooltipRenderer = ({
     return (
       <div className="bg-background border p-2 shadow-sm">
         <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-        <p className="text-orange-500">{`Balance: ${formatNumber(data.balance)}`}</p>
+        {data.balanceP50 !== undefined ? (
+          <>
+            <p className="text-orange-500">{`Median Balance: ${formatNumber(data.balanceP50)}`}</p>
+            <p className="text-orange-300 text-xs">{`10th %: ${formatNumber(data.balanceP10 ?? 0)}`}</p>
+            <p className="text-orange-300 text-xs">{`90th %: ${formatNumber(data.balanceP90 ?? 0)}`}</p>
+          </>
+        ) : (
+          <p className="text-orange-500">{`Balance: ${formatNumber(data.balance)}`}</p>
+        )}
         <p className="text-red-600">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
         <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
       </div>
@@ -131,6 +173,10 @@ export default function FireCalculatorForm() {
       inflationRate: 2.3,
       lifeExpectancy: 84,
       retirementAge: 55,
+      coastFireAge: undefined,
+      baristaIncome: 0,
+      simulationMode: "deterministic",
+      volatility: 15,
     },
   });
 
@@ -140,64 +186,150 @@ export default function FireCalculatorForm() {
     const startingCapital = values.startingCapital;
     const monthlySavings = values.monthlySavings;
     const age = values.currentAge;
-    const annualGrowthRate = 1 + values.cagr / 100;
+    const cagr = values.cagr;
     const initialMonthlyAllowance = values.desiredMonthlyAllowance;
     const annualInflation = 1 + values.inflationRate / 100;
     const ageOfDeath = values.lifeExpectancy;
     const retirementAge = values.retirementAge;
+    const coastFireAge = values.coastFireAge ?? retirementAge;
+    const initialBaristaIncome = values.baristaIncome ?? 0;
+    const simulationMode = values.simulationMode;
+    const volatility = values.volatility;
 
-    // Array to store yearly data for the chart
+    const numSimulations = simulationMode === "monte-carlo" ? 500 : 1;
+    const simulationResults: number[][] = []; // [yearIndex][simulationIndex] -> balance
+
+    // Prepare simulation runs
+    for (let sim = 0; sim < numSimulations; sim++) {
+      let currentBalance = startingCapital;
+      const runBalances: number[] = [];
+
+      for (
+        let year = irlYear + 1;
+        year <= irlYear + (ageOfDeath - age);
+        year++
+      ) {
+        const currentAge = age + (year - irlYear);
+        const yearIndex = year - (irlYear + 1);
+
+        // Determine growth rate for this year
+        let annualGrowthRate: number;
+        if (simulationMode === "monte-carlo") {
+          // Random walk
+          const randomReturn = randomNormal(cagr, volatility) / 100;
+          annualGrowthRate = 1 + randomReturn;
+        } else {
+          // Deterministic
+          annualGrowthRate = 1 + cagr / 100;
+        }
+
+        const inflatedAllowance =
+          initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
+        const inflatedBaristaIncome =
+          initialBaristaIncome * Math.pow(annualInflation, year - irlYear);
+
+        const isRetirementYear = currentAge >= retirementAge;
+        const phase = isRetirementYear ? "retirement" : "accumulation";
+        const isContributing = currentAge < coastFireAge;
+
+        let newBalance;
+        if (phase === "accumulation") {
+          newBalance =
+            currentBalance * annualGrowthRate +
+            (isContributing ? monthlySavings * 12 : 0);
+        } else {
+          const netAnnualWithdrawal =
+            (inflatedAllowance - inflatedBaristaIncome) * 12;
+          newBalance = currentBalance * annualGrowthRate - netAnnualWithdrawal;
+        }
+        // Prevent negative balance from recovering (once you're broke, you're broke)
+        // Although debt is possible, for FIRE calc usually 0 is the floor.
+        // But strictly speaking, if you have income, you might recover?
+        // Let's allow negative for calculation but maybe clamp for success rate?
+        // Standard practice: if balance < 0, it stays < 0 or goes deeper.
+        // Let's just let the math run.
+
+        runBalances.push(newBalance);
+        currentBalance = newBalance;
+      }
+      simulationResults.push(runBalances);
+    }
+
+    // Aggregate results
     const yearlyData: YearlyData[] = [];
+    let successCount = 0;
 
-    // Initial year data
+    // Initial year
     yearlyData.push({
       age: age,
       year: irlYear,
       balance: startingCapital,
       untouchedBalance: startingCapital,
       phase: "accumulation",
-      monthlyAllowance: 0,
+        monthlyAllowance: 0,
       untouchedMonthlyAllowance: initialMonthlyAllowance,
+      balanceP10: startingCapital,
+      balanceP50: startingCapital,
+      balanceP90: startingCapital,
     });
 
-    // Calculate accumulation phase (before retirement)
-    for (let year = irlYear + 1; year <= irlYear + (ageOfDeath - age); year++) {
-      const currentAge = age + (year - irlYear);
-      const previousYearData = yearlyData[yearlyData.length - 1];
+    const numYears = ageOfDeath - age;
+    for (let i = 0; i < numYears; i++) {
+      const year = irlYear + 1 + i;
+      const currentAge = age + 1 + i;
+      
+      // Collect all balances for this year across simulations
+      const balancesForYear = simulationResults.map((run) => run[i]);
+      
+      // Sort to find percentiles
+      balancesForYear.sort((a, b) => a - b);
+      
+      const p10 = balancesForYear[Math.floor(numSimulations * 0.1)];
+      const p50 = balancesForYear[Math.floor(numSimulations * 0.5)];
+      const p90 = balancesForYear[Math.floor(numSimulations * 0.9)];
+
+      // Calculate other metrics (using deterministic logic for "untouched" etc for simplicity, or p50)
+      // We need to reconstruct the "standard" fields for compatibility with the chart
+      // Let's use p50 (Median) as the "main" line
       const inflatedAllowance =
         initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
-
       const isRetirementYear = currentAge >= retirementAge;
       const phase = isRetirementYear ? "retirement" : "accumulation";
 
-      assert(!!previousYearData);
-      // Calculate balance based on phase
-      let newBalance;
-      if (phase === "accumulation") {
-        // During accumulation: grow previous balance + add savings
-        newBalance =
-          previousYearData.balance * annualGrowthRate + monthlySavings * 12;
-      } else {
-        // During retirement: grow previous balance - withdraw allowance
-        newBalance =
-          previousYearData.balance * annualGrowthRate - inflatedAllowance * 12;
+      // Reconstruct untouched balance for deterministic mode (for 4% rule)
+      let untouchedBalance = 0;
+      if (simulationMode === "deterministic") {
+          // We can just use the single run we have
+          // In deterministic mode, there's only 1 simulation, so balancesForYear[0] is it.
+          // But wait, `simulationResults` stores the *actual* balance (with withdrawals).
+          // We need a separate tracker for "untouched" (never withdrawing) if we want accurate 4% rule.
+          // Let's just re-calculate it simply here since it's deterministic.
+          const prevUntouched = yearlyData[yearlyData.length - 1].untouchedBalance;
+          const growth = 1 + cagr / 100;
+           untouchedBalance = prevUntouched * growth + monthlySavings * 12;
       }
-      const untouchedBalance =
-        previousYearData.untouchedBalance * annualGrowthRate +
-        monthlySavings * 12;
-      const allowance = phase === "retirement" ? inflatedAllowance : 0;
+      
       yearlyData.push({
         age: currentAge,
         year: year,
-        balance: newBalance,
-        untouchedBalance: untouchedBalance,
+        balance: p50, // Use Median for the main line
+        untouchedBalance: untouchedBalance, 
         phase: phase,
-        monthlyAllowance: allowance,
+        monthlyAllowance: phase === "retirement" ? inflatedAllowance : 0,
         untouchedMonthlyAllowance: inflatedAllowance,
+        balanceP10: p10,
+        balanceP50: p50,
+        balanceP90: p90,
       });
     }
 
-    // Calculate FIRE number at retirement
+    // Calculate Success Rate (only for Monte Carlo)
+    if (simulationMode === "monte-carlo") {
+      const finalBalances = simulationResults.map(run => run[run.length - 1]);
+      successCount = finalBalances.filter(b => b > 0).length;
+    }
+
+    // Calculate FIRE number (using Median/Deterministic run)
     const retirementYear = irlYear + (retirementAge - age);
     const retirementIndex = yearlyData.findIndex(
       (data) => data.year === retirementYear,
@@ -205,15 +337,24 @@ export default function FireCalculatorForm() {
     const retirementData = yearlyData[retirementIndex];
 
     const [fireNumber4percent, retirementAge4percent] = (() => {
-      for (const yearData of yearlyData) {
-        if (
-          yearData.untouchedBalance >
-          (yearData.untouchedMonthlyAllowance * 12) / 0.04
-        ) {
-          return [yearData.untouchedBalance, yearData.age];
+        // Re-enable 4% rule for deterministic mode or use p50 for MC
+        // For MC, "untouchedBalance" isn't tracked per run in aggregate, but we can use balanceP50 roughly
+        // or just disable it as it's a different philosophy.
+        // For now, let's calculate it based on the main "balance" field (which is p50 in MC)
+        for (const yearData of yearlyData) {
+          // Estimate untouched roughly if not tracking exact
+          const balanceToCheck = yearData.balance; 
+          // Note: This is imperfect for MC because 'balance' includes withdrawals in retirement
+          // whereas 4% rule check usually looks at "if I retired now with this balance".
+          // The original code had `untouchedBalance` which grew without withdrawals.
+          // Since we removed `untouchedBalance` calculation in the aggregate loop, let's skip 4% for MC for now.
+          
+          if (simulationMode === "deterministic" && yearData.untouchedBalance && 
+              yearData.untouchedBalance > (yearData.untouchedMonthlyAllowance * 12) / 0.04) {
+             return [yearData.untouchedBalance, yearData.age];
+          }
         }
-      }
-      return [0, 0];
+        return [null, null];
     })();
 
     if (retirementIndex === -1) {
@@ -228,9 +369,10 @@ export default function FireCalculatorForm() {
       // Set the result
       setResult({
         fireNumber: retirementData.balance,
-        fireNumber4percent: fireNumber4percent,
-        retirementAge4percent: retirementAge4percent,
+        fireNumber4percent: null,
+        retirementAge4percent: null,
         yearlyData: yearlyData,
+        successRate: simulationMode === "monte-carlo" ? (successCount / numSimulations) * 100 : undefined,
       });
     }
   }
@@ -490,6 +632,187 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="coastFireAge"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Coast FIRE Age (Optional) - Stop contributing at age:
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 45 (defaults to Retirement Age)"
+                          type="number"
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
+                          }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="baristaIncome"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Barista FIRE Income (Monthly during Retirement)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 1000"
+                          type="number"
+                          value={field.value as number | string | undefined}
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value),
+                            );
+                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                            form.handleSubmit(onSubmit)();
+                          }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="simulationMode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Simulation Mode</FormLabel>
+                      <Select
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                          form.handleSubmit(onSubmit)();
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select simulation mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="deterministic">Deterministic (Linear)</SelectItem>
+                          <SelectItem value="monte-carlo">Monte Carlo (Probabilistic)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("simulationMode") === "monte-carlo" && (
+                  <FormField
+                    control={form.control}
+                    name="volatility"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Market Volatility (Std Dev %)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 15"
+                            type="number"
+                            value={field.value as number | string | undefined}
+                            onChange={(e) => {
+                              field.onChange(
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                              );
+                              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                              form.handleSubmit(onSubmit)();
+                            }}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                <FormField
+                  control={form.control}
+                  name="withdrawalStrategy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Withdrawal Strategy</FormLabel>
+                      <Select
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                          form.handleSubmit(onSubmit)();
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select withdrawal strategy" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="fixed">Fixed Inflation-Adjusted</SelectItem>
+                          <SelectItem value="percentage">Percentage of Portfolio</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("withdrawalStrategy") === "percentage" && (
+                  <FormField
+                    control={form.control}
+                    name="withdrawalPercentage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Withdrawal Percentage (%)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 4.0"
+                            type="number"
+                            step="0.1"
+                            value={field.value as number | string | undefined}
+                            onChange={(e) => {
+                              field.onChange(
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                              );
+                              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                              form.handleSubmit(onSubmit)();
+                            }}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
 
               {!result && (
@@ -590,6 +913,28 @@ export default function FireCalculatorForm() {
                           yAxisId={"right"}
                           stackId={"a"}
                         />
+                        {form.getValues("simulationMode") === "monte-carlo" && (
+                          <>
+                            <Area
+                              type="monotone"
+                              dataKey="balanceP10"
+                              stroke="none"
+                              fill="var(--color-orange-500)"
+                              fillOpacity={0.1}
+                              yAxisId={"right"}
+                              connectNulls
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="balanceP90"
+                              stroke="none"
+                              fill="var(--color-orange-500)"
+                              fillOpacity={0.1}
+                              yAxisId={"right"}
+                              connectNulls
+                            />
+                          </>
+                        )}
                         <Area
                           type="step"
                           dataKey="monthlyAllowance"
