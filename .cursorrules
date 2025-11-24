@@ -1,0 +1,33 @@
+# Cursor Rules for InvestingFIRE 🔥
+
+## General Principles
+- **Quality First:** All new features must include appropriate tests.
+- **User-Centric:** Prioritize user experience and accessibility in all changes.
+- **Dry Code:** Avoid duplication; use utility functions and components.
+
+## Testing Requirements 🧪
+- **Unit Tests:** Required for all new utility functions, hooks, and complex logic.
+  - Use `vitest` and `react-testing-library`.
+  - Place tests in `__tests__` directories or alongside files with `.test.ts(x)` extension.
+- **E2E Tests:** Required for new user flows and critical paths.
+  - Use `playwright`.
+  - Ensure tests cover happy paths and error states.
+- **Visual Regression:** Consider for major UI changes.
+
+## Coding Standards
+- **Type Safety:** No `any`. Use proper Zod schemas for validation.
+- **Components:** Use functional components with strict prop typing.
+- **Styling:** Use Tailwind CSS. Avoid inline styles.
+- **State Management:** Prefer local state or React Context. Avoid global state libraries unless necessary.
+
+## Workflow
+1. **Plan:** Break down tasks.
+2. **Implement:** Write clean, commented code.
+3. **Test:** specific unit and/or E2E tests.
+4. **Verify:** Run linter and type checker (`pnpm check`).
+
+## Specific Patterns
+- **Forms:** Use `react-hook-form` with `zod` resolvers.
+- **Charts:** Use `recharts` and ensure tooltips are accessible.
+- **Calculations:** Keep financial logic separate from UI components where possible (e.g., in `lib/` or custom hooks) to facilitate testing.
+

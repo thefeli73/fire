@@ -104,6 +104,24 @@ To run locally:
    ```
 4. Visit [http://localhost:3000](http://localhost:3000) and unleash the fire.
 
+### Running Tests 🧪
+
+We use **Vitest** for unit testing and **Playwright** for end-to-end (E2E) testing.
+
+**Unit Tests:**
+```bash
+pnpm test
+```
+
+**E2E Tests:**
+```bash
+# First install browsers (only needed once)
+pnpm exec playwright install
+
+# Run tests
+pnpm test:e2e
+```
+
 ---
 
 ## ✏️ Inputs & Variables
