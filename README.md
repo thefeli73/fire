@@ -2,15 +2,54 @@
 
 # InvestingFIRE 🔥 — The #1 Interactive FIRE Calculator
 
-**InvestingFIRE** is a responsive web application for calculating your path to Financial Independence and Early Retirement (FIRE). It features a year-by-year projection engine that simulates both accumulation (savings and investment growth) and retirement (withdrawals) phases, allowing users to:
+**InvestingFIRE** is a responsive web application for calculating your path to Financial Independence and Early Retirement (FIRE). It features a year-by-year projection engine that simulates both accumulation (savings and investment growth) and retirement (withdrawals) phases.
 
-- Input starting capital, monthly savings, expected annual growth rate, inflation rate, current age, desired retirement age, life expectancy, and desired monthly retirement allowance.
-- View a dynamic chart displaying projected portfolio balance and monthly allowance over time.
-- Instantly see their estimated “FIRE number” (required capital at retirement), how long their capital will last, and compare results to the “4% rule.”
-- Adjust assumptions live, with all calculations and visualizations updating automatically.
-- Access explanatory content about FIRE methodology, key variables, and additional community resources, all on a single, consolidated page.
+Deployed version: [https://investingfire.com](https://investingfire.com)
 
-The project’s code is structured using React/Next.js with TypeScript, focusing on user experience, modern UI components, and clarity of financial assumptions.
+---
+
+## 🎯 Goal & Vision
+
+### **Goal**
+To build the most comprehensive, user-friendly, and transparent open-source financial independence calculator on the web.
+
+### **Vision**
+Democratize financial planning by providing professional-grade simulation tools in an accessible, privacy-focused, and beautiful interface. We believe everyone should have the ability to model their financial future without needing a finance degree or expensive software.
+
+### **Business Model**
+InvestingFIRE operates on a transparent open-source model:
+1.  **Free Forever Core:** The essential calculation tools will always be free and open-source.
+2.  **Community Supported:** We rely on community contributions (code & feedback) to improve the tool.
+3.  **Educational Affiliates:** We may curate high-quality resources (books, courses, tools) to help users on their journey, keeping the tool free of intrusive ads.
+
+---
+
+## 🗺️ Roadmap
+
+We are actively expanding the capabilities of InvestingFIRE. Below is our plan broken down into phases.
+
+### **Phase 1: Enhanced Simulation (The Engine)**
+Focus on making the math more robust and flexible.
+- [ ] **Coast FIRE Mode:** Option to stop contributions at a certain age but retire later.
+- [ ] **Barista FIRE Mode:** Include part-time income during "retirement" years.
+- [ ] **Monte Carlo Simulations:** Add probabilistic outcomes (e.g., "95% chance of success") instead of just deterministic linear growth.
+- [ ] **Variable Withdrawal Strategies:** Implement dynamic withdrawal rules (e.g., Guyton-Klinger) beyond just fixed inflation-adjusted withdrawals.
+
+### **Phase 2: User Experience & Persistence**
+Make the tool easier to use and return to.
+- [ ] **URL State Sharing:** Encode form values into the URL so scenarios can be bookmarked and shared.
+- [ ] **Local Persistence:** Automatically save user inputs to `localStorage` so they don't vanish on refresh.
+- [ ] **Currency & Locale Support:** Allow users to select currency symbols and number formatting (USD, EUR, GBP, etc.).
+
+### **Phase 3: Advanced Features & Analytics**
+For the power users who need more detail.
+- [ ] **Tax Considerations:** Simple toggles for Pre-tax vs. Post-tax estimations.
+- [ ] **Scenario Comparison:** Compare two different plans side-by-side (e.g., "Retire at 45 vs 55").
+- [ ] **Data Export:** Download projection data as CSV or PDF reports.
+
+### **Phase 4: Content & Community**
+- [ ] **Blog/Guides:** Integrate a CMS (like Markdown/MDX) for in-depth financial guides.
+- [ ] **Community Presets:** "One-click" setups for common strategies (e.g., "Lean FIRE", "Fat FIRE").
 
 ---
 
@@ -64,8 +103,6 @@ To run locally:
    pnpm run dev
    ```
 4. Visit [http://localhost:3000](http://localhost:3000) and unleash the fire.
-
-Deployed version: [https://investingfire.com](https://investingfire.com)
 
 ---
 
