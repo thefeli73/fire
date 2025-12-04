@@ -89,7 +89,7 @@ importers:
         specifier: 16.0.7
         version: 16.0.7(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       eslint-config-prettier:
-        specifier: ^10.1.8
+        specifier: 10.1.8
         version: 10.1.8(eslint@9.39.1(jiti@2.6.1))
       postcss:
         specifier: 8.5.6
