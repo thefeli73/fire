@@ -47,3 +47,7 @@ yarn-error.log*
 playwright-report/
 
 test-results/
+
+CONTENT_STRATEGY.md
+
+CONTENT_TASKS.md
