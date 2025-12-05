@@ -1,28 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import {
   Area,
   AreaChart,
@@ -31,59 +18,40 @@ import {
   YAxis,
   ReferenceLine,
   type TooltipProps,
-  Line,
-} from "recharts";
-import { Slider } from "@/components/ui/slider";
-import assert from "assert";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type {
-  NameType,
-  ValueType,
-} from "recharts/types/component/DefaultTooltipContent";
+} from 'recharts';
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { Calculator, Percent } from 'lucide-react';
 
 // Schema for form validation
 const formSchema = z.object({
   startingCapital: z.coerce.number(),
-  monthlySavings: z.coerce
-    .number()
-    .min(0, "Monthly savings must be a non-negative number"),
+  monthlySavings: z.coerce.number().min(0, 'Monthly savings must be a non-negative number'),
   currentAge: z.coerce
     .number()
-    .min(1, "Age must be at least 1")
-    .max(100, "No point in starting this late"),
-  cagr: z.coerce.number().min(0, "Growth rate must be a non-negative number"),
-  desiredMonthlyAllowance: z.coerce
-    .number()
-    .min(0, "Monthly allowance must be a non-negative number"),
-  inflationRate: z.coerce
-    .number()
-    .min(0, "Inflation rate must be a non-negative number"),
+    .min(1, 'Age must be at least 1')
+    .max(100, 'No point in starting this late'),
+  cagr: z.coerce.number().min(0, 'Growth rate must be a non-negative number'),
+  desiredMonthlyAllowance: z.coerce.number().min(0, 'Monthly allowance must be a non-negative number'),
+  inflationRate: z.coerce.number().min(0, 'Inflation rate must be a non-negative number'),
   lifeExpectancy: z.coerce
     .number()
-    .min(40, "Be a bit more optimistic buddy :(")
-    .max(100, "You should be more realistic..."),
+    .min(40, 'Be a bit more optimistic buddy :(')
+    .max(100, 'You should be more realistic...'),
   retirementAge: z.coerce
     .number()
-    .min(18, "Retirement age must be at least 18")
-    .max(100, "Retirement age must be at most 100"),
+    .min(18, 'Retirement age must be at least 18')
+    .max(100, 'Retirement age must be at most 100'),
   coastFireAge: z.coerce
     .number()
-    .min(18, "Coast FIRE age must be at least 18")
-    .max(100, "Coast FIRE age must be at most 100")
+    .min(18, 'Coast FIRE age must be at least 18')
+    .max(100, 'Coast FIRE age must be at most 100')
     .optional(),
-  baristaIncome: z.coerce
-    .number()
-    .min(0, "Barista income must be a non-negative number")
-    .optional(),
-  simulationMode: z.enum(["deterministic", "monte-carlo"]).default("deterministic"),
+  baristaIncome: z.coerce.number().min(0, 'Barista income must be a non-negative number').optional(),
+  simulationMode: z.enum(['deterministic', 'monte-carlo']).default('deterministic'),
   volatility: z.coerce.number().min(0).default(15),
-  withdrawalStrategy: z.enum(["fixed", "percentage"]).default("fixed"),
+  withdrawalStrategy: z.enum(['fixed', 'percentage']).default('fixed'),
   withdrawalPercentage: z.coerce.number().min(0).max(100).default(4),
 });
 
@@ -95,7 +63,7 @@ interface YearlyData {
   year: number;
   balance: number;
   untouchedBalance: number;
-  phase: "accumulation" | "retirement";
+  phase: 'accumulation' | 'retirement';
   monthlyAllowance: number;
   untouchedMonthlyAllowance: number;
   // Monte Carlo percentiles
@@ -123,17 +91,14 @@ function randomNormal(mean: number, stdDev: number): number {
 
 // Helper function to format currency without specific symbols
 const formatNumber = (value: number | null) => {
-  if (!value) return "N/A";
-  return new Intl.NumberFormat("en", {
+  if (!value) return 'N/A';
+  return new Intl.NumberFormat('en', {
     maximumFractionDigits: 0,
   }).format(value);
 };
 
 // Helper function to render tooltip for chart
-const tooltipRenderer = ({
-  active,
-  payload,
-}: TooltipProps<ValueType, NameType>) => {
+const tooltipRenderer = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
   if (active && payload?.[0]?.payload) {
     const data = payload[0].payload as YearlyData;
     return (
@@ -142,14 +107,14 @@ const tooltipRenderer = ({
         {data.balanceP50 !== undefined ? (
           <>
             <p className="text-orange-500">{`Median Balance: ${formatNumber(data.balanceP50)}`}</p>
-            <p className="text-orange-300 text-xs">{`10th %: ${formatNumber(data.balanceP10 ?? 0)}`}</p>
-            <p className="text-orange-300 text-xs">{`90th %: ${formatNumber(data.balanceP90 ?? 0)}`}</p>
+            <p className="text-xs text-orange-300">{`10th %: ${formatNumber(data.balanceP10 ?? 0)}`}</p>
+            <p className="text-xs text-orange-300">{`90th %: ${formatNumber(data.balanceP90 ?? 0)}`}</p>
           </>
         ) : (
           <p className="text-orange-500">{`Balance: ${formatNumber(data.balance)}`}</p>
         )}
         <p className="text-red-600">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
-        <p>{`Phase: ${data.phase === "accumulation" ? "Accumulation" : "Retirement"}`}</p>
+        <p>{`Phase: ${data.phase === 'accumulation' ? 'Accumulation' : 'Retirement'}`}</p>
       </div>
     );
   }
@@ -175,7 +140,7 @@ export default function FireCalculatorForm() {
       retirementAge: 55,
       coastFireAge: undefined,
       baristaIncome: 0,
-      simulationMode: "deterministic",
+      simulationMode: 'deterministic',
       volatility: 15,
     },
   });
@@ -196,7 +161,7 @@ export default function FireCalculatorForm() {
     const simulationMode = values.simulationMode;
     const volatility = values.volatility;
 
-    const numSimulations = simulationMode === "monte-carlo" ? 500 : 1;
+    const numSimulations = simulationMode === 'monte-carlo' ? 500 : 1;
     const simulationResults: number[][] = []; // [yearIndex][simulationIndex] -> balance
 
     // Prepare simulation runs
@@ -204,17 +169,12 @@ export default function FireCalculatorForm() {
       let currentBalance = startingCapital;
       const runBalances: number[] = [];
 
-      for (
-        let year = irlYear + 1;
-        year <= irlYear + (ageOfDeath - age);
-        year++
-      ) {
+      for (let year = irlYear + 1; year <= irlYear + (ageOfDeath - age); year++) {
         const currentAge = age + (year - irlYear);
-        const yearIndex = year - (irlYear + 1);
 
         // Determine growth rate for this year
         let annualGrowthRate: number;
-        if (simulationMode === "monte-carlo") {
+        if (simulationMode === 'monte-carlo') {
           // Random walk
           const randomReturn = randomNormal(cagr, volatility) / 100;
           annualGrowthRate = 1 + randomReturn;
@@ -223,23 +183,18 @@ export default function FireCalculatorForm() {
           annualGrowthRate = 1 + cagr / 100;
         }
 
-        const inflatedAllowance =
-          initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
-        const inflatedBaristaIncome =
-          initialBaristaIncome * Math.pow(annualInflation, year - irlYear);
+        const inflatedAllowance = initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
+        const inflatedBaristaIncome = initialBaristaIncome * Math.pow(annualInflation, year - irlYear);
 
         const isRetirementYear = currentAge >= retirementAge;
-        const phase = isRetirementYear ? "retirement" : "accumulation";
+        const phase = isRetirementYear ? 'retirement' : 'accumulation';
         const isContributing = currentAge < coastFireAge;
 
         let newBalance;
-        if (phase === "accumulation") {
-          newBalance =
-            currentBalance * annualGrowthRate +
-            (isContributing ? monthlySavings * 12 : 0);
+        if (phase === 'accumulation') {
+          newBalance = currentBalance * annualGrowthRate + (isContributing ? monthlySavings * 12 : 0);
         } else {
-          const netAnnualWithdrawal =
-            (inflatedAllowance - inflatedBaristaIncome) * 12;
+          const netAnnualWithdrawal = (inflatedAllowance - inflatedBaristaIncome) * 12;
           newBalance = currentBalance * annualGrowthRate - netAnnualWithdrawal;
         }
         // Prevent negative balance from recovering (once you're broke, you're broke)
@@ -265,8 +220,8 @@ export default function FireCalculatorForm() {
       year: irlYear,
       balance: startingCapital,
       untouchedBalance: startingCapital,
-      phase: "accumulation",
-        monthlyAllowance: 0,
+      phase: 'accumulation',
+      monthlyAllowance: 0,
       untouchedMonthlyAllowance: initialMonthlyAllowance,
       balanceP10: startingCapital,
       balanceP50: startingCapital,
@@ -277,13 +232,13 @@ export default function FireCalculatorForm() {
     for (let i = 0; i < numYears; i++) {
       const year = irlYear + 1 + i;
       const currentAge = age + 1 + i;
-      
+
       // Collect all balances for this year across simulations
       const balancesForYear = simulationResults.map((run) => run[i]);
-      
+
       // Sort to find percentiles
       balancesForYear.sort((a, b) => a - b);
-      
+
       const p10 = balancesForYear[Math.floor(numSimulations * 0.1)];
       const p50 = balancesForYear[Math.floor(numSimulations * 0.5)];
       const p90 = balancesForYear[Math.floor(numSimulations * 0.9)];
@@ -291,31 +246,30 @@ export default function FireCalculatorForm() {
       // Calculate other metrics (using deterministic logic for "untouched" etc for simplicity, or p50)
       // We need to reconstruct the "standard" fields for compatibility with the chart
       // Let's use p50 (Median) as the "main" line
-      const inflatedAllowance =
-        initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
+      const inflatedAllowance = initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
       const isRetirementYear = currentAge >= retirementAge;
-      const phase = isRetirementYear ? "retirement" : "accumulation";
+      const phase = isRetirementYear ? 'retirement' : 'accumulation';
 
       // Reconstruct untouched balance for deterministic mode (for 4% rule)
       let untouchedBalance = 0;
-      if (simulationMode === "deterministic") {
-          // We can just use the single run we have
-          // In deterministic mode, there's only 1 simulation, so balancesForYear[0] is it.
-          // But wait, `simulationResults` stores the *actual* balance (with withdrawals).
-          // We need a separate tracker for "untouched" (never withdrawing) if we want accurate 4% rule.
-          // Let's just re-calculate it simply here since it's deterministic.
-          const prevUntouched = yearlyData[yearlyData.length - 1].untouchedBalance;
-          const growth = 1 + cagr / 100;
-           untouchedBalance = prevUntouched * growth + monthlySavings * 12;
+      if (simulationMode === 'deterministic') {
+        // We can just use the single run we have
+        // In deterministic mode, there's only 1 simulation, so balancesForYear[0] is it.
+        // But wait, `simulationResults` stores the *actual* balance (with withdrawals).
+        // We need a separate tracker for "untouched" (never withdrawing) if we want accurate 4% rule.
+        // Let's just re-calculate it simply here since it's deterministic.
+        const prevUntouched = yearlyData[yearlyData.length - 1].untouchedBalance;
+        const growth = 1 + cagr / 100;
+        untouchedBalance = prevUntouched * growth + monthlySavings * 12;
       }
-      
+
       yearlyData.push({
         age: currentAge,
         year: year,
         balance: p50, // Use Median for the main line
-        untouchedBalance: untouchedBalance, 
+        untouchedBalance: untouchedBalance,
         phase: phase,
-        monthlyAllowance: phase === "retirement" ? inflatedAllowance : 0,
+        monthlyAllowance: phase === 'retirement' ? inflatedAllowance : 0,
         untouchedMonthlyAllowance: inflatedAllowance,
         balanceP10: p10,
         balanceP50: p50,
@@ -324,37 +278,36 @@ export default function FireCalculatorForm() {
     }
 
     // Calculate Success Rate (only for Monte Carlo)
-    if (simulationMode === "monte-carlo") {
-      const finalBalances = simulationResults.map(run => run[run.length - 1]);
-      successCount = finalBalances.filter(b => b > 0).length;
+    if (simulationMode === 'monte-carlo') {
+      const finalBalances = simulationResults.map((run) => run[run.length - 1]);
+      successCount = finalBalances.filter((b) => b > 0).length;
     }
 
     // Calculate FIRE number (using Median/Deterministic run)
     const retirementYear = irlYear + (retirementAge - age);
-    const retirementIndex = yearlyData.findIndex(
-      (data) => data.year === retirementYear,
-    );
+    const retirementIndex = yearlyData.findIndex((data) => data.year === retirementYear);
     const retirementData = yearlyData[retirementIndex];
 
     const [fireNumber4percent, retirementAge4percent] = (() => {
-        // Re-enable 4% rule for deterministic mode or use p50 for MC
-        // For MC, "untouchedBalance" isn't tracked per run in aggregate, but we can use balanceP50 roughly
-        // or just disable it as it's a different philosophy.
-        // For now, let's calculate it based on the main "balance" field (which is p50 in MC)
-        for (const yearData of yearlyData) {
-          // Estimate untouched roughly if not tracking exact
-          const balanceToCheck = yearData.balance; 
-          // Note: This is imperfect for MC because 'balance' includes withdrawals in retirement
-          // whereas 4% rule check usually looks at "if I retired now with this balance".
-          // The original code had `untouchedBalance` which grew without withdrawals.
-          // Since we removed `untouchedBalance` calculation in the aggregate loop, let's skip 4% for MC for now.
-          
-          if (simulationMode === "deterministic" && yearData.untouchedBalance && 
-              yearData.untouchedBalance > (yearData.untouchedMonthlyAllowance * 12) / 0.04) {
-             return [yearData.untouchedBalance, yearData.age];
-          }
+      // Re-enable 4% rule for deterministic mode or use p50 for MC
+      // For MC, "untouchedBalance" isn't tracked per run in aggregate, but we can use balanceP50 roughly
+      // or just disable it as it's a different philosophy.
+      // For now, let's calculate it based on the main "balance" field (which is p50 in MC)
+      for (const yearData of yearlyData) {
+        // Note: This is imperfect for MC because 'balance' includes withdrawals in retirement
+        // whereas 4% rule check usually looks at "if I retired now with this balance".
+        // The original code had `untouchedBalance` which grew without withdrawals.
+        // Since we removed `untouchedBalance` calculation in the aggregate loop, let's skip 4% for MC for now.
+
+        if (
+          simulationMode === 'deterministic' &&
+          yearData.untouchedBalance &&
+          yearData.untouchedBalance > (yearData.untouchedMonthlyAllowance * 12) / 0.04
+        ) {
+          return [yearData.untouchedBalance, yearData.age];
         }
-        return [null, null];
+      }
+      return [null, null];
     })();
 
     if (retirementIndex === -1) {
@@ -362,28 +315,29 @@ export default function FireCalculatorForm() {
         fireNumber: null,
         fireNumber4percent: null,
         retirementAge4percent: null,
-        error: "Could not calculate retirement data",
+        error: 'Could not calculate retirement data',
         yearlyData: yearlyData,
       });
     } else {
       // Set the result
       setResult({
         fireNumber: retirementData.balance,
-        fireNumber4percent: null,
-        retirementAge4percent: null,
+        fireNumber4percent: fireNumber4percent,
+        retirementAge4percent: retirementAge4percent,
         yearlyData: yearlyData,
-        successRate: simulationMode === "monte-carlo" ? (successCount / numSimulations) * 100 : undefined,
+        successRate:
+          simulationMode === 'monte-carlo' ? (successCount / numSimulations) * 100 : undefined,
       });
     }
   }
 
   return (
     <>
-      <Card className="mb-4">
+      <Card className="border-primary/15 bg-background/90 shadow-primary/10 mb-6 border shadow-lg backdrop-blur">
         <CardHeader>
           <CardTitle className="text-2xl">FIRE Calculator</CardTitle>
-          <CardDescription>
-            Calculate your path to financial independence and retirement
+          <CardDescription className="text-muted-foreground text-sm">
+            Calculate your path to financial independence and retirement.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -408,11 +362,7 @@ export default function FireCalculatorForm() {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -437,11 +387,7 @@ export default function FireCalculatorForm() {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -466,11 +412,7 @@ export default function FireCalculatorForm() {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -495,11 +437,7 @@ export default function FireCalculatorForm() {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -525,11 +463,7 @@ export default function FireCalculatorForm() {
                           step="0.1"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -555,11 +489,7 @@ export default function FireCalculatorForm() {
                           step="0.1"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -577,20 +507,14 @@ export default function FireCalculatorForm() {
                   name="desiredMonthlyAllowance"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Desired Monthly Allowance (Today&apos;s Value)
-                      </FormLabel>
+                      <FormLabel>Desired Monthly Allowance (Today&apos;s Value)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 2000"
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -610,9 +534,7 @@ export default function FireCalculatorForm() {
                   name="retirementAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Retirement Age: {field.value as number}
-                      </FormLabel>
+                      <FormLabel>Retirement Age: {field.value as number}</FormLabel>
                       <FormControl>
                         <Slider
                           name="retirementAge"
@@ -637,20 +559,14 @@ export default function FireCalculatorForm() {
                   name="coastFireAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Coast FIRE Age (Optional) - Stop contributing at age:
-                      </FormLabel>
+                      <FormLabel>Coast FIRE Age (Optional) - Stop contributing at age:</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 45 (defaults to Retirement Age)"
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -668,20 +584,14 @@ export default function FireCalculatorForm() {
                   name="baristaIncome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Barista FIRE Income (Monthly during Retirement)
-                      </FormLabel>
+                      <FormLabel>Barista FIRE Income (Monthly during Retirement)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 1000"
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
-                            field.onChange(
-                              e.target.value === ""
-                                ? undefined
-                                : Number(e.target.value),
-                            );
+                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                             // eslint-disable-next-line @typescript-eslint/no-floating-promises
                             form.handleSubmit(onSubmit)();
                           }}
@@ -722,7 +632,7 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                {form.watch("simulationMode") === "monte-carlo" && (
+                {form.watch('simulationMode') === 'monte-carlo' && (
                   <FormField
                     control={form.control}
                     name="volatility"
@@ -735,11 +645,7 @@ export default function FireCalculatorForm() {
                             type="number"
                             value={field.value as number | string | undefined}
                             onChange={(e) => {
-                              field.onChange(
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                              );
+                              field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                               // eslint-disable-next-line @typescript-eslint/no-floating-promises
                               form.handleSubmit(onSubmit)();
                             }}
@@ -781,7 +687,7 @@ export default function FireCalculatorForm() {
                     </FormItem>
                   )}
                 />
-                {form.watch("withdrawalStrategy") === "percentage" && (
+                {form.watch('withdrawalStrategy') === 'percentage' && (
                   <FormField
                     control={form.control}
                     name="withdrawalPercentage"
@@ -795,11 +701,7 @@ export default function FireCalculatorForm() {
                             step="0.1"
                             value={field.value as number | string | undefined}
                             onChange={(e) => {
-                              field.onChange(
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                              );
+                              field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
                               // eslint-disable-next-line @typescript-eslint/no-floating-promises
                               form.handleSubmit(onSubmit)();
                             }}
@@ -816,7 +718,8 @@ export default function FireCalculatorForm() {
               </div>
 
               {!result && (
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="mx-auto w-full max-w-md justify-center" size="lg">
+                  <Calculator className="h-4 w-4" />
                   Calculate
                 </Button>
               )}
@@ -829,10 +732,7 @@ export default function FireCalculatorForm() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">
-                    <ChartContainer
-                      className="aspect-auto h-80 w-full"
-                      config={{}}
-                    >
+                    <ChartContainer className="aspect-auto h-80 w-full" config={{}}>
                       <AreaChart
                         data={result.yearlyData}
                         margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
@@ -841,14 +741,14 @@ export default function FireCalculatorForm() {
                         <XAxis
                           dataKey="year"
                           label={{
-                            value: "Year",
-                            position: "insideBottom",
+                            value: 'Year',
+                            position: 'insideBottom',
                             offset: -10,
                           }}
                         />
                         {/* Right Y axis */}
                         <YAxis
-                          yAxisId={"right"}
+                          yAxisId={'right'}
                           orientation="right"
                           tickFormatter={(value: number) => {
                             if (value >= 1000000) {
@@ -883,23 +783,9 @@ export default function FireCalculatorForm() {
                         />
                         <ChartTooltip content={tooltipRenderer} />
                         <defs>
-                          <linearGradient
-                            id="fillBalance"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="5%"
-                              stopColor="var(--color-orange-500)"
-                              stopOpacity={0.8}
-                            />
-                            <stop
-                              offset="95%"
-                              stopColor="var(--color-orange-500)"
-                              stopOpacity={0.1}
-                            />
+                          <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-orange-500)" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="var(--color-orange-500)" stopOpacity={0.1} />
                           </linearGradient>
                         </defs>
                         <Area
@@ -910,10 +796,10 @@ export default function FireCalculatorForm() {
                           fill="url(#fillBalance)"
                           fillOpacity={0.9}
                           activeDot={{ r: 6 }}
-                          yAxisId={"right"}
-                          stackId={"a"}
+                          yAxisId={'right'}
+                          stackId={'a'}
                         />
-                        {form.getValues("simulationMode") === "monte-carlo" && (
+                        {form.getValues('simulationMode') === 'monte-carlo' && (
                           <>
                             <Area
                               type="monotone"
@@ -921,7 +807,7 @@ export default function FireCalculatorForm() {
                               stroke="none"
                               fill="var(--color-orange-500)"
                               fillOpacity={0.1}
-                              yAxisId={"right"}
+                              yAxisId={'right'}
                               connectNulls
                             />
                             <Area
@@ -930,7 +816,7 @@ export default function FireCalculatorForm() {
                               stroke="none"
                               fill="var(--color-orange-500)"
                               fillOpacity={0.1}
-                              yAxisId={"right"}
+                              yAxisId={'right'}
                               connectNulls
                             />
                           </>
@@ -951,10 +837,10 @@ export default function FireCalculatorForm() {
                             strokeWidth={2}
                             strokeDasharray="2 1"
                             label={{
-                              value: "FIRE Number",
-                              position: "insideBottomRight",
+                              value: 'FIRE Number',
+                              position: 'insideBottomRight',
                             }}
-                            yAxisId={"right"}
+                            yAxisId={'right'}
                           />
                         )}
                         {result.fireNumber4percent && showing4percent && (
@@ -964,40 +850,39 @@ export default function FireCalculatorForm() {
                             strokeWidth={1}
                             strokeDasharray="1 1"
                             label={{
-                              value: "4%-Rule FIRE Number",
-                              position: "insideBottomLeft",
+                              value: '4%-Rule FIRE Number',
+                              position: 'insideBottomLeft',
                             }}
-                            yAxisId={"right"}
+                            yAxisId={'right'}
                           />
                         )}
                         <ReferenceLine
                           x={
                             irlYear +
-                            (Number(form.getValues("retirementAge")) -
-                              Number(form.getValues("currentAge")))
+                            (Number(form.getValues('retirementAge')) -
+                              Number(form.getValues('currentAge')))
                           }
                           stroke="var(--primary)"
                           strokeWidth={2}
                           label={{
-                            value: "Retirement",
-                            position: "insideTopRight",
+                            value: 'Retirement',
+                            position: 'insideTopRight',
                           }}
-                          yAxisId={"left"}
+                          yAxisId={'left'}
                         />
                         {result.retirementAge4percent && showing4percent && (
                           <ReferenceLine
                             x={
                               irlYear +
-                              (result.retirementAge4percent -
-                                Number(form.getValues("currentAge")))
+                              (result.retirementAge4percent - Number(form.getValues('currentAge')))
                             }
                             stroke="var(--secondary)"
                             strokeWidth={1}
                             label={{
-                              value: "4%-Rule Retirement",
-                              position: "insideBottomLeft",
+                              value: '4%-Rule Retirement',
+                              position: 'insideBottomLeft',
                             }}
-                            yAxisId={"left"}
+                            yAxisId={'left'}
                           />
                         )}
                       </AreaChart>
@@ -1007,11 +892,15 @@ export default function FireCalculatorForm() {
               )}
               {result && (
                 <Button
-                  onClick={() => { setShowing4percent(!showing4percent); }}
-                  variant={showing4percent ? "secondary" : "default"}
-                  size={"sm"}
+                  onClick={() => {
+                    setShowing4percent(!showing4percent);
+                  }}
+                  variant={showing4percent ? 'secondary' : 'default'}
+                  size={'sm'}
+                  className="mt-2 gap-2 self-start"
                 >
-                  {showing4percent ? "Hide" : "Show"} 4%-Rule
+                  <Percent className="h-4 w-4" />
+                  {showing4percent ? 'Hide' : 'Show'} 4%-Rule
                 </Button>
               )}
             </form>
@@ -1032,14 +921,10 @@ export default function FireCalculatorForm() {
               <Card>
                 <CardHeader>
                   <CardTitle>FIRE Number</CardTitle>
-                  <CardDescription className="text-xs">
-                    Capital at retirement
-                  </CardDescription>
+                  <CardDescription className="text-xs">Capital at retirement</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">
-                    {formatNumber(result.fireNumber)}
-                  </p>
+                  <p className="text-3xl font-bold">{formatNumber(result.fireNumber)}</p>
                 </CardContent>
               </Card>
 
@@ -1052,8 +937,7 @@ export default function FireCalculatorForm() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {Number(form.getValues("lifeExpectancy")) -
-                      Number(form.getValues("retirementAge"))}
+                    {Number(form.getValues('lifeExpectancy')) - Number(form.getValues('retirementAge'))}
                   </p>
                 </CardContent>
               </Card>
@@ -1063,14 +947,11 @@ export default function FireCalculatorForm() {
                     <CardHeader>
                       <CardTitle>4%-Rule FIRE Number</CardTitle>
                       <CardDescription className="text-xs">
-                        Capital needed for 4% of it to be greater than your
-                        yearly allowance
+                        Capital needed for 4% of it to be greater than your yearly allowance
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-3xl font-bold">
-                        {formatNumber(result.fireNumber4percent)}
-                      </p>
+                      <p className="text-3xl font-bold">{formatNumber(result.fireNumber4percent)}</p>
                     </CardContent>
                   </Card>
 
@@ -1078,14 +959,12 @@ export default function FireCalculatorForm() {
                     <CardHeader>
                       <CardTitle>4%-Rule Retirement Duration</CardTitle>
                       <CardDescription className="text-xs">
-                        Years to enjoy your financial independence if you follow
-                        the 4% rule
+                        Years to enjoy your financial independence if you follow the 4% rule
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-3xl font-bold">
-                        {Number(form.getValues("lifeExpectancy")) -
-                          (result.retirementAge4percent ?? 0)}
+                        {Number(form.getValues('lifeExpectancy')) - (result.retirementAge4percent ?? 0)}
                       </p>
                     </CardContent>
                   </Card>

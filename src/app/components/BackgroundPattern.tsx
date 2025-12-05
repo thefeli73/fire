@@ -1,6 +1,6 @@
-"use client";
-import { useState, useEffect } from "react";
-import type React from "react";
+'use client';
+import { useState, useEffect } from 'react';
+import type React from 'react';
 import {
   type LucideIcon,
   HandCoins,
@@ -39,7 +39,7 @@ import {
   Hourglass,
   Sprout,
   Target,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
   const [width, setWidth] = useState(0);
@@ -58,10 +58,10 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     };
 
     updateDimensions();
-    window.addEventListener("resize", updateDimensions);
+    window.addEventListener('resize', updateDimensions);
 
     return () => {
-      window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener('resize', updateDimensions);
     };
   }, [height, width, spacing]);
 
@@ -153,9 +153,5 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, columns, spacing, opacity]);
 
-  return (
-    <div className="absolute h-full w-full">
-      {width > 0 && icons}
-    </div>
-  );
+  return <div className="absolute z-0 h-full w-full">{width > 0 && icons}</div>;
 }
