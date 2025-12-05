@@ -12,7 +12,7 @@
     "lint": "next typegen && eslint . && npx tsc --noEmit",
     "preview": "next build && next start",
     "start": "next start",
-    "test": "vitest",
+    "test": "vitest run",
     "test:e2e": "playwright test"
   },
   "dependencies": {
