@@ -24,7 +24,11 @@
 1. **Plan:** Break down tasks.
 2. **Implement:** Write clean, commented code.
 3. **Test:** specific unit and/or E2E tests.
-4. **Verify:** Run linter and type checker (`pnpm check`).
+4. **Verify:** Run linter and type checker (`pnpm check`), and run tests (`pnpm test`).
+
+## Strict Rules
+- **No "any" type:** Always define proper types. Use `unknown` if type is truly uncertain, but prefer specific types.
+- **No "ts-ignore":** Fix the underlying issue instead of suppressing it.
 
 ## Specific Patterns
 - **Forms:** Use `react-hook-form` with `zod` resolvers.
