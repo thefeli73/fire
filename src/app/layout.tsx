@@ -3,6 +3,8 @@ import PlausibleProvider from "next-plausible";
 import { type Metadata, type Viewport } from "next";
 import { Geist } from "next/font/google";
 import { WebVitals } from "./components/web-vitals";
+import { Navbar } from "./components/Navbar";
+import Footer from "./components/footer";
 
 export const viewport: Viewport = {
   themeColor: [{ color: "oklch(0.97 0.0228 95.96)" }],
@@ -35,7 +37,11 @@ export default function RootLayout({
         />
       </head>
       <WebVitals />
-      <body>{children}</body>
+      <body className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }
