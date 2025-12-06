@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -22,10 +22,13 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { Calculator, Info, Percent } from 'lucide-react';
+import { Calculator, Info, Percent, Share2, Check } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
 import Link from 'next/link';
+
+import type { FireCalculatorFormValues } from '@/lib/calculator-schema';
+import { fireCalculatorDefaultValues, fireCalculatorFormSchema } from '@/lib/calculator-schema';
 
 // Helper component for info tooltips next to form labels
 function InfoTooltip({ content }: Readonly<{ content: string }>) {
@@ -41,39 +44,8 @@ function InfoTooltip({ content }: Readonly<{ content: string }>) {
   );
 }
 
-// Schema for form validation
-const formSchema = z.object({
-  startingCapital: z.coerce.number(),
-  monthlySavings: z.coerce.number().min(0, 'Monthly savings must be a non-negative number'),
-  currentAge: z.coerce
-    .number()
-    .min(1, 'Age must be at least 1')
-    .max(100, 'No point in starting this late'),
-  cagr: z.coerce.number().min(0, 'Growth rate must be a non-negative number'),
-  desiredMonthlyAllowance: z.coerce.number().min(0, 'Monthly allowance must be a non-negative number'),
-  inflationRate: z.coerce.number().min(0, 'Inflation rate must be a non-negative number'),
-  lifeExpectancy: z.coerce
-    .number()
-    .min(40, 'Be a bit more optimistic buddy :(')
-    .max(100, 'You should be more realistic...'),
-  retirementAge: z.coerce
-    .number()
-    .min(18, 'Retirement age must be at least 18')
-    .max(100, 'Retirement age must be at most 100'),
-  coastFireAge: z.coerce
-    .number()
-    .min(18, 'Coast FIRE age must be at least 18')
-    .max(100, 'Coast FIRE age must be at most 100')
-    .optional(),
-  baristaIncome: z.coerce.number().min(0, 'Barista income must be a non-negative number').optional(),
-  simulationMode: z.enum(['deterministic', 'monte-carlo']).default('deterministic'),
-  volatility: z.coerce.number().min(0).default(15),
-  withdrawalStrategy: z.enum(['fixed', 'percentage']).default('fixed'),
-  withdrawalPercentage: z.coerce.number().min(0).max(100).default(4),
-});
-
-// Type for form values
-type FormValues = z.infer<typeof formSchema>;
+const formSchema = fireCalculatorFormSchema;
+type FormValues = FireCalculatorFormValues;
 
 interface YearlyData {
   age: number;
@@ -138,30 +110,22 @@ const tooltipRenderer = ({ active, payload }: TooltipProps<ValueType, NameType>)
   return null;
 };
 
-export default function FireCalculatorForm() {
+export default function FireCalculatorForm({
+  initialValues,
+  autoCalculate = false,
+}: {
+  initialValues?: Partial<FireCalculatorFormValues>;
+  autoCalculate?: boolean;
+}) {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
   const [showing4percent, setShowing4percent] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Initialize form with default values
   const form = useForm<z.input<typeof formSchema>, undefined, FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      startingCapital: 50000,
-      monthlySavings: 1500,
-      currentAge: 25,
-      cagr: 7,
-      desiredMonthlyAllowance: 3000,
-      inflationRate: 2.3,
-      lifeExpectancy: 84,
-      retirementAge: 55,
-      coastFireAge: undefined,
-      baristaIncome: 0,
-      simulationMode: 'deterministic',
-      volatility: 15,
-      withdrawalStrategy: 'fixed',
-      withdrawalPercentage: 4,
-    },
+    defaultValues: initialValues ?? fireCalculatorDefaultValues,
   });
 
   function onSubmit(values: FormValues) {
@@ -349,6 +313,55 @@ export default function FireCalculatorForm() {
       });
     }
   }
+
+  // Use effect for auto-calculation
+  useEffect(() => {
+    if (autoCalculate && !result) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      form.handleSubmit(onSubmit)();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCalculate]);
+
+  const handleShare = () => {
+    const values = form.getValues();
+    const params = new URLSearchParams();
+
+    if (values.startingCapital !== undefined && values.startingCapital !== null)
+      params.set('startingCapital', String(values.startingCapital));
+    if (values.monthlySavings !== undefined && values.monthlySavings !== null)
+      params.set('monthlySavings', String(values.monthlySavings));
+    if (values.currentAge !== undefined && values.currentAge !== null)
+      params.set('currentAge', String(values.currentAge));
+    if (values.cagr !== undefined && values.cagr !== null) params.set('cagr', String(values.cagr));
+    if (values.desiredMonthlyAllowance !== undefined && values.desiredMonthlyAllowance !== null)
+      params.set('monthlySpend', String(values.desiredMonthlyAllowance));
+    if (values.inflationRate !== undefined && values.inflationRate !== null)
+      params.set('inflationRate', String(values.inflationRate));
+    if (values.lifeExpectancy !== undefined && values.lifeExpectancy !== null)
+      params.set('lifeExpectancy', String(values.lifeExpectancy));
+    if (values.retirementAge !== undefined && values.retirementAge !== null)
+      params.set('retirementAge', String(values.retirementAge));
+    if (values.coastFireAge !== undefined && values.coastFireAge !== null)
+      params.set('coastFireAge', String(values.coastFireAge));
+    if (values.baristaIncome !== undefined && values.baristaIncome !== null)
+      params.set('baristaIncome', String(values.baristaIncome));
+    if (values.simulationMode) params.set('simulationMode', values.simulationMode);
+    if (values.volatility !== undefined && values.volatility !== null)
+      params.set('volatility', String(values.volatility));
+    if (values.withdrawalStrategy) params.set('withdrawalStrategy', values.withdrawalStrategy);
+    if (values.withdrawalPercentage !== undefined && values.withdrawalPercentage !== null)
+      params.set('withdrawalPercentage', String(values.withdrawalPercentage));
+
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 4000);
+    });
+  };
 
   return (
     <>
@@ -959,17 +972,30 @@ export default function FireCalculatorForm() {
                 </Card>
               )}
               {result && (
-                <Button
-                  onClick={() => {
-                    setShowing4percent(!showing4percent);
-                  }}
-                  variant={showing4percent ? 'secondary' : 'default'}
-                  size={'sm'}
-                  className="mt-2 gap-2 self-start"
-                >
-                  <Percent className="h-4 w-4" />
-                  {showing4percent ? 'Hide' : 'Show'} 4%-Rule
-                </Button>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button
+                    onClick={() => {
+                      setShowing4percent(!showing4percent);
+                    }}
+                    variant={showing4percent ? 'secondary' : 'default'}
+                    size={'sm'}
+                    className="gap-2"
+                    type="button"
+                  >
+                    <Percent className="h-4 w-4" />
+                    {showing4percent ? 'Hide' : 'Show'} 4%-Rule
+                  </Button>
+                  <Button
+                    onClick={handleShare}
+                    variant="outline"
+                    size={'sm'}
+                    className="gap-2"
+                    type="button"
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                    {copied ? 'Sharable Link Copied!' : 'Share Calculation'}
+                  </Button>
+                </div>
               )}
             </form>
           </Form>

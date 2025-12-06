@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import BlurThing from '../components/blur-thing';
+import { RETIRE_AT_AGE_PRESETS } from '@/lib/retire-at';
 
 export const metadata = {
   title: 'Learn FIRE | Financial Independence Guides & Resources',
   description:
     'Master the art of Financial Independence and Early Retirement. Deep dives into safe withdrawal rates, asset allocation, and FIRE strategies.',
 };
+
+const retireAgeLinks = RETIRE_AT_AGE_PRESETS;
 
 export default function LearnHubPage() {
   return (
@@ -107,8 +110,8 @@ export default function LearnHubPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm">
-                Build a world-allocation portfolio, avoid home bias, and choose the right accounts whether
-                you&apos;re in the US, EU, UK, Canada, Australia, or elsewhere.
+                Build a world-allocation portfolio, avoid home bias, and choose the right accounts
+                whether you&apos;re in the US, EU, UK, Canada, Australia, or elsewhere.
               </p>
             </CardContent>
           </Card>
@@ -128,12 +131,39 @@ export default function LearnHubPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm">
-                Understand the hidden risks of overweighting your domestic market and learn practical steps
-                to diversify globally without creating tax headaches.
+                Understand the hidden risks of overweighting your domestic market and learn practical
+                steps to diversify globally without creating tax headaches.
               </p>
             </CardContent>
           </Card>
         </Link>
+      </div>
+
+      <div className="mt-14 space-y-4">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold">Retire By Age</h2>
+          <p className="text-muted-foreground">
+            See exactly how much you need to retire at different ages, backed by the calculator.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {retireAgeLinks.map((age) => (
+            <Link
+              key={age}
+              href={`/learn/retire-at/${age.toString()}`}
+              className="transition-transform hover:scale-[1.02]"
+            >
+              <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+                <CardHeader>
+                  <CardTitle className="text-xl">Retire at {age}</CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">
+                    How much to save, what to invest, and what to tweak for age {age}.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
 
       <div className="bg-muted mt-16 rounded-xl p-8 text-center">
