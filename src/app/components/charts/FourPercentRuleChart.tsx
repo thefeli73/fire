@@ -92,7 +92,7 @@ export function FourPercentRuleChart() {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => `Year ${String(value)}`}
-                  indicator="dot"
+                  indicator="line"
                 />
               }
             />
