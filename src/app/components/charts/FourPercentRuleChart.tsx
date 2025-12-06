@@ -1,7 +1,14 @@
 'use client';
 
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   ChartContainer,
   ChartLegend,
@@ -96,6 +103,15 @@ export function FourPercentRuleChart() {
           </AreaChart>
         </ChartContainer>
       </CardContent>
+      <CardFooter>
+        <div>
+          <p className="font-medium">4% balances safety and spending power</p>
+          <p className="text-muted-foreground leading-none">
+            A 5% withdrawal rate risks depleting your portfolio within 30 years, while 3% leaves a large
+            surplus. The 4% rule is widely considered the safe &quot;sweet spot.&quot;
+          </p>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

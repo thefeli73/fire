@@ -1,7 +1,14 @@
 'use client';
 
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   ChartContainer,
   ChartLegend,
@@ -45,6 +52,9 @@ const generateData = () => {
 const data = generateData();
 
 const chartConfig = {
+  age: {
+    label: 'Age',
+  },
   Standard: {
     label: 'Standard Path',
     color: 'var(--chart-4)',
@@ -75,16 +85,22 @@ export function CoastFireChart() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value: number) => `$${String(value / 1000)}k`}
+              tickFormatter={(value: number) => {
+                if (value < 1000) {
+                  return `$${String(value)}`;
+                }
+                if (value < 1000000) {
+                  return `$${String(value / 1000)}k`;
+                }
+                if (value < 1000000000) {
+                  return `$${String(value / 1000000)}M`;
+                }
+                return `$${String(value / 1000000000)}B`;
+              }}
             />
             <ChartTooltip
               cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => `Age ${String(value)}`}
-                  indicator="line"
-                />
-              }
+              content={<ChartTooltipContent indicator="line" labelKey="age" />}
             />
             <Line
               dataKey="Standard"
@@ -103,6 +119,12 @@ export function CoastFireChart() {
             <ChartLegend content={<ChartLegendContent />} />
           </LineChart>
         </ChartContainer>
+        <CardFooter>
+          <p className="text-muted-foreground text-sm">
+            Simulation assumes 7% returns. Standard: Save $10k/yr (age 25-65). Coast: Save $30k/yr (age
+            25-35), then $0.
+          </p>
+        </CardFooter>
       </CardContent>
     </Card>
   );

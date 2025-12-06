@@ -147,7 +147,7 @@ export default function CoastVsLeanPage() {
           discipline.
         </p>
 
-        <Separator className="my-12" />
+        <Separator className="my-16" />
 
         <h2>Run The Numbers</h2>
         <p>The best way to decide is to see the math. Use our calculator to simulate both scenarios:</p>
