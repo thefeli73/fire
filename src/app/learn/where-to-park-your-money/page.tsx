@@ -362,7 +362,7 @@ export default function ParkYourMoneyPage() {
         <h2 className="mt-16">Further Reading & Evidence</h2>
         <ul className="mb-6 list-disc space-y-2 pl-5">
           <li>
-            Vanguard Research, “Global equity investing: The benefits of diversification” —{' '}
+            Vanguard Research,&quot;Global equity investing: The benefits of diversification&quot; —{' '}
             <Link
               href="https://corporate.vanguard.com/content/dam/corp/research/pdf/global-equity-investing-benefits-diversification.pdf"
               className="text-primary hover:underline"
@@ -373,7 +373,7 @@ export default function ParkYourMoneyPage() {
             </Link>
           </li>
           <li>
-            MSCI, “The Home Bias Effect in Global Portfolios” —{' '}
+            MSCI,&quot;The Home Bias Effect in Global Portfolios&quot; —{' '}
             <Link
               href="https://www.msci.com/research-and-insights/quick-take/did-home-bias-help"
               className="text-primary hover:underline"
@@ -395,7 +395,7 @@ export default function ParkYourMoneyPage() {
             </Link>
           </li>
           <li>
-            Bogleheads “Three-Fund Portfolio” —{' '}
+            Bogleheads&quot;Three-Fund Portfolio&quot; —{' '}
             <Link
               href="https://www.bogleheads.org/wiki/Three-fund_portfolio"
               className="text-primary hover:underline"

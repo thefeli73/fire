@@ -123,7 +123,7 @@ export default async function HomePage({
             How This FIRE Calculator Provides Investing Insights
           </h2>
           <p className="mb-4 text-lg leading-relaxed">
-            Our interactive tool goes beyond a simple “25x annual spending” rule. It runs a{' '}
+            Our interactive tool goes beyond a simple&quot;25x annual spending&quot; rule. It runs a{' '}
             <strong>year-by-year simulation</strong> of your portfolio, combining:
           </p>
           <ul className="mb-4 ml-6 list-disc space-y-2 text-lg">
@@ -294,7 +294,7 @@ export default async function HomePage({
                   >
                     Coast FIRE Calculator
                   </a>{' '}
-                  - When you “max out” early contributions but let compounding do the rest.
+                  - When you&quot;max out&quot; early contributions but let compounding do the rest.
                 </li>
                 <li>
                   <a

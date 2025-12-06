@@ -175,7 +175,7 @@ export default function HomeBiasPage() {
         <h2 className="mt-16">Evidence & Further Reading</h2>
         <ul className="mb-6 list-disc space-y-2 pl-5">
           <li>
-            MSCI, “The Home Bias Effect in Global Portfolios” —{' '}
+            MSCI,&quot;The Home Bias Effect in Global Portfolios&quot; —{' '}
             <Link
               href="https://www.msci.com/research-and-insights/quick-take/did-home-bias-help"
               className="text-primary hover:underline"
@@ -186,7 +186,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Vanguard Research, “Global equity investing: The benefits of diversification” —{' '}
+            Vanguard Research,&quot;Global equity investing: The benefits of diversification&quot; —{' '}
             <Link
               href="https://www.vanguardmexico.com/content/dam/intl/americas/documents/mexico/en/global-equity-investing-diversification-sizing.pdf"
               className="text-primary hover:underline"
@@ -197,7 +197,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Sercu &amp; Vanpee (2012), “The home bias puzzle in equity portfolios” —{' '}
+            Sercu &amp; Vanpee (2012),&quot;The home bias puzzle in equity portfolios&quot; —{' '}
             <Link
               href="https://doi.org/10.1093/acprof:oso/9780199754656.003.0015"
               className="text-primary hover:underline"
@@ -208,8 +208,8 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Fisher, Shah &amp; Titman (2017), “Should you tilt your equity portfolio to smaller
-            countries?” —{' '}
+            Fisher, Shah &amp; Titman (2017),&quot;Should you tilt your equity portfolio to smaller
+            countries?&quot; —{' '}
             <Link
               href="https://doi.org/10.3905/jpm.2017.44.1.127"
               className="text-primary hover:underline"
@@ -220,7 +220,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Attig &amp; Sy (2023), “Diversification during hard times” —{' '}
+            Attig &amp; Sy (2023), &quot;Diversification during hard times&quot; —{' '}
             <Link
               href="https://doi.org/10.1080/0015198X.2022.2160620"
               className="text-primary hover:underline"
@@ -231,7 +231,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Blanchett (2021), “Foreign revenue: A new world of risk exposures” —{' '}
+            Blanchett (2021),&quot;Foreign revenue: A new world of risk exposures&quot; —{' '}
             <Link
               href="https://doi.org/10.3905/jpm.2021.1.237"
               className="text-primary hover:underline"
@@ -242,8 +242,8 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Anarkulova, Cederburg &amp; O’Doherty (2023), “Beyond the status quo: A critical assessment
-            of lifecycle investment advice” —{' '}
+            Anarkulova, Cederburg &amp; O’Doherty (2023),&quot;Beyond the status quo: A critical
+            assessment of lifecycle investment advice&quot; —{' '}
             <Link
               href="https://doi.org/10.2139/ssrn.4590406"
               className="text-primary hover:underline"
@@ -254,7 +254,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Goetzmann (2004), “Will history rhyme?” —{' '}
+            Goetzmann (2004),&quot;Will history rhyme?&quot; —{' '}
             <Link
               href="https://doi.org/10.3905/jpm.2004.442619"
               className="text-primary hover:underline"
@@ -265,7 +265,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Ritter (2012), “Is economic growth good for investors?” —{' '}
+            Ritter (2012),&quot;Is economic growth good for investors?&quot; —{' '}
             <Link
               href="https://doi.org/10.1111/j.1745-6622.2012.00385.x"
               className="text-primary hover:underline"
@@ -274,7 +274,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            French (2022), “Five things I know about investing” —{' '}
+            French (2022),&quot;Five things I know about investing&quot; —{' '}
             <Link
               href="https://www.dimensional.com/us-en/insights/five-things-i-know-about-investing"
               className="text-primary hover:underline"
@@ -285,7 +285,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Bryan (2018), “World War 1 and global stock markets” —{' '}
+            Bryan (2018),&quot;World War 1 and global stock markets&quot; —{' '}
             <Link
               href="https://globalfinancialdata.com/world-war-1-and-global-stock-markets"
               className="text-primary hover:underline"
@@ -307,7 +307,7 @@ export default function HomeBiasPage() {
             </Link>
           </li>
           <li>
-            Merton (1973), “An intertemporal capital asset pricing model” —{' '}
+            Merton (1973),&quot;An intertemporal capital asset pricing model&quot; —{' '}
             <Link
               href="https://doi.org/10.2307/1913811"
               className="text-primary hover:underline"

@@ -162,7 +162,7 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
               {age}.
             </p>
             <ul className="text-muted-foreground list-disc space-y-2 pl-5">
-              <li>Uses the classic “Rule of 25” (annual spend ÷ {withdrawalRate * 100}%)</li>
+              <li>Uses the classic&quot;Rule of 25&quot; (annual spend ÷ {withdrawalRate * 100}%)</li>
               <li>Assumes inflation-adjusted withdrawals and a diversified portfolio</li>
               <li>Refine the projection below with your exact savings, age, and market assumptions</li>
             </ul>
