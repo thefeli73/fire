@@ -11,11 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import {
   Area,
   AreaChart,
   CartesianGrid,
+  Line,
   XAxis,
   YAxis,
   ReferenceLine,
@@ -93,15 +94,7 @@ const tooltipRenderer = ({ active, payload }: TooltipProps<ValueType, NameType>)
     return (
       <div className="bg-background border p-2 shadow-sm">
         <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-        {data.balanceP50 !== undefined ? (
-          <>
-            <p className="text-orange-500">{`Median Balance: ${formatNumber(data.balanceP50)}`}</p>
-            <p className="text-xs text-orange-300">{`10th %: ${formatNumber(data.balanceP10 ?? 0)}`}</p>
-            <p className="text-xs text-orange-300">{`90th %: ${formatNumber(data.balanceP90 ?? 0)}`}</p>
-          </>
-        ) : (
-          <p className="text-orange-500">{`Balance: ${formatNumber(data.balance)}`}</p>
-        )}
+        <p className="text-orange-500">{`Median Balance: ${formatNumber(data.balanceP50 ?? data.balance)}`}</p>
         <p className="text-red-600">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
         <p>{`Phase: ${data.phase === 'accumulation' ? 'Accumulation' : 'Retirement'}`}</p>
       </div>
@@ -113,10 +106,10 @@ const tooltipRenderer = ({ active, payload }: TooltipProps<ValueType, NameType>)
 export default function FireCalculatorForm({
   initialValues,
   autoCalculate = false,
-}: {
+}: Readonly<{
   initialValues?: Partial<FireCalculatorFormValues>;
   autoCalculate?: boolean;
-}) {
+}>) {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
   const [copied, setCopied] = useState(false);
@@ -220,7 +213,7 @@ export default function FireCalculatorForm({
     const simulationMode = values.simulationMode;
     const volatility = values.volatility;
 
-    const numSimulations = simulationMode === 'monte-carlo' ? 500 : 1;
+    const numSimulations = simulationMode === 'monte-carlo' ? 2000 : 1;
     const simulationResults: number[][] = []; // [yearIndex][simulationIndex] -> balance
 
     // Prepare simulation runs
@@ -298,9 +291,9 @@ export default function FireCalculatorForm({
       // Sort to find percentiles
       balancesForYear.sort((a, b) => a - b);
 
-      const p10 = balancesForYear[Math.floor(numSimulations * 0.1)];
+      const p10 = balancesForYear[Math.floor(numSimulations * 0.4)];
       const p50 = balancesForYear[Math.floor(numSimulations * 0.5)];
-      const p90 = balancesForYear[Math.floor(numSimulations * 0.9)];
+      const p90 = balancesForYear[Math.floor(numSimulations * 0.6)];
 
       // Calculate other metrics (using deterministic logic for "untouched" etc for simplicity, or p50)
       // We need to reconstruct the "standard" fields for compatibility with the chart
@@ -401,6 +394,13 @@ export default function FireCalculatorForm({
       }, 4000);
     });
   };
+
+  const isMonteCarlo = form.watch('simulationMode') === 'monte-carlo';
+  const chartData =
+    result?.yearlyData.map((row) => ({
+      ...row,
+      mcRange: (row.balanceP90 ?? 0) - (row.balanceP10 ?? 0),
+    })) ?? [];
 
   return (
     <>
@@ -719,7 +719,7 @@ export default function FireCalculatorForm({
                     <FormItem>
                       <FormLabel>
                         Simulation Mode
-                        <InfoTooltip content="Deterministic uses fixed yearly returns. Monte Carlo simulates market randomness with 500 runs to show probability ranges." />
+                        <InfoTooltip content="Monte Carlo simulates market randomness with 2000 runs to show probability ranges. Deterministic uses fixed yearly returns." />
                       </FormLabel>
                       <Select
                         onValueChange={(val) => {
@@ -852,11 +852,13 @@ export default function FireCalculatorForm({
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">
+                    {isMonteCarlo && (
+                      <p className="text-muted-foreground px-2 text-xs" data-testid="mc-band-legend">
+                        Shaded band shows 40th-60th percentile outcomes across 2000 simulations.
+                      </p>
+                    )}
                     <ChartContainer className="aspect-auto h-80 w-full" config={{}}>
-                      <AreaChart
-                        data={result.yearlyData}
-                        margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
-                      >
+                      <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 20, bottom: 10 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
                           dataKey="year"
@@ -901,11 +903,26 @@ export default function FireCalculatorForm({
                           width={30}
                           stroke="var(--color-red-600)"
                         />
-                        <ChartTooltip content={tooltipRenderer} />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              label={'Year'}
+                              labelFormatter={(value) => {
+                                return value;
+                              }}
+                              labelKey="year"
+                              indicator="line"
+                            />
+                          }
+                        />
                         <defs>
                           <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="var(--color-orange-500)" stopOpacity={0.8} />
                             <stop offset="95%" stopColor="var(--color-orange-500)" stopOpacity={0.1} />
+                          </linearGradient>
+                          <linearGradient id="fillMonteCarloBand" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="var(--color-secondary)" stopOpacity={0.3} />
                           </linearGradient>
                         </defs>
                         <Area
@@ -919,28 +936,55 @@ export default function FireCalculatorForm({
                           yAxisId={'right'}
                           stackId={'a'}
                         />
-                        {form.getValues('simulationMode') === 'monte-carlo' && (
-                          <>
-                            <Area
-                              type="monotone"
-                              dataKey="balanceP10"
-                              stroke="none"
-                              fill="var(--color-orange-500)"
-                              fillOpacity={0.1}
-                              yAxisId={'right'}
-                              connectNulls
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="balanceP90"
-                              stroke="none"
-                              fill="var(--color-orange-500)"
-                              fillOpacity={0.1}
-                              yAxisId={'right'}
-                              connectNulls
-                            />
-                          </>
-                        )}
+                        <Area
+                          type="monotone"
+                          dataKey="balanceP10"
+                          stackId="mc-range"
+                          stroke="none"
+                          fill="none"
+                          yAxisId={'right'}
+                          connectNulls
+                          isAnimationActive={false}
+                          className="mc-bound-base"
+                          data-testid="mc-bound-lower"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey={(data: YearlyData & { mcRange: number }) => data.mcRange}
+                          stackId="mc-range"
+                          stroke="none"
+                          fill="url(#fillMonteCarloBand)"
+                          fillOpacity={0.3}
+                          yAxisId={'right'}
+                          connectNulls
+                          isAnimationActive={false}
+                          className="mc-bound-band"
+                          data-testid="mc-bound-band"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="balanceP10"
+                          stroke="var(--color-orange-500)"
+                          strokeDasharray="6 6"
+                          strokeWidth={1.25}
+                          dot={false}
+                          activeDot={false}
+                          yAxisId={'right'}
+                          className="mc-bound-line-lower"
+                          data-testid="mc-bound-line-lower"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="balanceP90"
+                          stroke="var(--color-orange-500)"
+                          strokeDasharray="6 6"
+                          strokeWidth={1.25}
+                          dot={false}
+                          activeDot={false}
+                          yAxisId={'right'}
+                          className="mc-bound-line-upper"
+                          data-testid="mc-bound-line-upper"
+                        />
                         <Area
                           type="step"
                           dataKey="monthlyAllowance"

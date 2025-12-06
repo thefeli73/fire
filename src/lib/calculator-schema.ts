@@ -24,7 +24,7 @@ export const fireCalculatorFormSchema = z.object({
     .max(100, 'Coast FIRE age must be at most 100')
     .optional(),
   baristaIncome: z.coerce.number().min(0, 'Barista income must be a non-negative number').optional(),
-  simulationMode: z.enum(['deterministic', 'monte-carlo']).default('deterministic'),
+  simulationMode: z.enum(['deterministic', 'monte-carlo']).default('monte-carlo'),
   volatility: z.coerce.number().min(0).default(15),
   withdrawalStrategy: z.enum(['fixed', 'percentage']).default('fixed'),
   withdrawalPercentage: z.coerce.number().min(0).max(100).default(4),
@@ -43,7 +43,7 @@ export const fireCalculatorDefaultValues: FireCalculatorFormValues = {
   retirementAge: 65,
   coastFireAge: undefined,
   baristaIncome: 0,
-  simulationMode: 'deterministic',
+  simulationMode: 'monte-carlo',
   volatility: 15,
   withdrawalStrategy: 'fixed',
   withdrawalPercentage: 4,

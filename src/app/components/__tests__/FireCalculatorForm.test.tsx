@@ -113,6 +113,22 @@ describe('FireCalculatorForm', () => {
     expect(await screen.findByRole('spinbutton', { name: /Market Volatility/i })).toBeInTheDocument();
   });
 
+  it('shows Monte Carlo percentile bounds on the chart', async () => {
+    const user = userEvent.setup();
+    render(<FireCalculatorForm />);
+
+    const modeTrigger = screen.getByRole('combobox', { name: /Simulation Mode/i });
+    await user.click(modeTrigger);
+
+    const monteCarloOption = await screen.findByRole('option', { name: /Monte Carlo/i });
+    await user.click(monteCarloOption);
+
+    await screen.findByText('Financial Projection');
+    const bandLegend = await screen.findByTestId('mc-band-legend');
+
+    expect(bandLegend).toHaveTextContent('10th-90th percentile');
+  });
+
   it('handles withdrawal strategy selection', async () => {
     const user = userEvent.setup();
     render(<FireCalculatorForm />);
