@@ -143,6 +143,8 @@ export default function FireCalculatorForm() {
       baristaIncome: 0,
       simulationMode: 'deterministic',
       volatility: 15,
+      withdrawalStrategy: 'fixed',
+      withdrawalPercentage: 4,
     },
   });
 
