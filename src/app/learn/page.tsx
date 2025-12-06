@@ -11,7 +11,6 @@ export const metadata = {
 export default function LearnHubPage() {
   return (
     <div className="container mx-auto max-w-4xl px-4 py-12">
-      
       <div className="mb-12 text-center">
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight lg:text-5xl">FIRE Knowledge Base</h1>
         <p className="text-muted-foreground text-xl">
@@ -26,7 +25,7 @@ export default function LearnHubPage() {
             <BlurThing />
             <CardHeader>
               <div className="mb-2">
-                <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 ">
+                <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                   Beginner
                 </span>
               </div>
@@ -52,7 +51,7 @@ export default function LearnHubPage() {
           <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
             <CardHeader>
               <div className="mb-2">
-                <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 ">
+                <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
                   Strategy
                 </span>
               </div>
@@ -76,7 +75,7 @@ export default function LearnHubPage() {
           <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
             <CardHeader>
               <div className="mb-2">
-                <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 ">
+                <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
                   Comparison
                 </span>
               </div>
