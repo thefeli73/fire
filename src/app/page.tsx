@@ -1,66 +1,43 @@
 import Image from 'next/image';
 import FireCalculatorForm from './components/FireCalculatorForm';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import BackgroundPattern from './components/BackgroundPattern';
-
+import { FaqSection, type FaqItem } from './components/FaqSection';
 import { Testimonials } from './components/Testimonials';
 
-export default function HomePage() {
-  const faqData = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'What methodology does this calculator use?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: "We run a multi-year projection in two phases: 1. Accumulation: Your balance grows by CAGR and you add monthly savings. 2. Retirement: The balance continues compounding, but you withdraw an inflation-adjusted monthly allowance. The result: a precise estimate of the capital you'll have at retirement (your “FIRE Number”) and how long it will last until your chosen life expectancy.",
-        },
-      },
-      {
-        '@type': 'Question',
-        name: "Why isn't this just the 4% rule?",
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: "The 4% rule is a useful starting point (25× annual spending), but it assumes a fixed withdrawal rate with inflation adjustments and doesn't model ongoing savings or dynamic market returns. Our calculator simulates each year's growth, contributions, and inflation-indexed withdrawals to give you a tailored picture.",
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How do I choose a realistic growth rate?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Historically, a diversified portfolio of equities and bonds has returned around 7-10% per year before inflation. We recommend starting around 6-8% (net of fees), then running “what-if” scenarios—5% on the conservative side, 10% on the aggressive side—to see how they affect your timeline.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How does inflation factor into my FIRE Number?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: "Cost of living rises. To maintain today's lifestyle, your monthly allowance must grow each year by your inflation rate. This calculator automatically inflates your desired monthly spending and subtracts it from your portfolio during retirement, ensuring your FIRE Number keeps pace with rising expenses.",
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Can I really retire early with FIRE?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Early retirement is achievable with disciplined saving, smart investing, and realistic assumptions. This tool helps you set targets, visualize outcomes, and adjust inputs—so you can build confidence in your plan and make informed trade-offs between lifestyle, risk, and timeline.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How should I use this calculator effectively?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Start with your actual numbers (capital, savings, age). Set conservative - mid - aggressive growth rates to bound possibilities. Slide your retirement age to explore “early” vs. “traditional” scenarios. Review the chart—especially the reference lines—to see when you hit FI and how withdrawals impact your balance. Experiment with higher savings rates or lower target spending to accelerate your path.',
-        },
-      },
-    ],
-  };
+const faqs: FaqItem[] = [
+  {
+    question: 'What methodology does this calculator use?',
+    answer:
+      'We run a multi-year projection in two phases: 1. Accumulation: Your balance grows by CAGR and you add monthly savings. 2. Retirement: The balance continues compounding, but you withdraw an inflation-adjusted monthly allowance. The result: a precise estimate of the capital you\'ll have at retirement (your "FIRE Number") and how long it will last until your chosen life expectancy.',
+  },
+  {
+    question: "Why isn't this just the 4% rule?",
+    answer:
+      "The 4% rule is a useful starting point (25x annual spending), but it assumes a fixed withdrawal rate with inflation adjustments and doesn't model ongoing savings or dynamic market returns. Our calculator simulates each year's growth, contributions, and inflation-indexed withdrawals to give you a tailored picture.",
+  },
+  {
+    question: 'How do I choose a realistic growth rate?',
+    answer:
+      'Historically, a diversified portfolio of equities and bonds has returned around 7-10% per year before inflation. We recommend starting around 6-8% (net of fees), then running "what-if" scenarios—5% on the conservative side, 10% on the aggressive side—to see how they affect your timeline.',
+  },
+  {
+    question: 'How does inflation factor into my FIRE Number?',
+    answer:
+      "Cost of living rises. To maintain today's lifestyle, your monthly allowance must grow each year by your inflation rate. This calculator automatically inflates your desired monthly spending and subtracts it from your portfolio during retirement, ensuring your FIRE Number keeps pace with rising expenses.",
+  },
+  {
+    question: 'Can I really retire early with FIRE?',
+    answer:
+      'Early retirement is achievable with disciplined saving, smart investing, and realistic assumptions. This tool helps you set targets, visualize outcomes, and adjust inputs—so you can build confidence in your plan and make informed trade-offs between lifestyle, risk, and timeline.',
+  },
+  {
+    question: 'How should I use this calculator effectively?',
+    answer:
+      'Start with your actual numbers (capital, savings, age). Set conservative - mid - aggressive growth rates to bound possibilities. Slide your retirement age to explore "early" vs. "traditional" scenarios. Review the chart—especially the reference lines—to see when you hit FI and how withdrawals impact your balance. Experiment with higher savings rates or lower target spending to accelerate your path.',
+  },
+];
 
+export default function HomePage() {
   return (
     <div className="from-background via-primary/10 to-secondary/10 text-foreground relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-gradient-to-b px-4 pt-6 pb-16">
       <BackgroundPattern />
@@ -176,105 +153,11 @@ export default function HomePage() {
           </p>
         </section>
 
-        <section className="mb-12">
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
-          />
-          <h2 className="mb-4 text-3xl font-bold">FIRE & Investing Frequently Asked Questions (FAQ)</h2>
-
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger className="text-xl font-semibold">
-                What methodology does this calculator use?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                We run a multi-year projection in two phases:
-                <ol className="ml-6 list-decimal space-y-1">
-                  <li>
-                    <strong>Accumulation:</strong> Your balance grows by CAGR and you add monthly
-                    savings.
-                  </li>
-                  <li>
-                    <strong>Retirement:</strong> The balance continues compounding, but you withdraw an
-                    inflation-adjusted monthly allowance.
-                  </li>
-                </ol>
-                The result: a precise estimate of the capital you&apos;ll have at retirement (your “FIRE
-                Number”) and how long it will last until your chosen life expectancy.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-2">
-              <AccordionTrigger className="text-xl font-semibold">
-                Why isn&apos;t this just the 4% rule?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                The 4% rule is a useful starting point (25× annual spending), but it assumes a fixed
-                withdrawal rate with inflation adjustments and doesn&apos;t model ongoing savings or
-                dynamic market returns. Our calculator simulates each year&apos;s growth, contributions,
-                and inflation-indexed withdrawals to give you a tailored picture.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-3">
-              <AccordionTrigger className="text-xl font-semibold">
-                How do I choose a realistic growth rate?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                Historically, a diversified portfolio of equities and bonds has returned around 7-10% per
-                year before inflation. We recommend starting around 6-8% (net of fees), then running
-                “what-if” scenarios—5% on the conservative side, 10% on the aggressive side—to see how
-                they affect your timeline.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-4">
-              <AccordionTrigger className="text-xl font-semibold">
-                How does inflation factor into my FIRE Number?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                Cost of living rises. To maintain today&apos;s lifestyle, your monthly allowance must
-                grow each year by your inflation rate. This calculator automatically inflates your
-                desired monthly spending and subtracts it from your portfolio during retirement, ensuring
-                your FIRE Number keeps pace with rising expenses.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-5">
-              <AccordionTrigger className="text-xl font-semibold">
-                Can I really retire early with FIRE?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                Early retirement is achievable with disciplined saving, smart investing, and realistic
-                assumptions. This tool helps you set targets, visualize outcomes, and adjust inputs—so
-                you can build confidence in your plan and make informed trade-offs between lifestyle,
-                risk, and timeline.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-6">
-              <AccordionTrigger className="text-xl font-semibold">
-                How should I use this calculator effectively?
-              </AccordionTrigger>
-              <AccordionContent className="text-lg leading-relaxed">
-                <ul className="ml-6 list-disc space-y-1">
-                  <li>Start with your actual numbers (capital, savings, age).</li>
-                  <li>Set conservative - mid - aggressive growth rates to bound possibilities.</li>
-                  <li>Slide your retirement age to explore “early” vs. “traditional” scenarios.</li>
-                  <li>
-                    Review the chart—especially the reference lines—to see when you hit FI and how
-                    withdrawals impact your balance.
-                  </li>
-                  <li>
-                    Experiment with higher savings rates or lower target spending to accelerate your
-                    path.
-                  </li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
+        <FaqSection
+          faqs={faqs}
+          title="FIRE & Investing Frequently Asked Questions (FAQ)"
+          className="mb-12"
+        />
 
         {/* Optional: Add a section for relevant resources/links here */}
         <section className="mb-12">

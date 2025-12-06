@@ -8,9 +8,14 @@ export interface FaqItem {
 interface FaqSectionProps {
   faqs: FaqItem[];
   className?: string;
+  title?: string;
 }
 
-export function FaqSection({ faqs, className }: Readonly<FaqSectionProps>) {
+export function FaqSection({
+  faqs,
+  className,
+  title = 'Frequently Asked Questions',
+}: Readonly<FaqSectionProps>) {
   // JSON-LD FAQPage schema
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -29,7 +34,7 @@ export function FaqSection({ faqs, className }: Readonly<FaqSectionProps>) {
     <section className={className}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <h2 className="mb-6 text-2xl font-bold">Frequently Asked Questions</h2>
+      <h2 className="mb-6 text-2xl font-bold">{title}</h2>
 
       <Accordion type="single" collapsible className="w-full">
         {faqs.map((faq) => (
