@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { extractNumericSearchParam } from '@/lib/retire-at';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -22,7 +24,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { Calculator, Info, Percent, Share2, Check } from 'lucide-react';
+import { Calculator, Info, Share2, Check } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
 import Link from 'next/link';
@@ -63,8 +65,6 @@ interface YearlyData {
 
 interface CalculationResult {
   fireNumber: number | null;
-  fireNumber4percent: number | null;
-  retirementAge4percent: number | null;
   yearlyData: YearlyData[];
   error?: string;
   successRate?: number; // For Monte Carlo
@@ -119,7 +119,6 @@ export default function FireCalculatorForm({
 }) {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
-  const [showing4percent, setShowing4percent] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Initialize form with default values
@@ -127,6 +126,83 @@ export default function FireCalculatorForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues ?? fireCalculatorDefaultValues,
   });
+
+  // Hydrate from URL search params
+  const searchParams = useSearchParams();
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    if (hasHydrated) return;
+    if (searchParams.size === 0) {
+      setHasHydrated(true);
+      return;
+    }
+
+    const newValues: Partial<FormValues> = {};
+    const getParam = (key: string) => searchParams.get(key) ?? undefined;
+    const getNum = (key: string, bounds: { min?: number; max?: number } = {}) =>
+      extractNumericSearchParam(getParam(key), bounds);
+
+    const startingCapital = getNum('startingCapital', { min: 0 });
+    if (startingCapital !== undefined) newValues.startingCapital = startingCapital;
+
+    const monthlySavings = getNum('monthlySavings', { min: 0, max: 50000 });
+    if (monthlySavings !== undefined) newValues.monthlySavings = monthlySavings;
+
+    const currentAge = getNum('currentAge', { min: 1, max: 100 });
+    if (currentAge !== undefined) newValues.currentAge = currentAge;
+
+    const cagr = getNum('cagr') ?? getNum('growthRate', { min: 0, max: 30 });
+    if (cagr !== undefined) newValues.cagr = cagr;
+
+    const desiredMonthlyAllowance =
+      getNum('monthlySpend', { min: 0, max: 20000 }) ??
+      getNum('monthlyAllowance', { min: 0, max: 20000 });
+    if (desiredMonthlyAllowance !== undefined)
+      newValues.desiredMonthlyAllowance = desiredMonthlyAllowance;
+
+    const inflationRate = getNum('inflationRate', { min: 0, max: 20 });
+    if (inflationRate !== undefined) newValues.inflationRate = inflationRate;
+
+    const lifeExpectancy = getNum('lifeExpectancy', { min: 40, max: 110 });
+    if (lifeExpectancy !== undefined) newValues.lifeExpectancy = lifeExpectancy;
+
+    const retirementAge = getNum('retirementAge', { min: 18, max: 100 });
+    if (retirementAge !== undefined) newValues.retirementAge = retirementAge;
+
+    const coastFireAge = getNum('coastFireAge', { min: 18, max: 100 });
+    if (coastFireAge !== undefined) newValues.coastFireAge = coastFireAge;
+
+    const baristaIncome = getNum('baristaIncome', { min: 0 });
+    if (baristaIncome !== undefined) newValues.baristaIncome = baristaIncome;
+
+    const volatility = getNum('volatility', { min: 0 });
+    if (volatility !== undefined) newValues.volatility = volatility;
+
+    const withdrawalPercentage = getNum('withdrawalPercentage', { min: 0, max: 100 });
+    if (withdrawalPercentage !== undefined) newValues.withdrawalPercentage = withdrawalPercentage;
+
+    const simMode = searchParams.get('simulationMode');
+    if (simMode === 'deterministic' || simMode === 'monte-carlo') {
+      newValues.simulationMode = simMode;
+    }
+
+    const wStrategy = searchParams.get('withdrawalStrategy');
+    if (wStrategy === 'fixed' || wStrategy === 'percentage') {
+      newValues.withdrawalStrategy = wStrategy;
+    }
+
+    if (Object.keys(newValues).length > 0) {
+      // We merge with current values (which are defaults initially)
+      const merged = { ...form.getValues(), ...newValues };
+      form.reset(merged);
+      // Trigger calculation
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      form.handleSubmit(onSubmit)();
+    }
+    setHasHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, hasHydrated]); // form is stable, but adding it causes no harm, excluding for cleaner hook deps
 
   function onSubmit(values: FormValues) {
     setResult(null); // Reset previous results
@@ -271,42 +347,16 @@ export default function FireCalculatorForm({
     const retirementIndex = yearlyData.findIndex((data) => data.year === retirementYear);
     const retirementData = yearlyData[retirementIndex];
 
-    const [fireNumber4percent, retirementAge4percent] = (() => {
-      // Re-enable 4% rule for deterministic mode or use p50 for MC
-      // For MC, "untouchedBalance" isn't tracked per run in aggregate, but we can use balanceP50 roughly
-      // or just disable it as it's a different philosophy.
-      // For now, let's calculate it based on the main "balance" field (which is p50 in MC)
-      for (const yearData of yearlyData) {
-        // Note: This is imperfect for MC because 'balance' includes withdrawals in retirement
-        // whereas 4% rule check usually looks at "if I retired now with this balance".
-        // The original code had `untouchedBalance` which grew without withdrawals.
-        // Since we removed `untouchedBalance` calculation in the aggregate loop, let's skip 4% for MC for now.
-
-        if (
-          simulationMode === 'deterministic' &&
-          yearData.untouchedBalance &&
-          yearData.untouchedBalance > (yearData.untouchedMonthlyAllowance * 12) / 0.04
-        ) {
-          return [yearData.untouchedBalance, yearData.age];
-        }
-      }
-      return [null, null];
-    })();
-
     if (retirementIndex === -1) {
       setResult({
         fireNumber: null,
-        fireNumber4percent: null,
-        retirementAge4percent: null,
-        error: 'Could not calculate retirement data',
         yearlyData: yearlyData,
+        error: 'Could not calculate retirement data',
       });
     } else {
       // Set the result
       setResult({
         fireNumber: retirementData.balance,
-        fireNumber4percent: fireNumber4percent,
-        retirementAge4percent: retirementAge4percent,
         yearlyData: yearlyData,
         successRate:
           simulationMode === 'monte-carlo' ? (successCount / numSimulations) * 100 : undefined,
@@ -324,34 +374,23 @@ export default function FireCalculatorForm({
   }, [autoCalculate]);
 
   const handleShare = () => {
-    const values = form.getValues();
+    const values = form.getValues() as FireCalculatorFormValues;
     const params = new URLSearchParams();
 
-    if (values.startingCapital !== undefined && values.startingCapital !== null)
-      params.set('startingCapital', String(values.startingCapital));
-    if (values.monthlySavings !== undefined && values.monthlySavings !== null)
-      params.set('monthlySavings', String(values.monthlySavings));
-    if (values.currentAge !== undefined && values.currentAge !== null)
-      params.set('currentAge', String(values.currentAge));
-    if (values.cagr !== undefined && values.cagr !== null) params.set('cagr', String(values.cagr));
-    if (values.desiredMonthlyAllowance !== undefined && values.desiredMonthlyAllowance !== null)
-      params.set('monthlySpend', String(values.desiredMonthlyAllowance));
-    if (values.inflationRate !== undefined && values.inflationRate !== null)
-      params.set('inflationRate', String(values.inflationRate));
-    if (values.lifeExpectancy !== undefined && values.lifeExpectancy !== null)
-      params.set('lifeExpectancy', String(values.lifeExpectancy));
-    if (values.retirementAge !== undefined && values.retirementAge !== null)
-      params.set('retirementAge', String(values.retirementAge));
-    if (values.coastFireAge !== undefined && values.coastFireAge !== null)
-      params.set('coastFireAge', String(values.coastFireAge));
-    if (values.baristaIncome !== undefined && values.baristaIncome !== null)
-      params.set('baristaIncome', String(values.baristaIncome));
-    if (values.simulationMode) params.set('simulationMode', values.simulationMode);
-    if (values.volatility !== undefined && values.volatility !== null)
-      params.set('volatility', String(values.volatility));
-    if (values.withdrawalStrategy) params.set('withdrawalStrategy', values.withdrawalStrategy);
-    if (values.withdrawalPercentage !== undefined && values.withdrawalPercentage !== null)
-      params.set('withdrawalPercentage', String(values.withdrawalPercentage));
+    params.set('startingCapital', String(values.startingCapital));
+    params.set('monthlySavings', String(values.monthlySavings));
+    params.set('currentAge', String(values.currentAge));
+    params.set('cagr', String(values.cagr));
+    params.set('monthlySpend', String(values.desiredMonthlyAllowance));
+    params.set('inflationRate', String(values.inflationRate));
+    params.set('lifeExpectancy', String(values.lifeExpectancy));
+    params.set('retirementAge', String(values.retirementAge));
+    params.set('coastFireAge', String(values.coastFireAge));
+    params.set('baristaIncome', String(values.baristaIncome));
+    params.set('simulationMode', values.simulationMode);
+    params.set('volatility', String(values.volatility));
+    params.set('withdrawalStrategy', values.withdrawalStrategy);
+    params.set('withdrawalPercentage', String(values.withdrawalPercentage));
 
     const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -924,19 +963,6 @@ export default function FireCalculatorForm({
                             yAxisId={'right'}
                           />
                         )}
-                        {result.fireNumber4percent && showing4percent && (
-                          <ReferenceLine
-                            y={result.fireNumber4percent}
-                            stroke="var(--secondary)"
-                            strokeWidth={1}
-                            strokeDasharray="1 1"
-                            label={{
-                              value: '4%-Rule FIRE Number',
-                              position: 'insideBottomLeft',
-                            }}
-                            yAxisId={'right'}
-                          />
-                        )}
                         <ReferenceLine
                           x={
                             irlYear +
@@ -951,45 +977,18 @@ export default function FireCalculatorForm({
                           }}
                           yAxisId={'left'}
                         />
-                        {result.retirementAge4percent && showing4percent && (
-                          <ReferenceLine
-                            x={
-                              irlYear +
-                              (result.retirementAge4percent - Number(form.getValues('currentAge')))
-                            }
-                            stroke="var(--secondary)"
-                            strokeWidth={1}
-                            label={{
-                              value: '4%-Rule Retirement',
-                              position: 'insideBottomLeft',
-                            }}
-                            yAxisId={'left'}
-                          />
-                        )}
                       </AreaChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
               )}
               {result && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button
-                    onClick={() => {
-                      setShowing4percent(!showing4percent);
-                    }}
-                    variant={showing4percent ? 'secondary' : 'default'}
-                    size={'sm'}
-                    className="gap-2"
-                    type="button"
-                  >
-                    <Percent className="h-4 w-4" />
-                    {showing4percent ? 'Hide' : 'Show'} 4%-Rule
-                  </Button>
+                <div className="mt-2 flex flex-wrap justify-end gap-2">
                   <Button
                     onClick={handleShare}
-                    variant="outline"
-                    size={'sm'}
-                    className="gap-2"
+                    variant="default"
+                    size={'lg'}
+                    className="w-full gap-2 md:w-auto"
                     type="button"
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
@@ -1035,35 +1034,6 @@ export default function FireCalculatorForm({
                   </p>
                 </CardContent>
               </Card>
-              {showing4percent && (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>4%-Rule FIRE Number</CardTitle>
-                      <CardDescription className="text-xs">
-                        Capital needed for 4% of it to be greater than your yearly allowance
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">{formatNumber(result.fireNumber4percent)}</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>4%-Rule Retirement Duration</CardTitle>
-                      <CardDescription className="text-xs">
-                        Years to enjoy your financial independence if you follow the 4% rule
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">
-                        {Number(form.getValues('lifeExpectancy')) - (result.retirementAge4percent ?? 0)}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
             </>
           )}
         </div>

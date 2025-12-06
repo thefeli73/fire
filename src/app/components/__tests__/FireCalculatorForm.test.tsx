@@ -36,6 +36,17 @@ vi.mock('recharts', async () => {
   };
 });
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => '/',
+}));
+
 describe('FireCalculatorForm', () => {
   it('renders the form with default values', () => {
     render(<FireCalculatorForm />);
@@ -99,30 +110,6 @@ describe('FireCalculatorForm', () => {
 
     // Verify Volatility input appears
     expect(await screen.findByRole('spinbutton', { name: /Market Volatility/i })).toBeInTheDocument();
-  });
-
-  it('toggles 4% Rule overlay', async () => {
-    const user = userEvent.setup();
-    render(<FireCalculatorForm />);
-
-    // Calculate first to show results
-    const calculateButton = screen.getByRole('button', { name: /Calculate/i });
-    await user.click(calculateButton);
-
-    // Wait for results
-    await waitFor(() => {
-      expect(screen.getByText('Financial Projection')).toBeInTheDocument();
-    });
-
-    // Find the Show 4%-Rule button
-    const showButton = screen.getByRole('button', { name: /Show 4%-Rule/i });
-    await user.click(showButton);
-
-    // Should now see 4%-Rule stats
-    expect(await screen.findByText('4%-Rule FIRE Number')).toBeInTheDocument();
-
-    // Button text should change
-    expect(screen.getByRole('button', { name: /Hide 4%-Rule/i })).toBeInTheDocument();
   });
 
   it('handles withdrawal strategy selection', async () => {

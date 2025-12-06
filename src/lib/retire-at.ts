@@ -4,7 +4,7 @@ type NumericParam = string | number | null | undefined;
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-const numericFromParam = (value: NumericParam) => {
+export const numericFromParam = (value: NumericParam) => {
   if (value === null || value === undefined) return undefined;
   const parsed = typeof value === 'string' ? Number(value) : value;
   if (!Number.isFinite(parsed)) return undefined;
@@ -143,7 +143,7 @@ export const deriveDefaultInputs = (
   };
 };
 
-const extractNumericSearchParam = (
+export const extractNumericSearchParam = (
   value: string | string[] | undefined,
   bounds?: { min?: number; max?: number },
 ) => {

@@ -1,9 +1,9 @@
 import Image from 'next/image';
+import { Suspense } from 'react';
 import FireCalculatorForm from './components/FireCalculatorForm';
 import BackgroundPattern from './components/BackgroundPattern';
 import { FaqSection, type FaqItem } from './components/FaqSection';
 import { Testimonials } from './components/Testimonials';
-import { extractCalculatorValuesFromSearch } from '@/lib/retire-at';
 
 const faqs: FaqItem[] = [
   {
@@ -38,23 +38,7 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export default async function HomePage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}>) {
-  const resolvedParams = await searchParams;
-
-  // Parse target age from params to seed defaults correctly (e.g. currentAge logic depends on it)
-  const paramRetireAge = Array.isArray(resolvedParams.retirementAge)
-    ? resolvedParams.retirementAge[0]
-    : resolvedParams.retirementAge;
-
-  const targetAge =
-    paramRetireAge && !Number.isNaN(Number(paramRetireAge)) ? Number(paramRetireAge) : 55;
-
-  const initialValues = extractCalculatorValuesFromSearch(resolvedParams, targetAge);
-
+export default function HomePage() {
   return (
     <div className="from-background via-primary/10 to-secondary/10 text-foreground relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-gradient-to-b px-4 pt-6 pb-16">
       <BackgroundPattern />
@@ -81,7 +65,9 @@ export default async function HomePage({
           how FIRE works.
         </p>
         <div className="mt-8 w-full max-w-2xl">
-          <FireCalculatorForm initialValues={initialValues} />
+          <Suspense fallback={<div>Loading calculator...</div>}>
+            <FireCalculatorForm />
+          </Suspense>
         </div>
       </div>
 
