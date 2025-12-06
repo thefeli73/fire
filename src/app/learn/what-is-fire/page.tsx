@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { FireFlowchart } from '@/app/components/charts/FireFlowchart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 
