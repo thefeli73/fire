@@ -286,7 +286,7 @@ export default function HomePage() {
             blogs, books, tools, and communities for financial independence and smart investing.
           </p>
 
-          <div className="bg-foreground my-8 rounded-md p-4 text-lg">
+          <div className="text-background bg-foreground my-8 rounded-md p-4 text-lg">
             <p className="font-semibold">Getting Started with FIRE:</p>
             <ol className="ml-6 list-decimal space-y-1">
               <li>Run your first projection above to find your target FIRE Number.</li>
