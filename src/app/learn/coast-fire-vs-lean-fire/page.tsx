@@ -69,7 +69,7 @@ export default function CoastVsLeanPage() {
         </p>
       </header>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="max-w-none">
         <h2>The Quick Summary</h2>
         <p>Not sure which one fits you? Here is the high-level breakdown:</p>
 

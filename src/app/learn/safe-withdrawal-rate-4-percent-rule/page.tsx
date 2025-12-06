@@ -64,7 +64,7 @@ export default function SafeWithdrawalPage() {
         </p>
       </header>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="max-w-none">
         <h2>What is the 4% Rule?</h2>
         <p>
           The rule comes from the <strong>Trinity Study</strong> (1998), which looked at historical

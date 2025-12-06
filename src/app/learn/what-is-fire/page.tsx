@@ -67,7 +67,7 @@ export default function WhatIsFirePage() {
         </p>
       </header>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="max-w-none">
         <p>
           Imagine waking up on a Monday morning without an alarm clock. You don&apos;t have to rush to a
           commute, sit in traffic, or answer to a boss. Instead, you have the ultimate luxury:{' '}
