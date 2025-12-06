@@ -1,13 +1,7 @@
-import { BASE_URL } from '@/lib/constants';
 import { type MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: BASE_URL,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 1,
-    },
-  ];
+import { buildSitemapEntries } from '@/lib/sitemap';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  return buildSitemapEntries();
 }
