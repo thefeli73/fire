@@ -70,15 +70,16 @@ describe('FireCalculatorForm', () => {
     });
   });
 
-  it('allows changing inputs', () => {
-    // using fireEvent for reliability with number inputs in jsdom
+  it('allows changing inputs', async () => {
     render(<FireCalculatorForm />);
 
     const savingsInput = screen.getByRole('spinbutton', { name: /Monthly Savings/i });
 
     fireEvent.change(savingsInput, { target: { value: '2000' } });
 
-    expect(savingsInput).toHaveValue(2000);
+    await waitFor(() => {
+      expect(savingsInput).toHaveValue(2000);
+    });
   });
 
   it('validates inputs', async () => {
