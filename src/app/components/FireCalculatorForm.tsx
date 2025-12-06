@@ -11,7 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 import {
   Area,
   AreaChart,
@@ -24,7 +29,7 @@ import {
 } from 'recharts';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { Calculator, Info, Share2, Check } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
@@ -87,20 +92,57 @@ const formatNumber = (value: number | null) => {
   }).format(value);
 };
 
-// Helper function to render tooltip for chart
-const tooltipRenderer = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
-  if (active && payload?.[0]?.payload) {
-    const data = payload[0].payload as YearlyData;
-    return (
-      <div className="bg-background border p-2 shadow-sm">
-        <p className="font-medium">{`Year: ${data.year.toString()} (Age: ${data.age.toString()})`}</p>
-        <p className="text-orange-500">{`Median Balance: ${formatNumber(data.balanceP50 ?? data.balance)}`}</p>
-        <p className="text-red-600">{`Monthly allowance: ${formatNumber(data.monthlyAllowance)}`}</p>
-        <p>{`Phase: ${data.phase === 'accumulation' ? 'Accumulation' : 'Retirement'}`}</p>
-      </div>
-    );
+const formatNumberShort = (value: number) => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toPrecision(3)}M`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toPrecision(3)}K`;
+  } else if (value <= -1000000) {
+    return `${(value / 1000000).toPrecision(3)}M`;
+  } else if (value <= -1000) {
+    return `${(value / 1000).toPrecision(3)}K`;
   }
-  return null;
+  return value.toString();
+};
+
+// Chart tooltip with the same styling as ChartTooltipContent, but with our custom label info
+const tooltipRenderer = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  const allowedKeys = new Set(['balance', 'monthlyAllowance']);
+  const filteredPayload: Payload<ValueType, NameType>[] = (payload ?? [])
+    .filter(
+      (item): item is Payload<ValueType, NameType> =>
+        typeof item.dataKey === 'string' && allowedKeys.has(item.dataKey),
+    )
+    .map((item) => ({
+      ...item,
+      value: formatNumberShort(item.value as number),
+    }));
+  const safeLabel = typeof label === 'string' || typeof label === 'number' ? label : undefined;
+
+  return (
+    <ChartTooltipContent
+      active={active}
+      payload={filteredPayload}
+      label={safeLabel}
+      indicator="line"
+      className="min-w-48"
+      labelFormatter={(_, items: Payload<ValueType, NameType>[]) => {
+        const point = items.length > 0 ? (items[0]?.payload as YearlyData | undefined) : undefined;
+        if (!point) {
+          return null;
+        }
+
+        const phaseLabel = point.phase === 'retirement' ? 'Retirement phase' : 'Accumulation phase';
+
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span>{`Year ${String(point.year)} (Age ${String(point.age)})`}</span>
+            <span className="text-muted-foreground">{phaseLabel}</span>
+          </div>
+        );
+      }}
+    />
+  );
 };
 
 export default function FireCalculatorForm({
@@ -401,6 +443,28 @@ export default function FireCalculatorForm({
       ...row,
       mcRange: (row.balanceP90 ?? 0) - (row.balanceP10 ?? 0),
     })) ?? [];
+
+  const projectionChartConfig: ChartConfig = {
+    year: {
+      label: 'Year',
+    },
+    balance: {
+      label: 'Balance',
+      color: 'var(--color-orange-500)',
+    },
+    balanceP10: {
+      label: 'P10 balance',
+      color: 'var(--color-orange-500)',
+    },
+    balanceP90: {
+      label: 'P90 balance',
+      color: 'var(--color-orange-500)',
+    },
+    monthlyAllowance: {
+      label: 'Monthly allowance',
+      color: 'var(--color-secondary)',
+    },
+  };
 
   return (
     <>
@@ -857,7 +921,7 @@ export default function FireCalculatorForm({
                         Shaded band shows 40th-60th percentile outcomes across 2000 simulations.
                       </p>
                     )}
-                    <ChartContainer className="aspect-auto h-80 w-full" config={{}}>
+                    <ChartContainer className="aspect-auto h-80 w-full" config={projectionChartConfig}>
                       <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 20, bottom: 10 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
@@ -872,18 +936,7 @@ export default function FireCalculatorForm({
                         <YAxis
                           yAxisId={'right'}
                           orientation="right"
-                          tickFormatter={(value: number) => {
-                            if (value >= 1000000) {
-                              return `${(value / 1000000).toPrecision(3)}M`;
-                            } else if (value >= 1000) {
-                              return `${(value / 1000).toPrecision(3)}K`;
-                            } else if (value <= -1000000) {
-                              return `${(value / 1000000).toPrecision(3)}M`;
-                            } else if (value <= -1000) {
-                              return `${(value / 1000).toPrecision(3)}K`;
-                            }
-                            return value.toString();
-                          }}
+                          tickFormatter={formatNumberShort}
                           width={30}
                           stroke="var(--color-orange-500)"
                           tick={{}}
@@ -892,37 +945,19 @@ export default function FireCalculatorForm({
                         <YAxis
                           yAxisId="left"
                           orientation="left"
-                          tickFormatter={(value: number) => {
-                            if (value >= 1000000) {
-                              return `${(value / 1000000).toPrecision(3)}M`;
-                            } else if (value >= 1000) {
-                              return `${(value / 1000).toPrecision(3)}K`;
-                            }
-                            return value.toString();
-                          }}
+                          tickFormatter={formatNumberShort}
                           width={30}
-                          stroke="var(--color-red-600)"
+                          stroke="var(--color-primary)"
                         />
-                        <ChartTooltip
-                          content={
-                            <ChartTooltipContent
-                              label={'Year'}
-                              labelFormatter={(value) => {
-                                return value;
-                              }}
-                              labelKey="year"
-                              indicator="line"
-                            />
-                          }
-                        />
+                        <ChartTooltip content={tooltipRenderer} />
                         <defs>
                           <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-orange-500)" stopOpacity={0.8} />
+                            <stop offset="5%" stopColor="var(--color-orange-500)" stopOpacity={0.5} />
                             <stop offset="95%" stopColor="var(--color-orange-500)" stopOpacity={0.1} />
                           </linearGradient>
                           <linearGradient id="fillMonteCarloBand" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="var(--color-secondary)" stopOpacity={0.3} />
+                            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.1} />
+                            <stop offset="100%" stopColor="var(--color-secondary)" stopOpacity={0.3} />
                           </linearGradient>
                         </defs>
                         <Area
@@ -954,8 +989,9 @@ export default function FireCalculatorForm({
                           stackId="mc-range"
                           stroke="none"
                           fill="url(#fillMonteCarloBand)"
-                          fillOpacity={0.3}
+                          fillOpacity={0.5}
                           yAxisId={'right'}
+                          activeDot={false}
                           connectNulls
                           isAnimationActive={false}
                           className="mc-bound-band"
@@ -966,7 +1002,7 @@ export default function FireCalculatorForm({
                           dataKey="balanceP10"
                           stroke="var(--color-orange-500)"
                           strokeDasharray="6 6"
-                          strokeWidth={1.25}
+                          strokeWidth={0}
                           dot={false}
                           activeDot={false}
                           yAxisId={'right'}
@@ -978,7 +1014,7 @@ export default function FireCalculatorForm({
                           dataKey="balanceP90"
                           stroke="var(--color-orange-500)"
                           strokeDasharray="6 6"
-                          strokeWidth={1.25}
+                          strokeWidth={0}
                           dot={false}
                           activeDot={false}
                           yAxisId={'right'}
@@ -989,7 +1025,7 @@ export default function FireCalculatorForm({
                           type="step"
                           dataKey="monthlyAllowance"
                           name="allowance"
-                          stroke="var(--color-red-600)"
+                          stroke="var(--primary)"
                           fill="none"
                           activeDot={{ r: 6 }}
                           yAxisId="left"
@@ -997,8 +1033,8 @@ export default function FireCalculatorForm({
                         {result.fireNumber && (
                           <ReferenceLine
                             y={result.fireNumber}
-                            stroke="var(--primary)"
-                            strokeWidth={2}
+                            stroke="var(--secondary)"
+                            strokeWidth={1}
                             strokeDasharray="2 1"
                             label={{
                               value: 'FIRE Number',
@@ -1013,8 +1049,8 @@ export default function FireCalculatorForm({
                             (Number(form.getValues('retirementAge')) -
                               Number(form.getValues('currentAge')))
                           }
-                          stroke="var(--primary)"
-                          strokeWidth={2}
+                          stroke="var(--secondary)"
+                          strokeWidth={1}
                           label={{
                             value: 'Retirement',
                             position: 'insideTopRight',
