@@ -4,6 +4,40 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CoastFireChart } from '@/app/components/charts/CoastFireChart';
 import { AuthorBio } from '@/app/components/AuthorBio';
+import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'What is the main difference between Coast FIRE and Lean FIRE?',
+    answer:
+      'Coast FIRE focuses on front-loading your savings early so compound interest does the rest—you still work but only to cover current expenses. Lean FIRE means fully retiring but on a minimal budget, typically under $40,000/year.',
+  },
+  {
+    question: 'How do I calculate my Coast FIRE number?',
+    answer:
+      'Your Coast FIRE number depends on your target retirement age, expected investment returns, and desired retirement spending. Use the formula: Coast Number = Target FIRE Number ÷ (1 + annual return)^(years until traditional retirement). Our calculator handles this automatically.',
+  },
+  {
+    question: 'Is Lean FIRE sustainable long-term?',
+    answer:
+      'Lean FIRE can be sustainable if you genuinely enjoy a minimalist lifestyle and have low-cost hobbies. However, it has less margin for unexpected expenses like healthcare or inflation spikes. Consider building a buffer or having flexible spending categories.',
+  },
+  {
+    question: 'Can I combine Coast FIRE and Lean FIRE strategies?',
+    answer:
+      'Absolutely. Many people save aggressively (Lean FIRE mindset) to hit their Coast number early, then switch to a lower-stress job while their investments compound. This hybrid approach offers flexibility and reduced burnout.',
+  },
+  {
+    question: 'Which strategy is better for someone in their 20s?',
+    answer:
+      'Coast FIRE often works well for young savers because you have decades for compound growth. Save aggressively for 10-15 years, hit your Coast number, then enjoy career flexibility. Lean FIRE might suit those who want to exit the workforce entirely ASAP.',
+  },
+  {
+    question: 'What are the biggest risks of each strategy?',
+    answer:
+      'Coast FIRE risks include poor market returns during your coasting years or lifestyle inflation. Lean FIRE risks include unexpected expenses, healthcare costs, or finding the frugal lifestyle unsustainable over decades.',
+  },
+];
 
 export const metadata = {
   title: `Coast FIRE vs. Lean FIRE: Which Strategy Is Right For You? (${new Date().getFullYear().toString()})`,
@@ -179,6 +213,8 @@ export default function CoastVsLeanPage() {
         <p>
           The most important step is to just <strong>start</strong>.
         </p>
+
+        <FaqSection faqs={faqs} className="my-12" />
 
         <AuthorBio />
       </div>

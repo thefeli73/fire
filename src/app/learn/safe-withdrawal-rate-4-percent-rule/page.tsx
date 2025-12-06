@@ -4,6 +4,40 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 import { FourPercentRuleChart } from '@/app/components/charts/FourPercentRuleChart';
 import { AuthorBio } from '@/app/components/AuthorBio';
+import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'What is the 4% rule and where does it come from?',
+    answer:
+      'The 4% rule comes from the Trinity Study (1998), which analyzed historical data to find a sustainable withdrawal rate. It states that withdrawing 4% of your initial portfolio in year one, then adjusting for inflation each year, has historically survived 95% of 30-year periods.',
+  },
+  {
+    question: 'Is 4% still safe for early retirees?',
+    answer:
+      'For early retirees with 40-50+ year horizons, many experts recommend a more conservative 3.25-3.5% withdrawal rate. The original study only covered 30-year periods, and current market valuations may lead to lower future returns.',
+  },
+  {
+    question: 'What is sequence of returns risk?',
+    answer:
+      'Sequence of returns risk is the danger of experiencing poor market returns early in retirement. If you withdraw from a declining portfolio, you sell more shares to maintain income, leaving less to recover when markets rebound. This can deplete your portfolio even if long-term average returns are good.',
+  },
+  {
+    question: 'Should I withdraw 4% of my current balance each year?',
+    answer:
+      'No. The 4% rule uses your initial retirement portfolio value. You withdraw 4% of that starting amount, then increase it by inflation each year—regardless of market performance. Some prefer percentage-of-portfolio strategies, which adjust spending to market conditions.',
+  },
+  {
+    question: 'What is the guardrails withdrawal strategy?',
+    answer:
+      'The guardrails approach sets upper and lower bounds on spending. If your portfolio drops significantly, you reduce withdrawals (skip discretionary spending). If it grows substantially, you give yourself a raise. This flexibility dramatically improves portfolio survival rates.',
+  },
+  {
+    question: 'How does inflation affect the 4% rule?',
+    answer:
+      'Inflation is built into the 4% rule—you increase withdrawals by the inflation rate each year to maintain purchasing power. However, periods of unexpectedly high inflation (like recent years) can stress portfolios more than historical averages suggest.',
+  },
+];
 
 export const metadata = {
   title: 'Safe Withdrawal Rates & The 4% Rule Explained (2025 Update)',
@@ -157,6 +191,8 @@ export default function SafeWithdrawalPage() {
           execution. Use it to set your savings target, but remain flexible once you actually pull the
           trigger on retirement.
         </p>
+
+        <FaqSection faqs={faqs} className="my-12" />
 
         <AuthorBio />
       </div>

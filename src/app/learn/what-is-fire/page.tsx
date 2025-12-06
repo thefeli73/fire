@@ -2,6 +2,40 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { FireFlowchart } from '@/app/components/charts/FireFlowchart';
 import { AuthorBio } from '@/app/components/AuthorBio';
+import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+
+const faqs: FaqItem[] = [
+  {
+    question: 'How much money do I need to achieve FIRE?',
+    answer:
+      'The amount depends on your annual expenses. Using the Rule of 25, multiply your yearly spending by 25. For example, if you spend $40,000 per year, you need $1,000,000 invested. This is based on the 4% safe withdrawal rate.',
+  },
+  {
+    question: 'What savings rate do I need to retire early?',
+    answer:
+      'The higher your savings rate, the faster you can retire. At a 50% savings rate, you can retire in about 17 years. At 70%, it drops to around 8.5 years. The key is the gap between your income and expenses, not your absolute income.',
+  },
+  {
+    question: 'Is FIRE only for high-income earners?',
+    answer:
+      'No. While higher income makes it easier, FIRE is fundamentally about the savings rate—the percentage of income you save. Someone earning $50,000 saving 50% can reach FIRE faster than someone earning $200,000 saving 10%.',
+  },
+  {
+    question: 'What is the difference between Lean FIRE and Fat FIRE?',
+    answer:
+      'Lean FIRE means retiring on a minimal budget (typically under $40,000/year), requiring a smaller nest egg but more frugal living. Fat FIRE means retiring with a larger budget ($100,000+/year) for a more comfortable lifestyle, requiring a much larger portfolio.',
+  },
+  {
+    question: 'Where should I invest for FIRE?',
+    answer:
+      'Most FIRE practitioners favor low-cost index funds (like total stock market funds) due to their diversification and minimal fees. Tax-advantaged accounts (401k, IRA, Roth IRA) should generally be maxed out before taxable accounts.',
+  },
+  {
+    question: 'Can I still pursue FIRE if I have debt?',
+    answer:
+      'Yes, but prioritization matters. High-interest debt (credit cards, personal loans) should typically be paid off first. Low-interest debt like mortgages can often be managed alongside investing, depending on rates and your risk tolerance.',
+  },
+];
 
 export const metadata = {
   title: `What is FIRE? The Ultimate Guide to Financial Independence (${new Date().getFullYear().toString()})`,
@@ -136,7 +170,7 @@ export default function WhatIsFirePage() {
           </Link>
         </div>
 
-        <h2>Types of FIRE</h2>
+        <h2 id="types-of-fire">Types of FIRE</h2>
         <p>FIRE isn&apos;t one-size-fits-all. Over the years, several variations have emerged:</p>
         <ul>
           <li>
@@ -181,6 +215,8 @@ export default function WhatIsFirePage() {
           Start by tracking your expenses, calculating your savings rate, and running your numbers. The
           best time to plant a tree was 20 years ago. The second best time is today.
         </p>
+
+        <FaqSection faqs={faqs} className="my-12" />
 
         <AuthorBio />
       </div>
