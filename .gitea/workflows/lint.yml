@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - "**" # matches every branch
+      - '**' # matches every branch
 
 jobs:
   lint_and_typecheck:
@@ -22,10 +22,13 @@ jobs:
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
           node-version: 24
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Run lint
         run: pnpm run lint
+
+      - name: Run unit tests
+        run: pnpm test
