@@ -17,12 +17,12 @@ import { Button } from '@/components/ui/button';
 
 export function Navbar() {
   return (
-    <header className="bg-background/90 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-50 w-full border-b backdrop-blur">
+    <header className="md:bg-background/90 md:supports-[backdrop-filter]:bg-background/70 sticky top-0 z-50 w-full md:border-b md:backdrop-blur">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="mr-4 hidden items-center gap-6 md:flex">
           <Link
             href="/"
-            className="hover:bg-primary/10 flex items-center gap-2 rounded-full px-2 py-1 transition-colors"
+            className="hover:bg-primary/10 flex items-center gap-2 rounded-md px-2 py-1 transition-colors"
           >
             <Image
               src="/investingfire_logo_no-bg.svg"
@@ -136,14 +136,6 @@ export function Navbar() {
             </div>
           </SheetContent>
         </Sheet>
-
-        {/* Mobile brand in center */}
-        <div className="flex flex-1 items-center justify-center md:hidden">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/investingfire_logo_no-bg.svg" alt="InvestingFIRE" width={24} height={24} />
-            <span className="text-sm font-bold">InvestingFIRE</span>
-          </Link>
-        </div>
 
         <div className="flex flex-1 items-center justify-end space-x-2 md:flex-none">
           {/* Future: Theme Toggle, GitHub Link etc */}

@@ -81,9 +81,7 @@ export default function HomePage() {
         <span className="bg-primary/15 text-primary rounded-full px-4 py-2 text-xs font-semibold tracking-wide uppercase shadow-sm">
           100% free • built for educational use
         </span>
-        <p className="text-primary-foreground/90 text-xl font-semibold md:text-2xl">
-          The #1 FIRE Calculator
-        </p>
+        <p className="text-foreground/90 text-xl font-semibold md:text-2xl">The #1 FIRE Calculator</p>
         <p className="text-foreground/80 max-w-2xl text-base text-balance md:text-lg">
           Plan your path to financial independence with transparent math—ad-free and built to teach you
           how FIRE works.

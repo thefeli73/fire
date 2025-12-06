@@ -129,7 +129,7 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
         const IconComponent = iconComponents[randomIndex];
 
         // Slightly randomize size and position for more organic feel
-        const size = 28 + Math.floor(Math.random() * 8);
+        const size = 30 + Math.floor(Math.random() * 8);
         const xOffset = Math.floor(Math.random() * (spacing / 1.618));
         const yOffset = Math.floor(Math.random() * (spacing / 1.618));
         const rotation = Math.round((Math.random() - 0.5) * 30);
@@ -138,7 +138,8 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
           <IconComponent
             key={`icon-${String(x)}-${String(y)}`}
             size={size}
-            className="text-primary fixed"
+            className="text-primary/30 fixed"
+            strokeWidth={2.5}
             style={{
               left: `${String(x * spacing + xOffset)}px`,
               top: `${String(y * spacing + yOffset)}px`,

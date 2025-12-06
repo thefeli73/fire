@@ -94,7 +94,8 @@ export default function WhatIsFirePage() {
 
         <h2>The 3 Pillars of FIRE</h2>
         <p>To achieve financial independence, you need to optimize three levers:</p>
-        <ol>
+
+        <ol className="mb-8 list-inside list-decimal space-y-2">
           <li>
             <strong>Spend Less (Frugality):</strong> Cutting unnecessary costs is the most powerful lever
             because it has a double effect: it increases your savings <em>and</em> lowers the amount you
@@ -156,8 +157,6 @@ export default function WhatIsFirePage() {
             your retirement target by age 65, allowing you to stop saving and just cover expenses.
           </li>
         </ul>
-
-        <Separator className="my-8" />
 
         <h2>Why {new Date().getFullYear().toString()} Changes Things</h2>
         <p>
