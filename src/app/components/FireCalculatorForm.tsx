@@ -22,8 +22,24 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { Calculator, Percent } from 'lucide-react';
+import { Calculator, Info, Percent } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
+import Link from 'next/link';
+
+// Helper component for info tooltips next to form labels
+function InfoTooltip({ content }: Readonly<{ content: string }>) {
+  return (
+    <Tooltip>
+      <TooltipTrigger type="button" className="ml-1 inline-flex align-middle">
+        <Info className="text-muted-foreground hover:text-foreground h-3.5 w-3.5 transition-colors" />
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs">
+        {content}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 // Schema for form validation
 const formSchema = z.object({
@@ -359,7 +375,10 @@ export default function FireCalculatorForm() {
                   name="startingCapital"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Starting Capital</FormLabel>
+                      <FormLabel>
+                        Starting Capital
+                        <InfoTooltip content="Your current invested savings or nest egg. This is the amount you have already saved and invested." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 10000"
@@ -384,7 +403,10 @@ export default function FireCalculatorForm() {
                   name="monthlySavings"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Monthly Savings</FormLabel>
+                      <FormLabel>
+                        Monthly Savings
+                        <InfoTooltip content="The amount you invest each month. This is added to your portfolio during the accumulation phase." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 500"
@@ -409,7 +431,10 @@ export default function FireCalculatorForm() {
                   name="currentAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Age</FormLabel>
+                      <FormLabel>
+                        Current Age
+                        <InfoTooltip content="Your age today. This is used to calculate the timeline to retirement and beyond." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 30"
@@ -434,7 +459,10 @@ export default function FireCalculatorForm() {
                   name="lifeExpectancy"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Life Expectancy (Age)</FormLabel>
+                      <FormLabel>
+                        Life Expectancy (Age)
+                        <InfoTooltip content="Your estimated age of death for planning purposes. This determines how long your money needs to last." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 90"
@@ -459,7 +487,10 @@ export default function FireCalculatorForm() {
                   name="cagr"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Expected Annual Growth Rate (%)</FormLabel>
+                      <FormLabel>
+                        Expected Annual Growth Rate (%)
+                        <InfoTooltip content="Average yearly investment return (CAGR). The VTI has historically returned ~7%." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 7"
@@ -485,7 +516,10 @@ export default function FireCalculatorForm() {
                   name="inflationRate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Annual Inflation Rate (%)</FormLabel>
+                      <FormLabel>
+                        Annual Inflation Rate (%)
+                        <InfoTooltip content="Expected yearly price increase. Historical average is ~2-3%. This adjusts your spending needs over time." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 2"
@@ -511,7 +545,10 @@ export default function FireCalculatorForm() {
                   name="desiredMonthlyAllowance"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Desired Monthly Allowance (Today&apos;s Value)</FormLabel>
+                      <FormLabel>
+                        Monthly Allowance (Today&apos;s Value)
+                        <InfoTooltip content="Your monthly spending needs in retirement, expressed in today's dollars. This will be adjusted for inflation each year." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 2000"
@@ -538,7 +575,10 @@ export default function FireCalculatorForm() {
                   name="retirementAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Retirement Age: {field.value as number}</FormLabel>
+                      <FormLabel>
+                        Retirement Age: {field.value as number}
+                        <InfoTooltip content="The age when you stop working and start withdrawing from your portfolio to cover living expenses." />
+                      </FormLabel>
                       <FormControl>
                         <Slider
                           name="retirementAge"
@@ -563,7 +603,13 @@ export default function FireCalculatorForm() {
                   name="coastFireAge"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Coast FIRE Age (Optional) - Stop contributing at age:</FormLabel>
+                      <FormLabel>
+                        <Button variant="link" size={'sm'} asChild>
+                          <Link href="/learn/what-is-fire#types-of-fire">Coast FIRE</Link>
+                        </Button>{' '}
+                        Age (Optional):
+                        <InfoTooltip content="The age when you stop making new contributions but keep working to cover current expenses. Your existing investments compound until retirement." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 45 (defaults to Retirement Age)"
@@ -588,7 +634,13 @@ export default function FireCalculatorForm() {
                   name="baristaIncome"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Barista FIRE Income (Monthly during Retirement)</FormLabel>
+                      <FormLabel>
+                        <Button variant="link" size={'sm'} asChild>
+                          <Link href="/learn/what-is-fire#types-of-fire">Barista FIRE</Link>
+                        </Button>{' '}
+                        Monthly Income
+                        <InfoTooltip content="Part-time income during retirement (e.g., from a low-stress job). This reduces the amount you need to withdraw from your portfolio." />
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., 1000"
@@ -613,7 +665,10 @@ export default function FireCalculatorForm() {
                   name="simulationMode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Simulation Mode</FormLabel>
+                      <FormLabel>
+                        Simulation Mode
+                        <InfoTooltip content="Deterministic uses fixed yearly returns. Monte Carlo simulates market randomness with 500 runs to show probability ranges." />
+                      </FormLabel>
                       <Select
                         onValueChange={(val) => {
                           field.onChange(val);
@@ -642,7 +697,10 @@ export default function FireCalculatorForm() {
                     name="volatility"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Market Volatility (Std Dev %)</FormLabel>
+                        <FormLabel>
+                          Market Volatility (Std Dev %)
+                          <InfoTooltip content="Standard deviation of annual returns. 15% is typical for stocks. Higher values mean more unpredictable year-to-year swings." />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="e.g., 15"
@@ -668,7 +726,10 @@ export default function FireCalculatorForm() {
                   name="withdrawalStrategy"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Withdrawal Strategy</FormLabel>
+                      <FormLabel>
+                        Withdrawal Strategy
+                        <InfoTooltip content="Fixed inflation-adjusted maintains your purchasing power yearly. Percentage of portfolio adjusts spending based on current balance." />
+                      </FormLabel>
                       <Select
                         onValueChange={(val) => {
                           field.onChange(val);
@@ -697,7 +758,10 @@ export default function FireCalculatorForm() {
                     name="withdrawalPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Withdrawal Percentage (%)</FormLabel>
+                        <FormLabel>
+                          Withdrawal Percentage (%)
+                          <InfoTooltip content="Annual withdrawal rate as percentage of current portfolio. 4% is the classic 'safe' rate from the Trinity Study." />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="e.g., 4.0"
