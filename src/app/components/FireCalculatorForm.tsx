@@ -23,6 +23,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { Calculator, Percent } from 'lucide-react';
+import BlurThing from './blur-thing';
 
 // Schema for form validation
 const formSchema = z.object({
@@ -334,6 +335,7 @@ export default function FireCalculatorForm() {
   return (
     <>
       <Card className="border-primary/15 bg-background/90 shadow-primary/10 mb-6 border shadow-lg backdrop-blur">
+        <BlurThing />
         <CardHeader>
           <CardTitle className="text-2xl">FIRE Calculator</CardTitle>
           <CardDescription className="text-muted-foreground text-sm">

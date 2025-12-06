@@ -10,6 +10,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import BlurThing from '../blur-thing';
 
 // Simulation data for 4% rule
 const storyData = [
@@ -47,6 +48,7 @@ const chartConfig = {
 export function FourPercentRuleChart() {
   return (
     <Card className="w-full">
+      <BlurThing />
       <CardHeader>
         <CardTitle>Portfolio Survival Scenarios</CardTitle>
         <CardDescription>

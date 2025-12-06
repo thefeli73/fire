@@ -10,6 +10,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import BlurThing from '../blur-thing';
 
 // Simulation
 // Standard: Start 25, Retire 65. Save $10k/yr.
@@ -57,6 +58,8 @@ const chartConfig = {
 export function CoastFireChart() {
   return (
     <Card className="w-full">
+      {/* Decorative background elements */}
+      <BlurThing />
       <CardHeader>
         <CardTitle>Coast FIRE vs. Standard Path</CardTitle>
         <CardDescription>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import BlurThing from '../components/blur-thing';
 
 export const metadata = {
   title: 'Learn FIRE | Financial Independence Guides & Resources',
@@ -20,7 +21,8 @@ export default function LearnHubPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Article 1 */}
         <Link href="/learn/what-is-fire" className="transition-transform hover:scale-[1.02]">
-          <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+          <Card className="hover:border-primary/50 h-full cursor-pointer border-2 transition-all">
+            <BlurThing />
             <CardHeader>
               <div className="mb-2">
                 <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
