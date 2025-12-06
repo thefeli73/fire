@@ -90,6 +90,50 @@ export default function LearnHubPage() {
             </CardContent>
           </Card>
         </Link>
+
+        {/* Article 4 */}
+        <Link href="/learn/where-to-park-your-money" className="transition-transform hover:scale-[1.02]">
+          <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+            <CardHeader>
+              <div className="mb-2">
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                  Portfolio
+                </span>
+              </div>
+              <CardTitle className="text-2xl">Where to Park Your Money</CardTitle>
+              <CardDescription>
+                Global, low-cost index strategies, tax wrappers, and broker tips for FIRE.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Build a world-allocation portfolio, avoid home bias, and choose the right accounts whether
+                you&apos;re in the US, EU, UK, Canada, Australia, or elsewhere.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Article 5 */}
+        <Link href="/learn/home-bias-in-investing" className="transition-transform hover:scale-[1.02]">
+          <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+            <CardHeader>
+              <div className="mb-2">
+                <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                  Risk
+                </span>
+              </div>
+              <CardTitle className="text-2xl">Home Bias Explained</CardTitle>
+              <CardDescription>Why country concentration hurts—and how to fix it.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Understand the hidden risks of overweighting your domestic market and learn practical steps
+                to diversify globally without creating tax headaches.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="bg-muted mt-16 rounded-xl p-8 text-center">
