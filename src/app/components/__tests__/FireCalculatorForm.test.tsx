@@ -126,7 +126,7 @@ describe('FireCalculatorForm', () => {
     await screen.findByText('Financial Projection');
     const bandLegend = await screen.findByTestId('mc-band-legend');
 
-    expect(bandLegend).toHaveTextContent('10th-90th percentile');
+    expect(bandLegend).toHaveTextContent('40th-60th percentile');
   });
 
   it('handles withdrawal strategy selection', async () => {

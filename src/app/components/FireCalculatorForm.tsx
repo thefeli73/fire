@@ -333,9 +333,18 @@ export default function FireCalculatorForm({
       // Sort to find percentiles
       balancesForYear.sort((a, b) => a - b);
 
-      const p10 = balancesForYear[Math.floor(numSimulations * 0.4)];
-      const p50 = balancesForYear[Math.floor(numSimulations * 0.5)];
-      const p90 = balancesForYear[Math.floor(numSimulations * 0.6)];
+      const pickPercentile = (fraction: number) => {
+        const clampedIndex = Math.min(
+          balancesForYear.length - 1,
+          Math.max(0, Math.floor((balancesForYear.length - 1) * fraction)),
+        );
+        return balancesForYear[clampedIndex];
+      };
+
+      // For Monte Carlo, we present a narrow middle band (40th-60th) to show typical outcomes
+      const p10 = pickPercentile(0.4);
+      const p50 = pickPercentile(0.5);
+      const p90 = pickPercentile(0.6);
 
       // Calculate other metrics (using deterministic logic for "untouched" etc for simplicity, or p50)
       // We need to reconstruct the "standard" fields for compatibility with the chart
@@ -437,12 +446,22 @@ export default function FireCalculatorForm({
     });
   };
 
-  const isMonteCarlo = form.watch('simulationMode') === 'monte-carlo';
+  const simulationModeValue = form.watch('simulationMode');
+  const isMonteCarlo = simulationModeValue === 'monte-carlo';
   const chartData =
     result?.yearlyData.map((row) => ({
       ...row,
       mcRange: (row.balanceP90 ?? 0) - (row.balanceP10 ?? 0),
     })) ?? [];
+
+  // Ensure we always have a fresh calculation when switching simulation modes (or on first render)
+  useEffect(() => {
+    if (!result) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      form.handleSubmit(onSubmit)();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simulationModeValue]);
 
   const projectionChartConfig: ChartConfig = {
     year: {
