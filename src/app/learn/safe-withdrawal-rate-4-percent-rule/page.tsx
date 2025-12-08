@@ -5,6 +5,7 @@ import { Info } from 'lucide-react';
 import { FourPercentRuleChart } from '@/app/components/charts/FourPercentRuleChart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -39,14 +40,26 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Safe Withdrawal Rates & The 4% Rule Explained (2025 Update)',
   description: `Is the 4% rule safe in ${new Date().getFullYear().toString()}? We analyze the Trinity Study, sequence of returns risk, and variable withdrawal strategies for a bulletproof retirement.`,
+  alternates: {
+    canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
+  },
   openGraph: {
     title: 'Safe Withdrawal Rates & The 4% Rule Explained',
     description: "Don't run out of money. Understanding the math behind safe retirement withdrawals.",
     type: 'article',
+    siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
   },
 };
 

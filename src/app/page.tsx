@@ -4,6 +4,7 @@ import FireCalculatorForm from './components/FireCalculatorForm';
 import BackgroundPattern from './components/BackgroundPattern';
 import { FaqSection, type FaqItem } from './components/FaqSection';
 import { Testimonials } from './components/Testimonials';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -37,6 +38,31 @@ const faqs: FaqItem[] = [
       'Start with your actual numbers (capital, savings, age). Set conservative - mid - aggressive growth rates to bound possibilities. Slide your retirement age to explore "early" vs. "traditional" scenarios. Review the chart—especially the reference lines—to see when you hit FI and how withdrawals impact your balance. Experiment with higher savings rates or lower target spending to accelerate your path.',
   },
 ];
+
+export const metadata: Metadata = {
+  title: `InvestingFIRE | Finance and Retirement Calculator ${new Date().getFullYear().toString()}`,
+  description:
+    'Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personal projections in gorgeous graphs..',
+  alternates: {
+    canonical: 'https://investingfire.com',
+  },
+  openGraph: {
+    title: `InvestingFIRE | Finance and Retirement Calculator ${new Date().getFullYear().toString()}`,
+    description:
+      'Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personal projections in gorgeous graphs.',
+    type: 'website',
+    url: 'https://investingfire.com',
+    siteName: 'InvestingFIRE',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
+  },
+};
 
 export default function HomePage() {
   return (

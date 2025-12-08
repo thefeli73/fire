@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CoastFireChart } from '@/app/components/charts/CoastFireChart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -39,16 +40,28 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: `Coast FIRE vs. Lean FIRE: Which Strategy Is Right For You? (${new Date().getFullYear().toString()})`,
   description:
     'Compare Coast FIRE (front-loading savings) with Lean FIRE (minimalist living). See the math, pros, cons, and find your path to freedom.',
+  alternates: {
+    canonical: 'https://investingfire.com/learn/coast-fire-vs-lean-fire',
+  },
   openGraph: {
     title: 'Coast FIRE vs. Lean FIRE: The Ultimate Comparison',
     description:
       "Don't just retire early—retire smarter. We break down the two most popular alternative FIRE strategies.",
     type: 'article',
+    siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/coast-fire-vs-lean-fire',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
   },
 };
 

@@ -2,11 +2,30 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import BlurThing from '../components/blur-thing';
 import { RETIRE_AT_AGE_PRESETS } from '@/lib/retire-at';
+import type { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Learn FIRE | Financial Independence Guides & Resources',
   description:
     'Master the art of Financial Independence and Early Retirement. Deep dives into safe withdrawal rates, asset allocation, and FIRE strategies.',
+  alternates: {
+    canonical: 'https://investingfire.com/learn',
+  },
+  openGraph: {
+    title: 'Learn FIRE | Financial Independence Guides & Resources',
+    description:
+      'Master the art of Financial Independence and Early Retirement. Deep dives into safe withdrawal rates, asset allocation, and FIRE strategies.',
+    siteName: 'InvestingFIRE',
+    url: 'https://investingfire.com/learn',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
+  },
 };
 
 const retireAgeLinks = RETIRE_AT_AGE_PRESETS;

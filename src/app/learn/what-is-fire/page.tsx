@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { FireFlowchart } from '@/app/components/charts/FireFlowchart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -37,15 +38,27 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: `What is FIRE? The Ultimate Guide to Financial Independence (${new Date().getFullYear().toString()})`,
   description:
     'Discover the FIRE movement (Financial Independence, Retire Early). Learn how to calculate your FIRE number, savings rate, and retire decades ahead of schedule.',
+  alternates: {
+    canonical: 'https://investingfire.com/learn/what-is-fire',
+  },
   openGraph: {
     title: 'What is FIRE? The Ultimate Guide to Financial Independence',
     description: 'Stop trading time for money. The comprehensive guide to regaining your freedom.',
     type: 'article',
+    siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/what-is-fire',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
   },
 };
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-react';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -34,15 +35,27 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: `Where to Park Your Money for FIRE (${new Date().getFullYear().toString()})`,
   description:
     'Build a globally diversified, low-cost index portfolio, avoid home bias, and use the right tax wrappers—wherever you live. A practical guide for FIRE investors.',
+  alternates: {
+    canonical: 'https://investingfire.com/learn/where-to-park-your-money',
+  },
   openGraph: {
     title: 'Where to Park Your Money for FIRE',
     description: 'Global index investing playbook: avoid home bias, cut fees, optimize taxes.',
     type: 'article',
+    siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/where-to-park-your-money',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
   },
 };
 

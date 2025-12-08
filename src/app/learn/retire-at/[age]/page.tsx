@@ -76,7 +76,16 @@ export const generateMetadata = async ({ params }: RetireAtPageProps): Promise<M
       title,
       description,
       url: canonical,
+      siteName: 'InvestingFIRE',
       type: 'article',
+      images: [
+        {
+          url: 'https://investingfire.com/apple-icon.png',
+          width: 180,
+          height: 180,
+          alt: 'InvestingFIRE Logo',
+        },
+      ],
     },
   };
 };

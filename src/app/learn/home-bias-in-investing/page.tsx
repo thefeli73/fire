@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-react';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
+import type { Metadata } from 'next';
 
 const faqs: FaqItem[] = [
   {
@@ -33,15 +34,27 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Home Bias in Investing: Why It Matters and How to Fix It',
   description:
     'Home bias concentrates risk in one country. Learn why it happens, how it hurts returns, and simple steps to global diversification.',
+  alternates: {
+    canonical: 'https://investingfire.com/learn/home-bias-in-investing',
+  },
   openGraph: {
     title: 'Home Bias in Investing: Why It Matters and How to Fix It',
     description: 'Reduce country concentration, improve diversification, and stay tax aware.',
     type: 'article',
+    siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/home-bias-in-investing',
+    images: [
+      {
+        url: 'https://investingfire.com/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'InvestingFIRE Logo',
+      },
+    ],
   },
 };
 
