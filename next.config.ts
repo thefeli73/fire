@@ -5,6 +5,8 @@
 import './src/env.ts';
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  output: 'standalone',
+};
 
 export default config;
