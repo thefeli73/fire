@@ -36,8 +36,8 @@
     "lucide-react": "^0.562.0",
     "next": "16.1.6",
     "next-plausible": "^3.12.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "react-hook-form": "^7.56.1",
     "recharts": "^2.15.3",
     "tailwind-merge": "^3.2.0",
@@ -51,7 +51,7 @@
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/node": "24.10.9",
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.2",
     "eslint": "9.39.2",
@@ -73,7 +73,7 @@
   "packageManager": "pnpm@10.28.2",
   "pnpm": {
     "overrides": {
-      "@types/react": "19.2.9",
+      "@types/react": "19.2.10",
       "@types/react-dom": "19.2.3"
     }
   }
