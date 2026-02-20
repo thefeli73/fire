@@ -96,6 +96,11 @@ describe('retire-at helpers', () => {
       expect(values.currentAge).toBe(30);
     });
 
+    it('does not cap monthlySpend URL params at 20000', () => {
+      const values = extractCalculatorValuesFromSearch({ monthlySpend: '25000' }, 60);
+      expect(values.desiredMonthlyAllowance).toBe(25000);
+    });
+
     it('parses simulation mode', () => {
       expect(
         extractCalculatorValuesFromSearch({ simulationMode: 'monte-carlo' }, 55).simulationMode,

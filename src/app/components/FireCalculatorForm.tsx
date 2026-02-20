@@ -191,8 +191,7 @@ export default function FireCalculatorForm({
     if (cagr !== undefined) newValues.cagr = cagr;
 
     const desiredMonthlyAllowance =
-      getNum('monthlySpend', { min: 0, max: 20000 }) ??
-      getNum('monthlyAllowance', { min: 0, max: 20000 });
+      getNum('monthlySpend', { min: 0 }) ?? getNum('monthlyAllowance', { min: 0 });
     if (desiredMonthlyAllowance !== undefined)
       newValues.desiredMonthlyAllowance = desiredMonthlyAllowance;
 

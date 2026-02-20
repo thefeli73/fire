@@ -143,4 +143,15 @@ describe('FireCalculatorForm', () => {
       await screen.findByRole('spinbutton', { name: /Withdrawal Percentage/i }),
     ).toBeInTheDocument();
   });
+
+  it('hydrates monthly allowance from monthlySpend URL param without capping at 20000', async () => {
+    window.history.pushState({}, '', '/?monthlySpend=25000');
+    render(<FireCalculatorForm />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('spinbutton', { name: /Monthly Allowance/i })).toHaveValue(25000);
+    });
+
+    window.history.pushState({}, '', '/');
+  });
 });

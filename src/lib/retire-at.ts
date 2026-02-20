@@ -125,10 +125,9 @@ export const deriveDefaultInputs = (
     100000000,
   );
 
-  const desiredMonthlyAllowance = clamp(
-    Math.round(opts?.desiredMonthlyAllowance ?? (retirementAge < 50 ? 4000 : 5000)),
+  const desiredMonthlyAllowance = Math.max(
     500,
-    20000,
+    Math.round(opts?.desiredMonthlyAllowance ?? (retirementAge < 50 ? 4000 : 5000)),
   );
 
   const lifeExpectancy = clamp(Math.round(retirementAge + 30), retirementAge + 10, 110);
@@ -165,7 +164,6 @@ export const extractCalculatorValuesFromSearch = (
   const desiredMonthlyAllowance =
     extractNumericSearchParam(searchParams.monthlySpend ?? searchParams.monthlyAllowance, {
       min: 0,
-      max: 20000,
     }) ?? undefined;
 
   const base = deriveDefaultInputs(targetAge, {
