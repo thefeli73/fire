@@ -1,3 +1,5 @@
+import Script from 'next/script';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export interface FaqItem {
@@ -30,9 +32,16 @@ export function FaqSection({
     })),
   };
 
+  const scriptId = `faq-jsonld-${title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')}`;
+
   return (
     <section className={className}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id={scriptId} type="application/ld+json" strategy="beforeInteractive">
+        {JSON.stringify(jsonLd)}
+      </Script>
 
       <h2 className="mb-6 text-2xl font-bold">{title}</h2>
 

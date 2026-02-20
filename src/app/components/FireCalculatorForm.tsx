@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -163,11 +162,12 @@ export default function FireCalculatorForm({
   });
 
   // Hydrate from URL search params
-  const searchParams = useSearchParams();
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
     if (hasHydrated) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.size === 0) {
       setHasHydrated(true);
       return;
@@ -237,7 +237,7 @@ export default function FireCalculatorForm({
     }
     setHasHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, hasHydrated]); // form is stable, but adding it causes no harm, excluding for cleaner hook deps
+  }, [hasHydrated, form]);
 
   function onSubmit(values: FormValues) {
     setResult(null); // Reset previous results
@@ -498,9 +498,8 @@ export default function FireCalculatorForm({
         <CardContent>
           <Form {...form}>
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void form.handleSubmit(onSubmit)(e);
+              onSubmit={(event) => {
+                void form.handleSubmit(onSubmit)(event);
               }}
               className="space-y-8"
             >

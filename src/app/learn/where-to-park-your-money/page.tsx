@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Script from 'next/script';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,9 @@ export default function ParkYourMoneyPage() {
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="park-money-jsonld" type="application/ld+json" strategy="beforeInteractive">
+        {JSON.stringify(jsonLd)}
+      </Script>
 
       <nav className="text-muted-foreground mb-6 text-sm">
         <Link href="/" className="hover:text-primary">

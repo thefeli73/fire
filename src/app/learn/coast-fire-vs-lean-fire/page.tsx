@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Script from 'next/script';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,7 +90,9 @@ export default function CoastVsLeanPage() {
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="coast-vs-lean-jsonld" type="application/ld+json" strategy="beforeInteractive">
+        {JSON.stringify(jsonLd)}
+      </Script>
 
       {/* Breadcrumb */}
       <nav className="text-muted-foreground mb-6 text-sm">

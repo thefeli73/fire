@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -132,7 +133,9 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
 
   return (
     <article className="container mx-auto max-w-4xl px-4 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="retire-at-jsonld" type="application/ld+json" strategy="beforeInteractive">
+        {JSON.stringify(jsonLd)}
+      </Script>
 
       <nav className="text-muted-foreground mb-6 text-sm">
         <Link href="/" className="hover:text-primary">
