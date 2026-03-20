@@ -42,14 +42,16 @@ const faqs: FaqItem[] = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Safe Withdrawal Rates & The 4% Rule Explained (2025 Update)',
-  description: `Is the 4% rule safe in ${new Date().getFullYear().toString()}? We analyze the Trinity Study, sequence of returns risk, and variable withdrawal strategies for a bulletproof retirement.`,
+  title: 'Safe Withdrawal Rate: Is the 4% Rule Still Safe? | InvestingFIRE',
+  description:
+    'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
   alternates: {
     canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
   },
   openGraph: {
-    title: 'Safe Withdrawal Rates & The 4% Rule Explained',
-    description: "Don't run out of money. Understanding the math behind safe retirement withdrawals.",
+    title: 'Safe Withdrawal Rate: Is the 4% Rule Still Safe? | InvestingFIRE',
+    description:
+      'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
     type: 'article',
     siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
@@ -68,10 +70,17 @@ export default function SafeWithdrawalPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `Safe Withdrawal Rates & The 4% Rule Explained (${new Date().getFullYear().toString()} Update)`,
+    headline: 'Safe Withdrawal Rate: Is the 4% Rule Still Safe?',
+    description:
+      'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
+    },
     author: {
       '@type': 'Organization',
       name: 'InvestingFIRE Team',
+      url: 'https://investingfire.com',
     },
     publisher: {
       '@type': 'Organization',
@@ -82,7 +91,7 @@ export default function SafeWithdrawalPage() {
       },
     },
     datePublished: '2025-01-15',
-    description: `Is the 4% rule safe in ${new Date().getFullYear().toString()}? Analysis of the Trinity Study and modern withdrawal strategies.`,
+    dateModified: new Date().toISOString(),
   };
 
   return (
@@ -105,8 +114,8 @@ export default function SafeWithdrawalPage() {
 
       <header className="mb-10">
         <h1 className="mb-6 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          The 4% Rule Explained: <br />
-          <span className="text-primary">Is It Safe in {new Date().getFullYear().toString()}?</span>
+          Safe Withdrawal Rate: <br />
+          <span className="text-primary">Is the 4% Rule Still Safe?</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">
           The &quot;4% Rule&quot; is the bedrock of the FIRE movement. But originally published in 1994,

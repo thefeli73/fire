@@ -67,6 +67,32 @@ export default function LearnHubPage() {
 
         {/* Article 2 */}
         <Link
+          href="/learn/safe-withdrawal-rate-matrix"
+          className="transition-transform hover:scale-[1.02]"
+        >
+          <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+            <CardHeader>
+              <div className="mb-2">
+                <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                  Strategy
+                </span>
+              </div>
+              <CardTitle className="text-2xl">Safe Withdrawal Rate Matrix</CardTitle>
+              <CardDescription>
+                Updated success rates for 30, 40, 50, and 60-year retirement horizons.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Explore historical success rates of different withdrawal strategies for early retirees
+                needing their portfolio to last 50+ years.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Article 2 */}
+        <Link
           href="/learn/safe-withdrawal-rate-4-percent-rule"
           className="transition-transform hover:scale-[1.02]"
         >

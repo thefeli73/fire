@@ -42,16 +42,16 @@ const faqs: FaqItem[] = [
 ];
 
 export const metadata: Metadata = {
-  title: `Coast FIRE vs. Lean FIRE: Which Strategy Is Right For You? (${new Date().getFullYear().toString()})`,
+  title: 'Coast FIRE vs Lean FIRE: Pros, Cons & Best Fit | InvestingFIRE',
   description:
-    'Compare Coast FIRE (front-loading savings) with Lean FIRE (minimalist living). See the math, pros, cons, and find your path to freedom.',
+    'Compare Coast FIRE vs Lean FIRE on savings target, lifestyle, risk, and timeline so you can choose the right path to financial independence.',
   alternates: {
     canonical: 'https://investingfire.com/learn/coast-fire-vs-lean-fire',
   },
   openGraph: {
-    title: 'Coast FIRE vs. Lean FIRE: The Ultimate Comparison',
+    title: 'Coast FIRE vs Lean FIRE: Pros, Cons & Best Fit | InvestingFIRE',
     description:
-      "Don't just retire early—retire smarter. We break down the two most popular alternative FIRE strategies.",
+      'Compare Coast FIRE vs Lean FIRE on savings target, lifestyle, risk, and timeline so you can choose the right path to financial independence.',
     type: 'article',
     siteName: 'InvestingFIRE',
     url: 'https://investingfire.com/learn/coast-fire-vs-lean-fire',
@@ -70,10 +70,17 @@ export default function CoastVsLeanPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: 'Coast FIRE vs. Lean FIRE: Which Strategy Is Right For You?',
+    headline: 'Coast FIRE vs Lean FIRE: Pros, Cons & Best Fit',
+    description:
+      'Compare Coast FIRE vs Lean FIRE on savings target, lifestyle, risk, and timeline so you can choose the right path to financial independence.',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': 'https://investingfire.com/learn/coast-fire-vs-lean-fire',
+    },
     author: {
       '@type': 'Organization',
       name: 'InvestingFIRE Team',
+      url: 'https://investingfire.com',
     },
     publisher: {
       '@type': 'Organization',
@@ -84,8 +91,7 @@ export default function CoastVsLeanPage() {
       },
     },
     datePublished: '2025-01-20',
-    description:
-      'Compare Coast FIRE vs Lean FIRE strategies to find your best path to financial independence.',
+    dateModified: new Date().toISOString(),
   };
 
   return (
@@ -109,8 +115,8 @@ export default function CoastVsLeanPage() {
 
       <header className="mb-10">
         <h1 className="mb-6 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Coast FIRE vs. Lean FIRE <br />
-          <span className="text-primary">Choosing Your Path to Freedom</span>
+          Coast FIRE vs. Lean FIRE: <br />
+          <span className="text-primary">Pros, Cons & Best Fit</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">
           Traditional FIRE requires a massive nest egg. But what if you could retire sooner by tweaking

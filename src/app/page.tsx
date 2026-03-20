@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Suspense } from 'react';
+import Script from 'next/script';
 import FireCalculatorForm from './components/FireCalculatorForm';
 import BackgroundPattern from './components/BackgroundPattern';
 import { FaqSection, type FaqItem } from './components/FaqSection';
@@ -40,16 +41,16 @@ const faqs: FaqItem[] = [
 ];
 
 export const metadata: Metadata = {
-  title: `InvestingFIRE | Finance and Retirement Calculator ${new Date().getFullYear().toString()}`,
+  title: 'FIRE Calculator & Monte Carlo Simulator | InvestingFIRE',
   description:
-    'Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personal projections in gorgeous graphs..',
+    'Free FIRE calculator to estimate your FIRE number, retirement age, and portfolio survival using inflation, withdrawals, savings, and Monte Carlo scenarios.',
   alternates: {
     canonical: 'https://investingfire.com',
   },
   openGraph: {
-    title: `InvestingFIRE | Finance and Retirement Calculator ${new Date().getFullYear().toString()}`,
+    title: 'FIRE Calculator & Monte Carlo Simulator | InvestingFIRE',
     description:
-      'Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personal projections in gorgeous graphs.',
+      'Free FIRE calculator to estimate your FIRE number, retirement age, and portfolio survival using inflation, withdrawals, savings, and Monte Carlo scenarios.',
     type: 'website',
     url: 'https://investingfire.com',
     siteName: 'InvestingFIRE',
@@ -65,8 +66,44 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  const appJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['SoftwareApplication', 'WebApplication'],
+    name: 'InvestingFIRE',
+    url: 'https://investingfire.com',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web Browser',
+    description:
+      'Free FIRE calculator and Monte Carlo simulator for estimating your FIRE number, retirement age, and portfolio survival.',
+    offers: {
+      '@type': 'Offer',
+      price: 0,
+      priceCurrency: 'USD',
+    },
+    isAccessibleForFree: true,
+    featureList: [
+      'FIRE number calculator',
+      'Monte Carlo retirement simulation',
+      'Inflation-adjusted withdrawal modeling',
+      'Savings and retirement age planning',
+      'Interactive portfolio projection charts',
+    ],
+    publisher: {
+      '@type': 'Organization',
+      name: 'InvestingFIRE',
+      url: 'https://investingfire.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://investingfire.com/apple-icon.png',
+      },
+    },
+  };
+
   return (
     <div className="from-background via-primary/10 to-secondary/10 text-foreground relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-gradient-to-b px-4 pt-6 pb-16">
+      <Script id="app-jsonld" type="application/ld+json" strategy="beforeInteractive">
+        {JSON.stringify(appJsonLd)}
+      </Script>
       <BackgroundPattern />
       <div className="z-10 mx-auto flex flex-col items-center justify-center gap-4 text-center">
         <div className="flex flex-row flex-wrap items-center justify-center gap-4 align-middle">
@@ -79,13 +116,15 @@ export default function HomePage() {
             height={100}
           />
           <h1 className="from-primary via-accent to-primary bg-linear-to-r bg-clip-text text-5xl font-extrabold tracking-tight text-transparent drop-shadow-md sm:text-[5rem]">
-            InvestingFIRE
+            FIRE Calculator
           </h1>
         </div>
         <span className="bg-primary/15 text-primary rounded-full px-4 py-2 text-xs font-semibold tracking-wide uppercase shadow-sm">
           100% free • built for educational use
         </span>
-        <p className="text-foreground/90 text-xl font-semibold md:text-2xl">The #1 FIRE Calculator</p>
+        <p className="text-foreground/90 text-xl font-semibold md:text-2xl">
+          Free Monte Carlo Simulator for Financial Independence
+        </p>
         <p className="text-foreground/80 max-w-2xl text-base text-balance md:text-lg">
           Plan your path to financial independence with transparent math—ad-free and built to teach you
           how FIRE works.
