@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { usePlausible } from "next-plausible";
-import { useReportWebVitals } from "next/web-vitals";
+import { usePlausible } from 'next-plausible';
+import { useReportWebVitals } from 'next/web-vitals';
 interface Metric {
   /**
    * The name of the metric (in acronym form).
    */
-  name: "CLS" | "FCP" | "FID" | "INP" | "LCP" | "TTFB";
+  name: 'CLS' | 'FCP' | 'FID' | 'INP' | 'LCP' | 'TTFB';
 
   /**
    * The current value of the metric.
@@ -17,7 +17,7 @@ interface Metric {
    * The rating as to whether the metric value is within the "good",
    * "needs improvement", or "poor" thresholds of the metric.
    */
-  rating: "good" | "needs-improvement" | "poor";
+  rating: 'good' | 'needs-improvement' | 'poor';
 
   /**
    * The delta between the current value and the last-reported value.
@@ -56,18 +56,18 @@ interface Metric {
    * restored by the user.
    */
   navigationType:
-    | "navigate"
-    | "reload"
-    | "back-forward"
-    | "back-forward-cache"
-    | "prerender"
-    | "restore";
+    | 'navigate'
+    | 'reload'
+    | 'back-forward'
+    | 'back-forward-cache'
+    | 'prerender'
+    | 'restore';
 }
 
 export function WebVitals() {
   const plausible = usePlausible();
   useReportWebVitals((metric: Metric) => {
-    plausible("web-vitals", {
+    plausible('web-vitals', {
       props: {
         [metric.name]: metric.rating,
       },

@@ -13,4 +13,3 @@ describe('retire-at generateStaticParams', () => {
     expect(ages).toEqual(RETIRE_AT_AGE_PRESETS.map((age) => age.toString()));
   });
 });
-
