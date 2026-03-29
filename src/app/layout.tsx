@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="apple-mobile-web-app-title" content="FIRE" />
         <PlausibleProvider
           domain="investingfire.com"
-          customDomain="https://analytics.schulze.network"
+          customDomain="https://plsbl.schulze.network"
           selfHosted={true}
           enabled={true}
           trackOutboundLinks={true}
