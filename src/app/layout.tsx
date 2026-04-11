@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: 'InvestingFIRE | Finance and Retirement Calculator',
   description:
     'Achieve Financial Independence & Early Retirement! Plan your FIRE journey with the InvestingFIRE calculator and get personalized projections in buttersmooth graphs.',
+  appleWebApp: {
+    title: 'FIRE',
+  },
 };
 
 const geist = Geist({
@@ -25,18 +28,16 @@ const geist = Geist({
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={geist.variable}>
-      <head>
-        <meta name="apple-mobile-web-app-title" content="FIRE" />
+      <body className="flex min-h-screen flex-col">
         <PlausibleProvider
           src="https://plsbl.schulze.network/js/pa-qT99amCl4t9lgrIM3Xs00.js"
           enabled={true}
-        />
-      </head>
-      <WebVitals />
-      <body className="flex min-h-screen flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        >
+          <WebVitals />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </PlausibleProvider>
       </body>
     </html>
   );
