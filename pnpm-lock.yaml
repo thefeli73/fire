@@ -53,7 +53,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@t3-oss/env-nextjs':
         specifier: ^0.13.0
-        version: 0.13.11(typescript@6.0.3)(zod@4.3.6)
+        version: 0.13.11(typescript@6.0.3)(zod@4.4.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -89,7 +89,7 @@ importers:
         version: 3.5.0
       zod:
         specifier: ^4.0.0
-        version: 4.3.6
+        version: 4.4.1
     devDependencies:
       '@playwright/test':
         specifier: 1.59.1
@@ -2615,8 +2615,8 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+  zod@4.4.1:
+    resolution: {integrity: sha512-a6ENMBBGZBsnlSebQ/eKCguSBeGKSf4O7BPnqVPmYGtpBYI7VSqoVqw+QcB7kPRjbqPwhYTpFbVj/RqNz/CT0Q==}
 
 snapshots:
 
@@ -3505,17 +3505,17 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@t3-oss/env-core@0.13.11(typescript@6.0.3)(zod@4.3.6)':
+  '@t3-oss/env-core@0.13.11(typescript@6.0.3)(zod@4.4.1)':
     optionalDependencies:
       typescript: 6.0.3
-      zod: 4.3.6
+      zod: 4.4.1
 
-  '@t3-oss/env-nextjs@0.13.11(typescript@6.0.3)(zod@4.3.6)':
+  '@t3-oss/env-nextjs@0.13.11(typescript@6.0.3)(zod@4.4.1)':
     dependencies:
-      '@t3-oss/env-core': 0.13.11(typescript@6.0.3)(zod@4.3.6)
+      '@t3-oss/env-core': 0.13.11(typescript@6.0.3)(zod@4.4.1)
     optionalDependencies:
       typescript: 6.0.3
-      zod: 4.3.6
+      zod: 4.4.1
 
   '@tailwindcss/node@4.2.4':
     dependencies:
@@ -4716,4 +4716,4 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  zod@4.3.6: {}
+  zod@4.4.1: {}
