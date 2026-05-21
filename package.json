@@ -57,7 +57,7 @@
     "jsdom": "29.1.1",
     "oxlint": "1.65.0",
     "oxlint-tsgolint": "0.17.1",
-    "oxlint-tsgolint": "0.22.1",
+    "oxlint-tsgolint": "0.23.0",
     "postcss": "8.5.14",
     "prettier": "3.8.3",
     "prettier-plugin-tailwindcss": "0.8.0",
