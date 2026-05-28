@@ -108,7 +108,7 @@ export const backgroundIconComponents: LucideIcon[] = [
   TentTree,
 ];
 
-export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
+export default function MultiIconPattern({ opacity = 0.15, minOpacity = 0.05, spacing = 160 }) {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
   const [rows, setRows] = useState(0);
@@ -160,17 +160,18 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
         const xOffset = Math.floor(Math.random() * (spacing / 1.618));
         const yOffset = Math.floor(Math.random() * (spacing / 1.618));
         const rotation = Math.round((Math.random() - 0.5) * 30);
+        const iconOpacity = minOpacity + Math.random() * (opacity - minOpacity);
 
         iconElements.push(
           <IconComponent
             key={`icon-${String(x)}-${String(y)}`}
             size={size}
-            className="text-primary/30 fixed"
+            className="text-primary fixed"
             strokeWidth={2.5}
             style={{
               left: `${String(x * spacing + xOffset)}px`,
               top: `${String(y * spacing + yOffset)}px`,
-              opacity: opacity,
+              opacity: iconOpacity,
               transform: `rotate(${String(rotation)}deg)`,
             }}
           />,
@@ -179,7 +180,7 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     }
     setIcons(iconElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows, columns, spacing, opacity]);
+  }, [rows, columns, spacing, opacity, minOpacity]);
 
   return <div className="absolute z-0 h-full w-full">{width > 0 && icons}</div>;
 }
