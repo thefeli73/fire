@@ -29,6 +29,7 @@ vi.mock('@/components/ui/alert', () => ({
 vi.mock('@/components/ui/card', () => ({
   Card: ({ children, ...props }: any) => createElement('section', props, children),
   CardContent: ({ children, ...props }: any) => createElement('div', props, children),
+  CardDescription: ({ children, ...props }: any) => createElement('p', props, children),
   CardHeader: ({ children, ...props }: any) => createElement('header', props, children),
   CardTitle: ({ children, ...props }: any) => createElement('h2', props, children),
 }));
@@ -52,6 +53,15 @@ vi.mock('@/app/components/charts/FourPercentRuleChart', () => ({
 vi.mock('@/app/components/charts/CoastFireChart', () => ({
   CoastFireChart: () => createElement('div', { 'data-testid': 'coast-fire-chart' }),
 }));
+
+vi.mock('recharts', async () => {
+  const originalModule = await vi.importActual<any>('recharts');
+
+  return {
+    ...originalModule,
+    ResponsiveContainer: ({ children }: { children: ReactNode }) => children,
+  };
+});
 
 import MatrixPage, { metadata as matrixMetadata } from '../safe-withdrawal-rate-matrix/page';
 import { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
@@ -122,7 +132,8 @@ describe('learn page links', () => {
     const hrefs = Array.from(container.querySelectorAll('a')).map((link) => link.getAttribute('href'));
 
     expect(screen.getByText(/CAGR calculator online/i)).toBeInTheDocument();
-    expect(screen.getByText(/compound annual growth rate/i)).toBeInTheDocument();
-    expect(hrefs.some((href) => href?.includes('cagr=7'))).toBe(true);
+    expect(screen.getByText(/Monte Carlo/i)).toBeInTheDocument();
+    expect(screen.getByText(/more knobs/i)).toBeInTheDocument();
+    expect(hrefs).toContain('/?cagr=7&simulationMode=monte-carlo&autoCalculate=true');
   });
 });

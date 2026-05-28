@@ -6,7 +6,10 @@ import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import { Button } from '@/components/ui/button';
 
+import { CagrCalculator } from './CagrCalculator';
+
 const pageUrl = 'https://investingfire.com/learn/cagr-calculator';
+const fireCalculatorUrl = '/?cagr=7&simulationMode=monte-carlo&autoCalculate=true';
 
 const faqs: FaqItem[] = [
   {
@@ -29,14 +32,14 @@ const faqs: FaqItem[] = [
 export const metadata: Metadata = {
   title: 'CAGR Calculator Online | Compound Annual Growth Rate Calculator CAGR',
   description:
-    'Use this CAGR calculator online guide to understand compound annual growth rate calculator CAGR inputs and test annual growth assumptions in your FIRE plan.',
+    'Use this compound annual growth rate calculator CAGR online to project savings, contributions, and interest before testing FIRE scenarios.',
   alternates: {
     canonical: pageUrl,
   },
   openGraph: {
     title: 'CAGR Calculator Online | InvestingFIRE',
     description:
-      'Understand compound annual growth rate calculator CAGR inputs and test annual growth assumptions with the InvestingFIRE calculator.',
+      'Project compound annual growth rate, savings, contributions, and interest before testing FIRE scenarios.',
     type: 'article',
     siteName: 'InvestingFIRE',
     url: pageUrl,
@@ -54,14 +57,17 @@ export const metadata: Metadata = {
 export default function CagrCalculatorPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: 'CAGR Calculator Online: Compound Annual Growth Rate for FIRE Planning',
+    '@type': ['Article', 'WebApplication'],
+    headline: 'CAGR Calculator Online: Compound Annual Growth Rate Projection',
+    name: 'CAGR Calculator Online',
     description:
-      'A plain-English guide to compound annual growth rate and how to use CAGR assumptions in FIRE projections.',
+      'A dedicated CAGR growth projection calculator for modeling initial deposits, savings, contributions, and interest.',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': pageUrl,
     },
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web Browser',
     author: {
       '@type': 'Organization',
       name: 'InvestingFIRE Team',
@@ -76,79 +82,89 @@ export default function CagrCalculatorPage() {
       },
     },
     datePublished: '2026-05-28',
-    dateModified: new Date().toISOString(),
+    dateModified: '2026-05-28',
   };
 
   return (
-    <article className="container mx-auto max-w-3xl px-4 py-12">
+    <div className="from-background via-primary/10 to-secondary/10 text-foreground relative min-h-screen overflow-hidden bg-gradient-to-b px-4 py-12">
       <Script id="cagr-calculator-jsonld" type="application/ld+json" strategy="beforeInteractive">
         {JSON.stringify(jsonLd)}
       </Script>
 
-      <nav className="text-muted-foreground mb-6 text-sm">
-        <Link href="/" className="hover:text-primary">
-          Home
-        </Link>
-        <span className="mx-2">/</span>
-        <Link href="/learn" className="hover:text-primary">
-          Learn
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">CAGR Calculator</span>
-      </nav>
-
-      <header className="mb-8">
-        <h1 className="mb-6 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          CAGR Calculator Online: <br />
-          <span className="text-primary">Annualized Portfolio Growth for FIRE</span>
-        </h1>
-        <p className="text-muted-foreground text-xl leading-relaxed">
-          This compound annual growth rate calculator CAGR guide explains the growth input behind FIRE
-          projections and links straight into the InvestingFIRE calculator with a 7% annual growth
-          assumption.
-        </p>
-      </header>
-
-      <div className="prose prose-slate dark:prose-invert max-w-none">
-        <h2>What CAGR Measures</h2>
-        <p>
-          CAGR converts uneven portfolio growth into one steady annual rate. If a portfolio rises and
-          falls over several years, CAGR answers: “what annual return would create the same ending
-          balance if growth happened smoothly?”
-        </p>
-
-        <h2>Why CAGR Matters for FIRE</h2>
-        <p>
-          FIRE plans depend heavily on long-term compounding. A higher CAGR shortens the time needed to
-          reach financial independence; a lower CAGR means more savings, more time, or a smaller monthly
-          allowance. That is why calculator assumptions should be tested instead of treated as promises.
-        </p>
-
-        <h2>How to Use the CAGR Input</h2>
-        <ol>
-          <li>Start with a baseline growth rate such as 7% before inflation.</li>
-          <li>Lower the rate to 5–6% for a conservative case.</li>
-          <li>Raise it only for an optimistic case, then compare how your timeline changes.</li>
-          <li>Switch to Monte Carlo mode to see how volatility affects the same average return.</li>
-        </ol>
-
-        <div className="bg-primary/5 my-12 rounded-2xl border p-8 text-center">
-          <h3 className="mt-0 text-2xl font-bold">Test CAGR in the FIRE calculator</h3>
-          <p className="mb-6 text-lg">
-            Use the calculator with CAGR set to 7%, then adjust growth, inflation, savings, and
-            retirement age to compare scenarios.
-          </p>
-          <Link href="/?cagr=7&simulationMode=monte-carlo&autoCalculate=true">
-            <Button size="lg" className="text-lg font-bold">
-              Open CAGR Calculator →
-            </Button>
+      <article className="relative z-10 mx-auto max-w-6xl">
+        <nav className="text-muted-foreground mb-6 text-sm">
+          <Link href="/" className="hover:text-primary">
+            Home
           </Link>
+          <span className="mx-2">/</span>
+          <Link href="/learn" className="hover:text-primary">
+            Learn
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-foreground">CAGR Calculator</span>
+        </nav>
+
+        <header className="mx-auto mb-8 max-w-3xl text-center">
+          <span className="bg-primary/15 text-primary rounded-full px-4 py-2 text-xs font-semibold tracking-wide uppercase shadow-sm">
+            Focused CAGR tool • compound annual growth rate
+          </span>
+          <h1 className="from-primary via-accent to-primary mt-6 bg-linear-to-r bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-md lg:text-6xl">
+            CAGR Calculator Online
+          </h1>
+          <p className="text-foreground/80 mt-4 text-lg leading-relaxed text-balance md:text-xl">
+            Use this growth projection tool to model how an initial deposit, monthly savings, and CAGR
+            combine into long-term balance growth.
+          </p>
+        </header>
+
+        <div className="-mx-4 sm:mx-0">
+          <CagrCalculator />
         </div>
 
-        <FaqSection faqs={faqs} title="CAGR Calculator FAQ" />
+        <div className="prose prose-slate dark:prose-invert mx-auto mt-12 max-w-3xl">
+          <h2>What CAGR Measures</h2>
+          <p>
+            CAGR converts uneven portfolio growth into one steady annual rate. If a portfolio rises and
+            falls over several years, CAGR answers: “what annual return would create the same ending
+            balance if growth happened smoothly?”
+          </p>
 
-        <AuthorBio />
-      </div>
-    </article>
+          <h2>Why CAGR Matters for FIRE</h2>
+          <p>
+            FIRE plans depend heavily on long-term compounding. A higher CAGR shortens the time needed to
+            reach financial independence; a lower CAGR means more savings, more time, or a smaller
+            monthly allowance. That is why calculator assumptions should be tested instead of treated as
+            promises.
+          </p>
+
+          <h2>How to Use This CAGR Calculator</h2>
+          <ol>
+            <li>Enter your initial deposit and monthly savings.</li>
+            <li>Set the number of years you want to project.</li>
+            <li>Adjust CAGR to compare conservative, baseline, and optimistic assumptions.</li>
+            <li>
+              Read the stacked bars to separate principal from deposit interest and savings interest.
+            </li>
+          </ol>
+
+          <div className="bg-primary/5 my-12 rounded-2xl border p-8 text-center">
+            <h2 className="mt-0 text-2xl font-bold">Need the full FIRE calculator?</h2>
+            <p className="mb-6 text-lg">
+              This CAGR tool focuses on balance projection. The FIRE calculator has more knobs:
+              inflation, withdrawal strategy, retirement age, Monte Carlo, and historical simulation.
+            </p>
+            <Link href={fireCalculatorUrl}>
+              <Button size="lg" className="text-lg font-bold">
+                Open FIRE Calculator →
+              </Button>
+            </Link>
+          </div>
+
+          <FaqSection faqs={faqs} title="CAGR Calculator FAQ" />
+
+          <AuthorBio />
+        </div>
+      </article>
+    </div>
   );
 }
