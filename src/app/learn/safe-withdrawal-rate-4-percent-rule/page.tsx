@@ -144,7 +144,7 @@ export default function SafeWithdrawalPage() {
         <p>
           In the CPI-adjusted table, a portfolio of 50% stocks and 50% bonds survived{' '}
           <strong>95% of the time</strong> over overlapping 30-year periods from 1926-1995 when
-          the retiree withdrew 4% of the initial balance, then adjusted the dollar withdrawal for
+          the retiree withdrew 4% of the initial balance, then adjusted the withdrawal amount for
           inflation or deflation each year.
         </p>
 
@@ -154,8 +154,8 @@ export default function SafeWithdrawalPage() {
           <AlertDescription>
             <span>
               The 4% is based on your <span className="italic">initial</span> portfolio value. If you
-              start with $1M, you withdraw $40k. In year 2, if inflation was 3%, you withdraw
-              $41,200—regardless of whether the market is up or down.
+              start with 1M, you withdraw 40k. In year 2, if inflation was 3%, you withdraw
+              41,200—regardless of whether the market is up or down.
             </span>
           </AlertDescription>
         </Alert>

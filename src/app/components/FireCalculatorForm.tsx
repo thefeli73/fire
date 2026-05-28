@@ -30,7 +30,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { Calculator, Info, Share2, Check } from 'lucide-react';
+import { Calculator, Info, Share2, Check, ChevronDown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
 import Link from 'next/link';
@@ -190,6 +190,7 @@ export default function FireCalculatorForm({
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
   const [copied, setCopied] = useState(false);
+  const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(false);
   const fieldChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousSimulationModeRef = useRef<FormValues['simulationMode'] | undefined | null>(null);
 
@@ -543,6 +544,9 @@ export default function FireCalculatorForm({
   };
 
   const simulationModeValue = form.watch('simulationMode');
+  const cagrValue = form.watch('cagr') as number | undefined;
+  const inflationRateValue = form.watch('inflationRate') as number | undefined;
+  const lifeExpectancyValue = form.watch('lifeExpectancy') as number | undefined;
   const isMonteCarlo = simulationModeValue === 'monte-carlo';
   const chartData =
     result?.yearlyData.map((row) => ({
@@ -687,89 +691,6 @@ export default function FireCalculatorForm({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="lifeExpectancy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Life Expectancy (Age)
-                        <InfoTooltip content="Your estimated age of death for planning purposes. This determines how long your money needs to last." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 90"
-                          type="number"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cagr"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Expected Annual Growth Rate (%)
-                        <InfoTooltip content="Average yearly investment return (CAGR). The VTI has historically returned ~7%." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 7"
-                          type="number"
-                          step="0.1"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="inflationRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Annual Inflation Rate (%)
-                        <InfoTooltip content="Expected yearly price increase. Historical average is ~2-3%. This adjusts your spending needs over time." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 2"
-                          type="number"
-                          step="0.1"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 {/* Retirement Age Slider */}
                 <FormField
                   control={form.control}
@@ -798,126 +719,230 @@ export default function FireCalculatorForm({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="coastFireAge"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <Button variant="link" size={'sm'} asChild>
-                          <Link href="/learn/what-is-fire#types-of-fire">Coast FIRE</Link>
-                        </Button>{' '}
-                        Age (Optional):
-                        <InfoTooltip content="The age when you stop making new contributions but keep working to cover current expenses. Your existing investments compound until retirement." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 45 (defaults to Retirement Age)"
-                          type="number"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
+                {advancedOptionsOpen && (
+                  <div
+                    id="advanced-calculator-options"
+                    className="order-last space-y-5 pt-2 md:col-span-2"
+                  >
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="cagr"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Expected Annual Growth Rate (%)
+                              <InfoTooltip content="Average yearly investment return (CAGR). The VTI has historically returned ~7%." />
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., 7"
+                                type="number"
+                                step="0.1"
+                                value={field.value as number | string | undefined}
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.value === '' ? undefined : Number(e.target.value),
+                                  );
+                                  scheduleCalculation();
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="inflationRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Annual Inflation Rate (%)
+                              <InfoTooltip content="Expected yearly price increase. Historical average is ~2-3%. This adjusts your spending needs over time." />
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., 2"
+                                type="number"
+                                step="0.1"
+                                value={field.value as number | string | undefined}
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.value === '' ? undefined : Number(e.target.value),
+                                  );
+                                  scheduleCalculation();
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="coastFireAge"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              <Button variant="link" size={'sm'} asChild>
+                                <Link href="/learn/what-is-fire#types-of-fire">Coast FIRE</Link>
+                              </Button>{' '}
+                              Age (Optional):
+                              <InfoTooltip content="The age when you stop making new contributions but keep working to cover current expenses. Your existing investments compound until retirement." />
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., 45 (defaults to Retirement Age)"
+                                type="number"
+                                value={field.value as number | string | undefined}
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.value === '' ? undefined : Number(e.target.value),
+                                  );
+                                  scheduleCalculation();
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="baristaIncome"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              <Button variant="link" size={'sm'} asChild>
+                                <Link href="/learn/what-is-fire#types-of-fire">Barista FIRE</Link>
+                              </Button>{' '}
+                              Monthly Income
+                              <InfoTooltip content="Part-time income during retirement (e.g., from a low-stress job). This reduces the amount you need to withdraw from your portfolio." />
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., 1000"
+                                type="number"
+                                value={field.value as number | string | undefined}
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.value === '' ? undefined : Number(e.target.value),
+                                  );
+                                  scheduleCalculation();
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="simulationMode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Simulation Mode
+                              <InfoTooltip content="Monte Carlo simulates market randomness with 2000 runs to show probability ranges. Deterministic uses fixed yearly returns." />
+                            </FormLabel>
+                            <Select
+                              onValueChange={(val) => {
+                                field.onChange(val);
+                                scheduleCalculation('mode_change');
+                              }}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select simulation mode" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="deterministic">Deterministic (Linear)</SelectItem>
+                                <SelectItem value="monte-carlo">Monte Carlo (Probabilistic)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {form.watch('simulationMode') === 'monte-carlo' && (
+                        <FormField
+                          control={form.control}
+                          name="volatility"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Market Volatility (Std Dev %)
+                                <InfoTooltip content="Standard deviation of annual returns. 15% is typical for stocks. Higher values mean more unpredictable year-to-year swings." />
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., 15"
+                                  type="number"
+                                  value={field.value as number | string | undefined}
+                                  onChange={(e) => {
+                                    field.onChange(
+                                      e.target.value === '' ? undefined : Number(e.target.value),
+                                    );
+                                    scheduleCalculation();
+                                  }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="baristaIncome"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <Button variant="link" size={'sm'} asChild>
-                          <Link href="/learn/what-is-fire#types-of-fire">Barista FIRE</Link>
-                        </Button>{' '}
-                        Monthly Income
-                        <InfoTooltip content="Part-time income during retirement (e.g., from a low-stress job). This reduces the amount you need to withdraw from your portfolio." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 1000"
-                          type="number"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="simulationMode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Simulation Mode
-                        <InfoTooltip content="Monte Carlo simulates market randomness with 2000 runs to show probability ranges. Deterministic uses fixed yearly returns." />
-                      </FormLabel>
-                      <Select
-                        onValueChange={(val) => {
-                          field.onChange(val);
-                          scheduleCalculation('mode_change');
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select simulation mode" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="deterministic">Deterministic (Linear)</SelectItem>
-                          <SelectItem value="monte-carlo">Monte Carlo (Probabilistic)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {form.watch('simulationMode') === 'monte-carlo' && (
-                  <FormField
-                    control={form.control}
-                    name="volatility"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Market Volatility (Std Dev %)
-                          <InfoTooltip content="Standard deviation of annual returns. 15% is typical for stocks. Higher values mean more unpredictable year-to-year swings." />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., 15"
-                            type="number"
-                            value={field.value as number | string | undefined}
-                            onChange={(e) => {
-                              field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                              scheduleCalculation();
-                            }}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      )}
+                      <FormField
+                        control={form.control}
+                        name="lifeExpectancy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Life Expectancy (Age)
+                              <InfoTooltip content="Your estimated age of death for planning purposes. This determines how long your money needs to last." />
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., 90"
+                                type="number"
+                                value={field.value as number | string | undefined}
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.value === '' ? undefined : Number(e.target.value),
+                                  );
+                                  scheduleCalculation();
+                                }}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 )}
-                <div className="space-y-4 rounded-md border p-4">
+                <>
                   <FormField
                     control={form.control}
                     name="withdrawalStrategy"
@@ -956,7 +981,7 @@ export default function FireCalculatorForm({
                         <FormItem>
                           <FormLabel>
                             Monthly Allowance (Today&apos;s Value)
-                            <InfoTooltip content="Your monthly spending needs in retirement, expressed in today's dollars. This will be adjusted for inflation each year." />
+                            <InfoTooltip content="Your monthly spending needs in retirement, expressed in today's value. This will be adjusted for inflation each year." />
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -964,7 +989,9 @@ export default function FireCalculatorForm({
                               type="number"
                               value={field.value as number | string | undefined}
                               onChange={(e) => {
-                                field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
+                                field.onChange(
+                                  e.target.value === '' ? undefined : Number(e.target.value),
+                                );
                                 scheduleCalculation();
                               }}
                               onBlur={field.onBlur}
@@ -994,7 +1021,9 @@ export default function FireCalculatorForm({
                               step="0.1"
                               value={field.value as number | string | undefined}
                               onChange={(e) => {
-                                field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
+                                field.onChange(
+                                  e.target.value === '' ? undefined : Number(e.target.value),
+                                );
                                 scheduleCalculation();
                               }}
                               onBlur={field.onBlur}
@@ -1007,6 +1036,28 @@ export default function FireCalculatorForm({
                       )}
                     />
                   )}
+                </>
+                <div className="space-y-2 md:col-span-2">
+                  <p className="text-muted-foreground/80 text-xs">
+                    Assumes {cagrValue}% growth, {inflationRateValue}% inflation, age{' '}
+                    {lifeExpectancyValue} life expectancy.
+                  </p>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition-colors"
+                    aria-expanded={advancedOptionsOpen}
+                    aria-controls="advanced-calculator-options"
+                    onClick={() => {
+                      setAdvancedOptionsOpen((isOpen) => !isOpen);
+                    }}
+                  >
+                    Advanced options
+                    <ChevronDown
+                      data-testid="advanced-options-caret"
+                      className={`size-3.5 transition-transform ${advancedOptionsOpen ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -1021,8 +1072,8 @@ export default function FireCalculatorForm({
                   <CardHeader>
                     <CardTitle>Financial Projection</CardTitle>
                     <CardDescription>
-                      Projected balance growth with your selected retirement age. X-axis: projection year.
-                      Left Y-axis: monthly allowance (USD). Right Y-axis: portfolio balance (USD).
+                      Projected balance growth with your selected retirement age. X-axis: projection
+                      year. Left Y-axis: monthly allowance. Right Y-axis: portfolio balance.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">

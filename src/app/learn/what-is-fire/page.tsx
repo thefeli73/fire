@@ -10,7 +10,7 @@ const faqs: FaqItem[] = [
   {
     question: 'How much money do I need to achieve FIRE?',
     answer:
-      'The amount depends on your annual expenses. Using the Rule of 25, multiply your yearly spending by 25. For example, if you spend $40,000 per year, you need $1,000,000 invested. This is based on the 4% safe withdrawal rate.',
+      'The amount depends on your annual expenses. Using the Rule of 25, multiply your yearly spending by 25. For example, if you spend 40,000 per year, you need 1,000,000 invested. This is based on the 4% safe withdrawal rate.',
   },
   {
     question: 'What savings rate do I need to retire early?',
@@ -20,12 +20,12 @@ const faqs: FaqItem[] = [
   {
     question: 'Is FIRE only for high-income earners?',
     answer:
-      'No. While higher income makes it easier, FIRE is fundamentally about the savings rate—the percentage of income you save. Someone earning $50,000 saving 50% can reach FIRE faster than someone earning $200,000 saving 10%.',
+      'No. While higher income makes it easier, FIRE is fundamentally about the savings rate—the percentage of income you save. Someone earning 50,000 saving 50% can reach FIRE faster than someone earning 200,000 saving 10%.',
   },
   {
     question: 'What is the difference between Lean FIRE and Fat FIRE?',
     answer:
-      'Lean FIRE means retiring on a minimal budget (typically under $40,000/year), requiring a smaller nest egg but more frugal living. Fat FIRE means retiring with a larger budget ($100,000+/year) for a more comfortable lifestyle, requiring a much larger portfolio.',
+      'Lean FIRE means retiring on a minimal budget (typically under 40,000/year), requiring a smaller nest egg but more frugal living. Fat FIRE means retiring with a larger budget (100,000+/year) for a more comfortable lifestyle, requiring a much larger portfolio.',
   },
   {
     question: 'Where should I invest for FIRE?',
@@ -172,8 +172,8 @@ export default function WhatIsFirePage() {
           </p>
         </blockquote>
         <p>
-          For example, if you spend <strong>$40,000</strong> per year, you need{' '}
-          <strong>$1,000,000</strong> invested. This is based on the <em>4% Rule</em>, which suggests you
+          For example, if you spend <strong>40,000</strong> per year, you need{' '}
+          <strong>1,000,000</strong> invested. This is based on the <em>4% Rule</em>, which suggests you
           can withdraw 4% of your portfolio in the first year of retirement (adjusted for inflation
           thereafter) with a high probability of not running out of money.
         </p>
@@ -190,11 +190,11 @@ export default function WhatIsFirePage() {
         <p>FIRE isn&apos;t one-size-fits-all. Over the years, several variations have emerged:</p>
         <ul>
           <li>
-            <strong>Lean FIRE:</strong> Retiring on a budget (e.g., less than $40k/year). Great for
+            <strong>Lean FIRE:</strong> Retiring on a budget (e.g., less than 40k/year). Great for
             minimalists.
           </li>
           <li>
-            <strong>Fat FIRE:</strong> Retiring with abundance (e.g., $100k+/year). Requires a larger
+            <strong>Fat FIRE:</strong> Retiring with abundance (e.g., 100k+/year). Requires a larger
             nest egg but offers a luxurious lifestyle.
           </li>
           <li>

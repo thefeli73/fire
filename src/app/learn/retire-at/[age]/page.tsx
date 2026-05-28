@@ -22,9 +22,7 @@ interface RetireAtPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const currencyFormatter = new Intl.NumberFormat('en', {
-  style: 'currency',
-  currency: 'USD',
+const amountFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 0,
 });
 
@@ -34,7 +32,7 @@ const faqForAge = (age: number): FaqItem[] => {
     {
       question: `How much do I need to retire at ${ageLabel}?`,
       answer:
-        'A quick rule is your desired annual spending divided by a safe withdrawal rate. Using 4%, multiply your yearly spend by 25. Spending $60k/year means roughly $1.5M. Use the calculator below to tailor the projection to your own savings, growth, and inflation assumptions.',
+        'A quick rule is your desired annual spending divided by a safe withdrawal rate. Using 4%, multiply your yearly spend by 25. Spending 60k/year means roughly 1.5M. Use the calculator below to tailor the projection to your own savings, growth, and inflation assumptions.',
     },
     {
       question: `What savings rate should I target to retire at ${ageLabel}?`,
@@ -169,8 +167,8 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-lg">
-              With a monthly spend of <strong>{currencyFormatter.format(monthlySpend)}</strong>, you need
-              roughly <strong>{currencyFormatter.format(quickNestEgg)}</strong> invested to retire at{' '}
+              With a monthly spend of <strong>{amountFormatter.format(monthlySpend)}</strong>, you need
+              roughly <strong>{amountFormatter.format(quickNestEgg)}</strong> invested to retire at{' '}
               {age}.
             </p>
             <ul className="text-muted-foreground list-disc space-y-2 pl-5">
@@ -193,7 +191,7 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
             <div className="flex items-center justify-between">
               <span>Monthly spend (today)</span>
               <span className="text-foreground font-semibold">
-                {currencyFormatter.format(monthlySpend)}
+                {amountFormatter.format(monthlySpend)}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -203,7 +201,7 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
             <div className="flex items-center justify-between">
               <span>Rule-of-25 nest egg</span>
               <span className="text-foreground font-semibold">
-                {currencyFormatter.format(quickNestEgg)}
+                {amountFormatter.format(quickNestEgg)}
               </span>
             </div>
           </CardContent>
@@ -232,20 +230,20 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
               <CardHeader>
                 <CardTitle>{scenario.label}</CardTitle>
                 <CardDescription>
-                  {currencyFormatter.format(scenario.monthlySpend)} / month
+                  {amountFormatter.format(scenario.monthlySpend)} / month
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-muted-foreground space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span>Annual spend</span>
                   <span className="text-foreground font-semibold">
-                    {currencyFormatter.format(scenario.annualSpend)}
+                    {amountFormatter.format(scenario.annualSpend)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Needed to retire</span>
                   <span className="text-foreground font-semibold">
-                    {currencyFormatter.format(scenario.nestEgg)}
+                    {amountFormatter.format(scenario.nestEgg)}
                   </span>
                 </div>
               </CardContent>

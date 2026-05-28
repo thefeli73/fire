@@ -20,8 +20,8 @@ import {
 import BlurThing from '../blur-thing';
 
 // Simulation
-// Standard: Start 25, Retire 65. Save $10k/yr.
-// Coast: Start 25, Save $30k/yr until 35. Then $0.
+// Standard: Start 25, Retire 65. Save 10k/yr.
+// Coast: Start 25, Save 30k/yr until 35. Then 0.
 // Return: 7%
 const generateData = () => {
   const data = [];
@@ -93,15 +93,15 @@ export function CoastFireChart() {
               tickMargin={8}
               tickFormatter={(value: number) => {
                 if (value < 1000) {
-                  return `$${String(value)}`;
+                  return String(value);
                 }
                 if (value < 1000000) {
-                  return `$${String(value / 1000)}k`;
+                  return `${String(value / 1000)}k`;
                 }
                 if (value < 1000000000) {
-                  return `$${String(value / 1000000)}M`;
+                  return `${String(value / 1000000)}M`;
                 }
-                return `$${String(value / 1000000000)}B`;
+                return `${String(value / 1000000000)}B`;
               }}
             />
             <ChartTooltip
@@ -127,8 +127,8 @@ export function CoastFireChart() {
         </ChartContainer>
         <CardFooter>
           <p className="text-muted-foreground text-sm">
-            X-axis: age (years). Y-axis: portfolio balance (USD). Simulation assumes 7% returns.
-            Standard: Save $10k/yr (age 25-65). Coast: Save $30k/yr (age 25-35), then $0.
+            X-axis: age (years). Y-axis: portfolio balance. Simulation assumes 7% returns.
+            Standard: Save 10k/yr (age 25-65). Coast: Save 30k/yr (age 25-35), then 0.
           </p>
         </CardFooter>
       </CardContent>

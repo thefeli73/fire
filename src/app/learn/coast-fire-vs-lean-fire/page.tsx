@@ -12,7 +12,7 @@ const faqs: FaqItem[] = [
   {
     question: 'What is the main difference between Coast FIRE and Lean FIRE?',
     answer:
-      'Coast FIRE focuses on front-loading your savings early so compound interest does the rest—you still work but only to cover current expenses. Lean FIRE means fully retiring but on a minimal budget, typically under $40,000/year.',
+      'Coast FIRE focuses on front-loading your savings early so compound interest does the rest—you still work but only to cover current expenses. Lean FIRE means fully retiring but on a minimal budget, typically under 40,000/year.',
   },
   {
     question: 'How do I calculate my Coast FIRE number?',
@@ -158,7 +158,7 @@ export default function CoastVsLeanPage() {
             <CardContent>
               <ul className="mt-0 list-disc space-y-2 pl-4">
                 <li>
-                  <strong>Goal:</strong> Retire completely on a smaller budget (e.g., $30k-$40k/year).
+                  <strong>Goal:</strong> Retire completely on a smaller budget (e.g., 30k-40k/year).
                 </li>
                 <li>
                   <strong>Lifestyle:</strong> Minimalist, frugal, simple living.
@@ -197,9 +197,9 @@ export default function CoastVsLeanPage() {
           your cost of living, you lower your required FIRE number.
         </p>
         <p>
-          If you can live happily on $35,000 a year, you &quot;only&quot; need $875,000 to retire (based
-          on the 4% rule). Compare that to a &quot;Fat FIRE&quot; lifestyle spending $100,000, which
-          requires $2.5 million. Lean FIRE is the fastest path out of the workforce, but it requires
+          If you can live happily on 35,000 a year, you &quot;only&quot; need 875,000 to retire (based
+          on the 4% rule). Compare that to a &quot;Fat FIRE&quot; lifestyle spending 100,000, which
+          requires 2.5 million. Lean FIRE is the fastest path out of the workforce, but it requires
           discipline.
         </p>
 

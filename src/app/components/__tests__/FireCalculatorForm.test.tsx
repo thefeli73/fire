@@ -75,6 +75,62 @@ describe('FireCalculatorForm', () => {
     expect(screen.getByRole('spinbutton', { name: /Current Age/i })).toHaveValue(25);
   });
 
+  it('keeps core inputs and withdrawal setup visible by default', () => {
+    render((<FireCalculatorForm />) as unknown as ReactNode);
+
+    expect(screen.getByRole('spinbutton', { name: /Current Age/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /Starting Capital/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /Monthly Savings/i })).toBeInTheDocument();
+    expect(screen.getByText(/Retirement Age:/i)).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Withdrawal Strategy/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /Monthly Allowance/i })).toBeInTheDocument();
+    const withdrawalStrategyItem = screen
+      .getByRole('combobox', { name: /Withdrawal Strategy/i })
+      .closest('[data-slot="form-item"]');
+    expect(withdrawalStrategyItem?.parentElement).toHaveClass('grid');
+    expect(withdrawalStrategyItem?.parentElement).toHaveClass('md:grid-cols-2');
+    expect(
+      screen.getByText(/Assumes 7% growth, 2\.3% inflation, age 84 life expectancy/i),
+    ).toBeInTheDocument();
+  });
+
+  it('hides advanced assumptions, FIRE variants, and simulation controls until expanded', async () => {
+    const user = userEvent.setup();
+    render((<FireCalculatorForm />) as unknown as ReactNode);
+
+    const advancedOptionsToggle = screen.getByRole('button', { name: /Advanced options/i });
+    expect(advancedOptionsToggle).toHaveClass('text-muted-foreground');
+    expect(screen.getByTestId('advanced-options-caret')).not.toHaveClass('rotate-180');
+    expect(
+      screen.queryByRole('spinbutton', { name: /Expected Annual Growth Rate/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('spinbutton', { name: /Life Expectancy/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: /Simulation Mode/i })).not.toBeInTheDocument();
+
+    await user.click(advancedOptionsToggle);
+
+    expect(screen.getByRole('button', { name: /Advanced options/i })).toBeInTheDocument();
+    expect(screen.getAllByText('Advanced options')).toHaveLength(1);
+    expect(
+      screen.queryByText(/Fine-tune assumptions, FIRE variants, and simulation behavior/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Hide advanced options/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId('advanced-options-caret')).toHaveClass('rotate-180');
+    expect(await screen.findByRole('spinbutton', { name: /Expected Annual Growth Rate/i })).toHaveValue(
+      7,
+    );
+    expect(screen.getByRole('spinbutton', { name: /Annual Inflation Rate/i })).toHaveValue(2.3);
+    expect(screen.getByRole('spinbutton', { name: /Life Expectancy/i })).toHaveValue(84);
+    expect(screen.getByRole('spinbutton', { name: /Coast FIRE/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /Barista FIRE/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Simulation Mode/i })).toBeInTheDocument();
+
+    const advancedControls = Array.from(
+      document.querySelectorAll('#advanced-calculator-options input, #advanced-calculator-options [role="combobox"]'),
+    );
+    expect(advancedControls.at(-1)).toBe(screen.getByRole('spinbutton', { name: /Life Expectancy/i }));
+  });
+
   it('calculates and displays results when submitted', async () => {
     const user = userEvent.setup();
     render((<FireCalculatorForm />) as unknown as ReactNode);
@@ -86,8 +142,9 @@ describe('FireCalculatorForm', () => {
       expect(screen.getByText('Financial Projection')).toBeInTheDocument();
       expect(screen.getByText('FIRE Number')).toBeInTheDocument();
       expect(screen.getByText(/Projection year|Years from today/i)).toBeInTheDocument();
-      expect(screen.getByText(/Monthly allowance.*USD/i)).toBeInTheDocument();
-      expect(screen.getByText(/Portfolio balance.*USD/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Monthly allowance/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Portfolio balance/i).length).toBeGreaterThan(0);
+      expect(screen.queryByText(new RegExp(['U', 'S', 'D'].join(''), 'i'))).not.toBeInTheDocument();
     });
   });
 
@@ -167,6 +224,8 @@ describe('FireCalculatorForm', () => {
     const user = userEvent.setup();
     render((<FireCalculatorForm />) as unknown as ReactNode);
 
+    await user.click(screen.getByRole('button', { name: /Advanced options/i }));
+
     // Select Trigger
     const modeTrigger = screen.getByRole('combobox', { name: /Simulation Mode/i });
     await user.click(modeTrigger);
@@ -182,6 +241,8 @@ describe('FireCalculatorForm', () => {
   it('shows Monte Carlo percentile bounds on the chart', async () => {
     const user = userEvent.setup();
     render((<FireCalculatorForm />) as unknown as ReactNode);
+
+    await user.click(screen.getByRole('button', { name: /Advanced options/i }));
 
     const modeTrigger = screen.getByRole('combobox', { name: /Simulation Mode/i });
     await user.click(modeTrigger);
@@ -215,25 +276,27 @@ describe('FireCalculatorForm', () => {
 
   it('calculates percentage-of-portfolio withdrawals minus barista income', async () => {
     render(
-      (<FireCalculatorForm
-        autoCalculate
-        initialValues={{
-          startingCapital: 100000,
-          monthlySavings: 0,
-          currentAge: 64,
-          cagr: 0,
-          desiredMonthlyAllowance: 3000,
-          inflationRate: 0,
-          lifeExpectancy: 66,
-          retirementAge: 65,
-          coastFireAge: 65,
-          baristaIncome: 100,
-          simulationMode: 'deterministic',
-          volatility: 0,
-          withdrawalStrategy: 'percentage',
-          withdrawalPercentage: 4,
-        }}
-      />) as unknown as ReactNode,
+      (
+        <FireCalculatorForm
+          autoCalculate
+          initialValues={{
+            startingCapital: 100000,
+            monthlySavings: 0,
+            currentAge: 64,
+            cagr: 0,
+            desiredMonthlyAllowance: 3000,
+            inflationRate: 0,
+            lifeExpectancy: 66,
+            retirementAge: 65,
+            coastFireAge: 65,
+            baristaIncome: 100,
+            simulationMode: 'deterministic',
+            volatility: 0,
+            withdrawalStrategy: 'percentage',
+            withdrawalPercentage: 4,
+          }}
+        />
+      ) as unknown as ReactNode,
     );
 
     await screen.findByText('Financial Projection');

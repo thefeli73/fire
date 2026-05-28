@@ -78,7 +78,6 @@ export default function HomePage() {
     offers: {
       '@type': 'Offer',
       price: 0,
-      priceCurrency: 'USD',
     },
     isAccessibleForFree: true,
     featureList: [

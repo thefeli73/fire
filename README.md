@@ -39,7 +39,7 @@ Focus on making the math more robust and flexible.
 Make the tool easier to use and return to.
 - [ ] **URL State Sharing:** Encode form values into the URL so scenarios can be bookmarked and shared.
 - [ ] **Local Persistence:** Automatically save user inputs to `localStorage` so they don't vanish on refresh.
-- [ ] **Currency & Locale Support:** Allow users to select currency symbols and number formatting (USD, EUR, GBP, etc.).
+- [ ] **Locale Support:** Allow users to select number formatting while keeping calculator amounts currency-agnostic.
 
 ### **Phase 3: Advanced Features & Analytics**
 For the power users who need more detail.
@@ -132,7 +132,7 @@ pnpm test:e2e
 - **Life Expectancy** — How long do you want income to last?
 - **Expected Growth Rate (CAGR)** — Portfolio annual % return, before inflation
 - **Inflation Rate** — Cost of living increases
-- **Desired Monthly Allowance** — Your lifestyle, today’s dollars
+- **Desired Monthly Allowance** — Your lifestyle, today’s value
 
 As you adjust these, all projections update instantly _without needing to hit “Calculate.”_
 

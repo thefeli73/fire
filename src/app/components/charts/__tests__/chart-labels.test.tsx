@@ -37,10 +37,11 @@ describe('chart clarity labels', () => {
     expect(screen.getByText(/% of initial balance|starting balance\s*=\s*100/i)).toBeInTheDocument();
   });
 
-  it('labels Coast FIRE chart axes with age and portfolio balance in USD', () => {
+  it('labels Coast FIRE chart axes with age and currency-agnostic portfolio balance', () => {
     render(createElement(CoastFireChart as any) as unknown as ReactNode);
 
     expect(screen.getByText(/Age\s*\(years\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Portfolio balance\s*\(USD\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Portfolio balance/i)).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(['U', 'S', 'D'].join(''), 'i'))).not.toBeInTheDocument();
   });
 });
