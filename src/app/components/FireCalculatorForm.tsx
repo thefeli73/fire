@@ -593,7 +593,7 @@ export default function FireCalculatorForm({
 
   return (
     <>
-      <Card className="border-primary/15 bg-background/90 shadow-primary/10 mb-6 border shadow-lg backdrop-blur">
+      <Card className="border-primary/15 bg-background/90 shadow-primary/10 mb-6 rounded-none border shadow-lg backdrop-blur sm:rounded-xl">
         <BlurThing />
         <CardHeader>
           <CardTitle className="text-2xl">FIRE Calculator</CardTitle>
@@ -1068,7 +1068,7 @@ export default function FireCalculatorForm({
                 </Button>
               )}
               {result?.yearlyData && (
-                <Card className="rounded-md shadow-none">
+                <Card className="-mx-3 rounded-md shadow-none sm:mx-0">
                   <CardHeader>
                     <CardTitle>Financial Projection</CardTitle>
                     <CardDescription>

@@ -128,7 +128,7 @@ export default function HomePage() {
           Plan your path to financial independence with transparent math—ad-free and built to teach you
           how FIRE works.
         </p>
-        <div className="mt-8 w-full max-w-2xl">
+        <div className="-mx-4 mt-8 w-screen sm:mx-0 sm:w-full sm:max-w-2xl">
           <Suspense fallback={<div>Loading calculator...</div>}>
             <FireCalculatorForm autoCalculate />
           </Suspense>
