@@ -27,7 +27,7 @@ export const fireCalculatorFormSchema = z.object({
   simulationMode: z.enum(['deterministic', 'monte-carlo']).default('monte-carlo'),
   volatility: z.coerce.number().min(0).default(15),
   withdrawalStrategy: z.enum(['fixed', 'percentage']).default('fixed'),
-  withdrawalPercentage: z.coerce.number().min(0).max(100).default(4),
+  withdrawalPercentage: z.coerce.number().min(0).max(100).default(3.5),
 });
 
 export type FireCalculatorFormValues = z.infer<typeof fireCalculatorFormSchema>;
@@ -46,5 +46,5 @@ export const fireCalculatorDefaultValues: FireCalculatorFormValues = {
   simulationMode: 'monte-carlo',
   volatility: 15,
   withdrawalStrategy: 'fixed',
-  withdrawalPercentage: 4,
+  withdrawalPercentage: 3.5,
 };

@@ -770,34 +770,6 @@ export default function FireCalculatorForm({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="desiredMonthlyAllowance"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Monthly Allowance (Today&apos;s Value)
-                        <InfoTooltip content="Your monthly spending needs in retirement, expressed in today's dollars. This will be adjusted for inflation each year." />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 2000"
-                          type="number"
-                          value={field.value as number | string | undefined}
-                          onChange={(e) => {
-                            field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            scheduleCalculation();
-                          }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Retirement Age Slider */}
                 <FormField
                   control={form.control}
@@ -945,66 +917,97 @@ export default function FireCalculatorForm({
                     )}
                   />
                 )}
-                <FormField
-                  control={form.control}
-                  name="withdrawalStrategy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Withdrawal Strategy
-                        <InfoTooltip content="Fixed inflation-adjusted maintains your purchasing power yearly. Percentage of portfolio adjusts spending based on current balance." />
-                      </FormLabel>
-                      <Select
-                        onValueChange={(val) => {
-                          field.onChange(val);
-                          scheduleCalculation();
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select withdrawal strategy" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="fixed">Fixed Inflation-Adjusted</SelectItem>
-                          <SelectItem value="percentage">Percentage of Portfolio</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {form.watch('withdrawalStrategy') === 'percentage' && (
+                <div className="space-y-4 rounded-md border p-4">
                   <FormField
                     control={form.control}
-                    name="withdrawalPercentage"
+                    name="withdrawalStrategy"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Withdrawal Percentage (%)
-                          <InfoTooltip content="Annual withdrawal rate as percentage of current portfolio. Trinity-style 4% studies use fixed inflation-adjusted withdrawals, so percentage-of-portfolio strategies behave differently." />
+                          Withdrawal Strategy
+                          <InfoTooltip content="Fixed inflation-adjusted maintains your purchasing power yearly. Percentage of portfolio adjusts spending based on current balance." />
                         </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., 4.0"
-                            type="number"
-                            step="0.1"
-                            value={field.value as number | string | undefined}
-                            onChange={(e) => {
-                              field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                              scheduleCalculation();
-                            }}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
-                          />
-                        </FormControl>
+                        <Select
+                          onValueChange={(val) => {
+                            field.onChange(val);
+                            scheduleCalculation();
+                          }}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select withdrawal strategy" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="fixed">Fixed Inflation-Adjusted</SelectItem>
+                            <SelectItem value="percentage">Percentage of Portfolio</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
+                  {form.watch('withdrawalStrategy') === 'fixed' && (
+                    <FormField
+                      control={form.control}
+                      name="desiredMonthlyAllowance"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Monthly Allowance (Today&apos;s Value)
+                            <InfoTooltip content="Your monthly spending needs in retirement, expressed in today's dollars. This will be adjusted for inflation each year." />
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., 2000"
+                              type="number"
+                              value={field.value as number | string | undefined}
+                              onChange={(e) => {
+                                field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
+                                scheduleCalculation();
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  {form.watch('withdrawalStrategy') === 'percentage' && (
+                    <FormField
+                      control={form.control}
+                      name="withdrawalPercentage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Withdrawal Percentage (%)
+                            <InfoTooltip content="Annual withdrawal rate as percentage of current portfolio. Trinity-style 4% studies use fixed inflation-adjusted withdrawals, so percentage-of-portfolio strategies behave differently." />
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., 3.5"
+                              type="number"
+                              step="0.1"
+                              value={field.value as number | string | undefined}
+                              onChange={(e) => {
+                                field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
+                                scheduleCalculation();
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
               </div>
 
               {!result && (

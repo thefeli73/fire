@@ -200,15 +200,17 @@ describe('FireCalculatorForm', () => {
     const user = userEvent.setup();
     render((<FireCalculatorForm />) as unknown as ReactNode);
 
+    expect(screen.getByRole('spinbutton', { name: /Monthly Allowance/i })).toBeInTheDocument();
+    expect(screen.queryByRole('spinbutton', { name: /Withdrawal Percentage/i })).not.toBeInTheDocument();
+
     const strategyTrigger = screen.getByRole('combobox', { name: /Withdrawal Strategy/i });
     await user.click(strategyTrigger);
 
     const percentageOption = await screen.findByRole('option', { name: /Percentage of Portfolio/i });
     await user.click(percentageOption);
 
-    expect(
-      await screen.findByRole('spinbutton', { name: /Withdrawal Percentage/i }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole('spinbutton', { name: /Monthly Allowance/i })).not.toBeInTheDocument();
+    expect(await screen.findByRole('spinbutton', { name: /Withdrawal Percentage/i })).toHaveValue(3.5);
   });
 
   it('calculates percentage-of-portfolio withdrawals minus barista income', async () => {
