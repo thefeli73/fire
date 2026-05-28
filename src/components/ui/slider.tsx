@@ -18,16 +18,6 @@ function Slider({
     [value, defaultValue, min, max],
   );
 
-  const thumbKeys = React.useMemo(() => {
-    const valueOccurrences = new Map<number, number>();
-
-    return _values.map((thumbValue) => {
-      const occurrence = (valueOccurrences.get(thumbValue) ?? 0) + 1;
-      valueOccurrences.set(thumbValue, occurrence);
-      return `thumb-${thumbValue.toString()}-${occurrence.toString()}`;
-    });
-  }, [_values]);
-
   return (
     <SliderPrimitive.Root
       data-slot="slider"
@@ -54,10 +44,10 @@ function Slider({
           )}
         />
       </SliderPrimitive.Track>
-      {thumbKeys.map((thumbKey) => (
+      {_values.map((_, index) => (
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
-          key={thumbKey}
+          key={`thumb-${index.toString()}`}
           className="border-primary bg-background ring-ring/50 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
