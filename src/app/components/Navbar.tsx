@@ -62,8 +62,9 @@ export function Navbar() {
         <Sheet>
           <SheetTrigger asChild>
             <Button
-              variant="ghost"
-              className="border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 focus-visible:bg-primary/20 mr-2 rounded-full border px-2 text-base focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+              variant="outline"
+              size="icon"
+              className="bg-background hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground mr-2 md:hidden"
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
