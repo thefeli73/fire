@@ -98,6 +98,26 @@ function randomNormal(mean: number, stdDev: number): number {
   return z * stdDev + mean;
 }
 
+function calculateAnnualWithdrawal({
+  withdrawalStrategy,
+  currentBalance,
+  withdrawalPercentage,
+  inflatedAllowance,
+  inflatedBaristaIncome,
+}: {
+  withdrawalStrategy: FormValues['withdrawalStrategy'];
+  currentBalance: number;
+  withdrawalPercentage: number;
+  inflatedAllowance: number;
+  inflatedBaristaIncome: number;
+}) {
+  if (withdrawalStrategy === 'percentage') {
+    return currentBalance * (withdrawalPercentage / 100) - inflatedBaristaIncome * 12;
+  }
+
+  return (inflatedAllowance - inflatedBaristaIncome) * 12;
+}
+
 // Helper function to format currency without specific symbols
 const formatNumber = (value: number | null) => {
   if (!value) return 'N/A';
@@ -283,6 +303,8 @@ export default function FireCalculatorForm({
     const initialBaristaIncome = values.baristaIncome ?? 0;
     const simulationMode = values.simulationMode;
     const volatility = values.volatility;
+    const withdrawalStrategy = values.withdrawalStrategy;
+    const withdrawalPercentage = values.withdrawalPercentage;
 
     const numSimulations = simulationMode === 'monte-carlo' ? 2000 : 1;
     const simulationResults: number[][] = []; // [yearIndex][simulationIndex] -> balance
@@ -317,7 +339,13 @@ export default function FireCalculatorForm({
         if (phase === 'accumulation') {
           newBalance = currentBalance * annualGrowthRate + (isContributing ? monthlySavings * 12 : 0);
         } else {
-          const netAnnualWithdrawal = (inflatedAllowance - inflatedBaristaIncome) * 12;
+          const netAnnualWithdrawal = calculateAnnualWithdrawal({
+            withdrawalStrategy,
+            currentBalance,
+            withdrawalPercentage,
+            inflatedAllowance,
+            inflatedBaristaIncome,
+          });
           newBalance = currentBalance * annualGrowthRate - netAnnualWithdrawal;
         }
         // Prevent negative balance from recovering (once you're broke, you're broke)
@@ -379,8 +407,20 @@ export default function FireCalculatorForm({
       // We need to reconstruct the "standard" fields for compatibility with the chart
       // Let's use p50 (Median) as the "main" line
       const inflatedAllowance = initialMonthlyAllowance * Math.pow(annualInflation, year - irlYear);
+      const inflatedBaristaIncome = initialBaristaIncome * Math.pow(annualInflation, year - irlYear);
       const isRetirementYear = currentAge >= retirementAge;
       const phase = isRetirementYear ? 'retirement' : 'accumulation';
+      const previousBalance = yearlyData[yearlyData.length - 1].balance;
+      const monthlyAllowance =
+        phase === 'retirement'
+          ? calculateAnnualWithdrawal({
+              withdrawalStrategy,
+              currentBalance: previousBalance,
+              withdrawalPercentage,
+              inflatedAllowance,
+              inflatedBaristaIncome,
+            }) / 12
+          : 0;
 
       // Reconstruct untouched balance for deterministic mode (for 4% rule)
       let untouchedBalance = 0;
@@ -401,7 +441,7 @@ export default function FireCalculatorForm({
         balance: p50, // Use Median for the main line
         untouchedBalance: untouchedBalance,
         phase: phase,
-        monthlyAllowance: phase === 'retirement' ? inflatedAllowance : 0,
+        monthlyAllowance,
         untouchedMonthlyAllowance: inflatedAllowance,
         balanceP10: p10,
         balanceP50: p50,

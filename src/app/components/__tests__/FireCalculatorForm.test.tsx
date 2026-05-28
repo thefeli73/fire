@@ -211,6 +211,34 @@ describe('FireCalculatorForm', () => {
     ).toBeInTheDocument();
   });
 
+  it('calculates percentage-of-portfolio withdrawals minus barista income', async () => {
+    render(
+      (<FireCalculatorForm
+        autoCalculate
+        initialValues={{
+          startingCapital: 100000,
+          monthlySavings: 0,
+          currentAge: 64,
+          cagr: 0,
+          desiredMonthlyAllowance: 3000,
+          inflationRate: 0,
+          lifeExpectancy: 66,
+          retirementAge: 65,
+          coastFireAge: 65,
+          baristaIncome: 100,
+          simulationMode: 'deterministic',
+          volatility: 0,
+          withdrawalStrategy: 'percentage',
+          withdrawalPercentage: 4,
+        }}
+      />) as unknown as ReactNode,
+    );
+
+    await screen.findByText('Financial Projection');
+
+    expect(screen.getByText('97,200')).toBeInTheDocument();
+  });
+
   it('hydrates monthly allowance from monthlySpend URL param without capping at 20000', async () => {
     window.history.pushState({}, '', '/?monthlySpend=25000');
     render((<FireCalculatorForm />) as unknown as ReactNode);
