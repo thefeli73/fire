@@ -1,7 +1,16 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import FireCalculatorForm from '../FireCalculatorForm';
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+
+const { plausibleMock } = vi.hoisted(() => ({
+  plausibleMock: vi.fn(),
+}));
+
+vi.mock('next-plausible', () => ({
+  usePlausible: () => plausibleMock,
+}));
 
 // Mocking ResizeObserver
 class ResizeObserver {
@@ -23,6 +32,17 @@ beforeAll(() => {
   window.HTMLElement.prototype.setPointerCapture = vi.fn();
   window.HTMLElement.prototype.releasePointerCapture = vi.fn();
   window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  Object.defineProperty(window.navigator, 'clipboard', {
+    value: {
+      writeText: vi.fn().mockResolvedValue(undefined),
+    },
+    configurable: true,
+  });
+});
+
+beforeEach(() => {
+  plausibleMock.mockReset();
+  window.history.pushState({}, '', '/');
 });
 
 // Mock Recharts ResponsiveContainer
@@ -30,9 +50,7 @@ vi.mock('recharts', async () => {
   const originalModule = await vi.importActual('recharts');
   return {
     ...originalModule,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-      <div style={{ width: '500px', height: '300px' }}>{children}</div>
-    ),
+    ResponsiveContainer: ({ children }: { children: ReactNode }) => children,
   };
 });
 
@@ -49,7 +67,7 @@ vi.mock('next/navigation', () => ({
 
 describe('FireCalculatorForm', () => {
   it('renders the form with default values', () => {
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     expect(screen.getByText('FIRE Calculator')).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', { name: /Starting Capital/i })).toHaveValue(50000);
@@ -59,7 +77,7 @@ describe('FireCalculatorForm', () => {
 
   it('calculates and displays results when submitted', async () => {
     const user = userEvent.setup();
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     const calculateButton = screen.getByRole('button', { name: /Calculate/i });
     await user.click(calculateButton);
@@ -70,8 +88,53 @@ describe('FireCalculatorForm', () => {
     });
   });
 
+  it('auto calculates on mount when autoCalculate is enabled', async () => {
+    render((<FireCalculatorForm autoCalculate />) as unknown as ReactNode);
+
+    expect(await screen.findByText('Financial Projection')).toBeInTheDocument();
+    expect(await screen.findByText('FIRE Number')).toBeInTheDocument();
+  });
+
+  it('emits calculate analytics on manual submit', async () => {
+    const user = userEvent.setup();
+    render((<FireCalculatorForm />) as unknown as ReactNode);
+
+    const calculateButton = screen.getByRole('button', { name: /Calculate/i });
+    await user.click(calculateButton);
+
+    await waitFor(() => {
+      expect(plausibleMock).toHaveBeenCalledWith(
+        'calculator_calculate',
+        expect.objectContaining({
+          props: expect.objectContaining({
+            simulation_mode: expect.any(String),
+            withdrawal_strategy: expect.any(String),
+            source_path: expect.any(String),
+            calculation_trigger: 'manual',
+          }),
+        }),
+      );
+    });
+  });
+
+  it('emits save/share analytics after sharing results', async () => {
+    const user = userEvent.setup();
+    render((<FireCalculatorForm />) as unknown as ReactNode);
+
+    await user.click(screen.getByRole('button', { name: /Calculate/i }));
+    await screen.findByText('Financial Projection');
+
+    const shareButton = screen.getByRole('button', {
+      name: /Save \/ Share Results|Results Link Copied!/i,
+    });
+
+    await user.click(shareButton);
+
+    expect(plausibleMock).toHaveBeenCalledWith('calculator_save_share', expect.anything());
+  });
+
   it('allows changing inputs', async () => {
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     const savingsInput = screen.getByRole('spinbutton', { name: /Monthly Savings/i });
 
@@ -84,7 +147,7 @@ describe('FireCalculatorForm', () => {
 
   it('validates inputs', async () => {
     const user = userEvent.setup();
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     const ageInput = screen.getByRole('spinbutton', { name: /Current Age/i });
     // Use fireEvent to set invalid value directly
@@ -99,7 +162,7 @@ describe('FireCalculatorForm', () => {
 
   it('toggles Monte Carlo simulation mode', async () => {
     const user = userEvent.setup();
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     // Select Trigger
     const modeTrigger = screen.getByRole('combobox', { name: /Simulation Mode/i });
@@ -115,13 +178,14 @@ describe('FireCalculatorForm', () => {
 
   it('shows Monte Carlo percentile bounds on the chart', async () => {
     const user = userEvent.setup();
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     const modeTrigger = screen.getByRole('combobox', { name: /Simulation Mode/i });
     await user.click(modeTrigger);
 
     const monteCarloOption = await screen.findByRole('option', { name: /Monte Carlo/i });
     await user.click(monteCarloOption);
+    await user.click(screen.getByRole('button', { name: /Calculate/i }));
 
     await screen.findByText('Financial Projection');
     const bandLegend = await screen.findByTestId('mc-band-legend');
@@ -131,7 +195,7 @@ describe('FireCalculatorForm', () => {
 
   it('handles withdrawal strategy selection', async () => {
     const user = userEvent.setup();
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     const strategyTrigger = screen.getByRole('combobox', { name: /Withdrawal Strategy/i });
     await user.click(strategyTrigger);
@@ -146,7 +210,7 @@ describe('FireCalculatorForm', () => {
 
   it('hydrates monthly allowance from monthlySpend URL param without capping at 20000', async () => {
     window.history.pushState({}, '', '/?monthlySpend=25000');
-    render(<FireCalculatorForm />);
+    render((<FireCalculatorForm />) as unknown as ReactNode);
 
     await waitFor(() => {
       expect(screen.getByRole('spinbutton', { name: /Monthly Allowance/i })).toHaveValue(25000);

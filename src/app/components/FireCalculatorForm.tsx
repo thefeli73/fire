@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { usePlausible } from 'next-plausible';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -53,6 +54,20 @@ function InfoTooltip({ content }: Readonly<{ content: string }>) {
 
 const formSchema = fireCalculatorFormSchema;
 type FormValues = FireCalculatorFormValues;
+type CalculationTrigger = 'manual' | 'auto' | 'url' | 'field_change' | 'mode_change';
+
+const ageBucket = (age: number) => {
+  if (age < 30) return 'under_30';
+  if (age < 40) return '30s';
+  if (age < 50) return '40s';
+  if (age < 60) return '50s';
+  return '60_plus';
+};
+
+const safeSourcePath = () => {
+  if (typeof window === 'undefined') return 'server';
+  return window.location.pathname || '/';
+};
 
 interface YearlyData {
   age: number;
@@ -151,9 +166,12 @@ export default function FireCalculatorForm({
   initialValues?: Partial<FireCalculatorFormValues>;
   autoCalculate?: boolean;
 }>) {
+  const plausible = usePlausible();
   const [result, setResult] = useState<CalculationResult | null>(null);
   const irlYear = new Date().getFullYear();
   const [copied, setCopied] = useState(false);
+  const fieldChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousSimulationModeRef = useRef<FormValues['simulationMode'] | undefined | null>(null);
 
   // Initialize form with default values
   const form = useForm<z.input<typeof formSchema>, undefined, FormValues>({
@@ -232,13 +250,25 @@ export default function FireCalculatorForm({
       form.reset(merged);
       // Trigger calculation
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      form.handleSubmit(onSubmit)();
+      form.handleSubmit((values) => onSubmit(values, 'url'))();
     }
     setHasHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasHydrated, form]);
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: FormValues, calculationTrigger: CalculationTrigger = 'manual') {
+    plausible('calculator_calculate', {
+      props: {
+        simulation_mode: values.simulationMode,
+        withdrawal_strategy: values.withdrawalStrategy,
+        source_path: safeSourcePath(),
+        calculation_trigger: calculationTrigger,
+        current_age_bucket: ageBucket(values.currentAge),
+        retirement_horizon_years: values.lifeExpectancy - values.retirementAge,
+        withdrawal_rate: values.withdrawalPercentage,
+      },
+    });
+
     setResult(null); // Reset previous results
 
     const startingCapital = values.startingCapital;
@@ -407,11 +437,30 @@ export default function FireCalculatorForm({
     }
   }
 
+  const scheduleCalculation = (calculationTrigger: CalculationTrigger = 'field_change') => {
+    if (fieldChangeTimeoutRef.current) {
+      clearTimeout(fieldChangeTimeoutRef.current);
+    }
+
+    fieldChangeTimeoutRef.current = setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      form.handleSubmit((values) => onSubmit(values, calculationTrigger))();
+    }, 300);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (fieldChangeTimeoutRef.current) {
+        clearTimeout(fieldChangeTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Use effect for auto-calculation
   useEffect(() => {
     if (autoCalculate && !result) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      form.handleSubmit(onSubmit)();
+      form.handleSubmit((values) => onSubmit(values, 'auto'))();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCalculate]);
@@ -436,6 +485,14 @@ export default function FireCalculatorForm({
     params.set('withdrawalPercentage', String(values.withdrawalPercentage));
 
     const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    plausible('calculator_save_share', {
+      props: {
+        simulation_mode: values.simulationMode,
+        withdrawal_strategy: values.withdrawalStrategy,
+        source_path: safeSourcePath(),
+        current_age_bucket: ageBucket(values.currentAge),
+      },
+    });
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
@@ -453,11 +510,17 @@ export default function FireCalculatorForm({
       mcRange: (row.balanceP90 ?? 0) - (row.balanceP10 ?? 0),
     })) ?? [];
 
-  // Ensure we always have a fresh calculation when switching simulation modes (or on first render)
+  // Ensure we always have a fresh calculation when switching simulation modes.
   useEffect(() => {
-    if (!result) {
+    if (previousSimulationModeRef.current === null) {
+      previousSimulationModeRef.current = simulationModeValue;
+      return;
+    }
+
+    if (previousSimulationModeRef.current !== simulationModeValue) {
+      previousSimulationModeRef.current = simulationModeValue;
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      form.handleSubmit(onSubmit)();
+      form.handleSubmit((values) => onSubmit(values, 'mode_change'))();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simulationModeValue]);
@@ -498,7 +561,7 @@ export default function FireCalculatorForm({
           <Form {...form}>
             <form
               onSubmit={(event) => {
-                void form.handleSubmit(onSubmit)(event);
+                void form.handleSubmit((values) => onSubmit(values, 'manual'))(event);
               }}
               className="space-y-8"
             >
@@ -519,8 +582,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -547,8 +609,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -575,8 +636,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -603,8 +663,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -632,8 +691,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -661,8 +719,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -689,8 +746,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -721,8 +777,7 @@ export default function FireCalculatorForm({
                           step={1}
                           onValueChange={(value: number[]) => {
                             field.onChange(value[0]);
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           className="py-4"
                         />
@@ -750,8 +805,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -781,8 +835,7 @@ export default function FireCalculatorForm({
                           value={field.value as number | string | undefined}
                           onChange={(e) => {
                             field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                            form.handleSubmit(onSubmit)();
+                            scheduleCalculation();
                           }}
                           onBlur={field.onBlur}
                           name={field.name}
@@ -805,8 +858,7 @@ export default function FireCalculatorForm({
                       <Select
                         onValueChange={(val) => {
                           field.onChange(val);
-                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                          form.handleSubmit(onSubmit)();
+                          scheduleCalculation('mode_change');
                         }}
                         defaultValue={field.value}
                       >
@@ -841,8 +893,7 @@ export default function FireCalculatorForm({
                             value={field.value as number | string | undefined}
                             onChange={(e) => {
                               field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                              form.handleSubmit(onSubmit)();
+                              scheduleCalculation();
                             }}
                             onBlur={field.onBlur}
                             name={field.name}
@@ -866,8 +917,7 @@ export default function FireCalculatorForm({
                       <Select
                         onValueChange={(val) => {
                           field.onChange(val);
-                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                          form.handleSubmit(onSubmit)();
+                          scheduleCalculation();
                         }}
                         defaultValue={field.value}
                       >
@@ -903,8 +953,7 @@ export default function FireCalculatorForm({
                             value={field.value as number | string | undefined}
                             onChange={(e) => {
                               field.onChange(e.target.value === '' ? undefined : Number(e.target.value));
-                              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                              form.handleSubmit(onSubmit)();
+                              scheduleCalculation();
                             }}
                             onBlur={field.onBlur}
                             name={field.name}
@@ -1089,7 +1138,7 @@ export default function FireCalculatorForm({
                     type="button"
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-                    {copied ? 'Sharable Link Copied!' : 'Share Calculation'}
+                    {copied ? 'Results Link Copied!' : 'Save / Share Results'}
                   </Button>
                 </div>
               )}

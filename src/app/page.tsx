@@ -131,7 +131,7 @@ export default function HomePage() {
         </p>
         <div className="mt-8 w-full max-w-2xl">
           <Suspense fallback={<div>Loading calculator...</div>}>
-            <FireCalculatorForm />
+            <FireCalculatorForm autoCalculate />
           </Suspense>
         </div>
       </div>

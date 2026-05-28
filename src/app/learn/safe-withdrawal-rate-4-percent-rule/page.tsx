@@ -42,14 +42,14 @@ const faqs: FaqItem[] = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Safe Withdrawal Rate: Is the 4% Rule Still Safe? | InvestingFIRE',
+  title: '4% Rule in 2026: Safe Withdrawal Rate Calculator | InvestingFIRE',
   description:
     'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
   alternates: {
     canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
   },
   openGraph: {
-    title: 'Safe Withdrawal Rate: Is the 4% Rule Still Safe? | InvestingFIRE',
+    title: '4% Rule in 2026: Safe Withdrawal Rate Calculator | InvestingFIRE',
     description:
       'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
     type: 'article',

@@ -219,7 +219,7 @@ export default function CoastVsLeanPage() {
         </ol>
 
         <div className="my-10 text-center">
-          <Link href="/">
+          <Link href="/?coastFireAge=35&autoCalculate=true">
             <Button size="lg" className="text-lg">
               Compare Strategies with the Calculator →
             </Button>
