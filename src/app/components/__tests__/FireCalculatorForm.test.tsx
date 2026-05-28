@@ -85,6 +85,9 @@ describe('FireCalculatorForm', () => {
     await waitFor(() => {
       expect(screen.getByText('Financial Projection')).toBeInTheDocument();
       expect(screen.getByText('FIRE Number')).toBeInTheDocument();
+      expect(screen.getByText(/Projection year|Years from today/i)).toBeInTheDocument();
+      expect(screen.getByText(/Monthly allowance.*USD/i)).toBeInTheDocument();
+      expect(screen.getByText(/Portfolio balance.*USD/i)).toBeInTheDocument();
     });
   });
 

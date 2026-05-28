@@ -59,7 +59,7 @@ export function FourPercentRuleChart() {
       <CardHeader>
         <CardTitle>Portfolio Survival Scenarios</CardTitle>
         <CardDescription>
-          Impact of initial withdrawal rate on portfolio longevity (Start: $1M)
+          Impact of initial withdrawal rate on portfolio longevity.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,7 +80,13 @@ export function FourPercentRuleChart() {
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
-            <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} />
+            <XAxis
+              dataKey="year"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              label={{ value: 'Years of retirement', position: 'insideBottom', offset: -5 }}
+            />
             <YAxis
               tickLine={false}
               axisLine={false}
@@ -107,8 +113,9 @@ export function FourPercentRuleChart() {
         <div>
           <p className="font-medium">4% balances safety and spending power</p>
           <p className="text-muted-foreground leading-none">
-            A 5% withdrawal rate risks depleting your portfolio within 30 years, while 3% leaves a large
-            surplus. The 4% rule is widely considered the safe &quot;sweet spot.&quot;
+            X-axis: years of retirement. Y-axis: portfolio value (% of initial balance; starting
+            balance = 100). A 5% withdrawal rate risks depleting your portfolio within 30 years, while
+            3% leaves a large surplus.
           </p>
         </div>
       </CardFooter>

@@ -73,14 +73,20 @@ export function CoastFireChart() {
       <CardHeader>
         <CardTitle>Coast FIRE vs. Standard Path</CardTitle>
         <CardDescription>
-          Comparing heavy early savings (Coast) vs. consistent saving (Standard)
+          Comparing heavy early savings (Coast) vs. consistent saving (Standard).
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">
           <LineChart data={data}>
             <CartesianGrid vertical={false} />
-            <XAxis dataKey="age" tickLine={false} axisLine={false} tickMargin={8} />
+            <XAxis
+              dataKey="age"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              label={{ value: 'Age (years)', position: 'insideBottom', offset: -5 }}
+            />
             <YAxis
               tickLine={false}
               axisLine={false}
@@ -121,8 +127,8 @@ export function CoastFireChart() {
         </ChartContainer>
         <CardFooter>
           <p className="text-muted-foreground text-sm">
-            Simulation assumes 7% returns. Standard: Save $10k/yr (age 25-65). Coast: Save $30k/yr (age
-            25-35), then $0.
+            X-axis: age (years). Y-axis: portfolio balance (USD). Simulation assumes 7% returns.
+            Standard: Save $10k/yr (age 25-65). Coast: Save $30k/yr (age 25-35), then $0.
           </p>
         </CardFooter>
       </CardContent>

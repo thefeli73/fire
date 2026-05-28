@@ -978,7 +978,8 @@ export default function FireCalculatorForm({
                   <CardHeader>
                     <CardTitle>Financial Projection</CardTitle>
                     <CardDescription>
-                      Projected balance growth with your selected retirement age
+                      Projected balance growth with your selected retirement age. X-axis: projection year.
+                      Left Y-axis: monthly allowance (USD). Right Y-axis: portfolio balance (USD).
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">
@@ -993,7 +994,7 @@ export default function FireCalculatorForm({
                         <XAxis
                           dataKey="year"
                           label={{
-                            value: 'Year',
+                            value: 'Projection year',
                             position: 'insideBottom',
                             offset: -10,
                           }}

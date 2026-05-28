@@ -1,6 +1,6 @@
 import { createElement, type ReactNode } from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: any) =>
@@ -84,5 +84,12 @@ describe('learn page links', () => {
     const hrefs = Array.from(container.querySelectorAll('a')).map((link) => link.getAttribute('href'));
 
     expect(hrefs).toContain('/?coastFireAge=35&autoCalculate=true');
+  });
+
+  it('explains matrix horizons and historical success rates', () => {
+    render(createElement(MatrixPage as any) as unknown as ReactNode);
+
+    expect(screen.getByText(/30\/40\/50\/60 columns are retirement horizons/i)).toBeInTheDocument();
+    expect(screen.getByText(/historical success rates\s*\(%\)/i)).toBeInTheDocument();
   });
 });

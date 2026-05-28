@@ -33,7 +33,7 @@ export default function SwrMatrixPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: 'Safe Withdrawal Rates in 2026: The 30, 40, and 50-Year Matrix',
+    headline: 'Safe Withdrawal Rates in 2026: The 30, 40, 50, and 60-Year Matrix',
     description:
       'Updated Trinity Study success rates for 40, 50, and 60-year retirement horizons. Find your safe withdrawal rate for early retirement.',
     mainEntityOfPage: {
@@ -81,8 +81,8 @@ export default function SwrMatrixPage() {
           <span className="text-primary">The 30, 40, 50, and 60-Year Matrix</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">
-          Compare 30, 40, 50, and 60-year safe withdrawal rates before you trust a rule of thumb. For
-          FIRE retirees, 30 years is just the beginning.
+          Compare 30, 40, 50, and 60-year retirement horizons before you trust a rule of thumb. These
+          numbers are years in retirement, not your age.
         </p>
       </header>
 
@@ -92,16 +92,23 @@ export default function SwrMatrixPage() {
           Start with the table. If your retirement could run 50-60 years, the classic 4% rule carries
           more risk than the original 30-year framing suggests.
         </p>
+        <p className="text-muted-foreground text-sm">
+          30/40/50/60 columns are retirement horizons, not ages; cells show historical success rates
+          (%).
+        </p>
 
         <div className="my-8 overflow-x-auto">
           <table className="w-full border-collapse text-left">
+            <caption className="text-muted-foreground mb-3 text-left text-sm">
+              Success rate by withdrawal rate and retirement horizon.
+            </caption>
             <thead>
               <tr className="bg-muted border-b">
                 <th className="p-4 font-bold">Withdrawal Rate</th>
-                <th className="p-4 font-bold">30 Years</th>
-                <th className="p-4 font-bold">40 Years</th>
-                <th className="p-4 font-bold">50 Years</th>
-                <th className="p-4 font-bold">60 Years</th>
+                <th className="p-4 font-bold">30-year retirement</th>
+                <th className="p-4 font-bold">40-year retirement</th>
+                <th className="p-4 font-bold">50-year retirement</th>
+                <th className="p-4 font-bold">60-year retirement</th>
               </tr>
             </thead>
             <tbody>
