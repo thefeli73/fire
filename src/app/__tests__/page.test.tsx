@@ -41,4 +41,10 @@ describe('home page calculator layout', () => {
     expect(calculatorWrapper).toHaveClass('sm:w-full');
     expect(calculatorWrapper).toHaveClass('sm:max-w-2xl');
   });
+
+  it('loads the above-fold logo eagerly', () => {
+    render((<HomePage />) as unknown as ReactNode);
+
+    expect(screen.getByAltText('InvestingFIRE Logo')).toHaveAttribute('loading', 'eager');
+  });
 });
