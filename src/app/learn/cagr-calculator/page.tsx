@@ -106,14 +106,14 @@ export default function CagrCalculatorPage() {
 
         <header className="mx-auto mb-8 max-w-3xl text-center">
           <span className="bg-primary/15 text-primary rounded-full px-4 py-2 text-xs font-semibold tracking-wide uppercase shadow-sm">
-            Focused CAGR tool • compound annual growth rate
+            Compound annual growth rate
           </span>
           <h1 className="from-primary via-accent to-primary mt-6 bg-linear-to-r bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-md lg:text-6xl">
             CAGR Calculator Online
           </h1>
           <p className="text-foreground/80 mt-4 text-lg leading-relaxed text-balance md:text-xl">
-            Use this growth projection tool to model how an initial deposit, monthly savings, and CAGR
-            combine into long-term balance growth.
+            A focused CAGR tool for growth projection, modeling how an initial deposit, monthly savings,
+            and CAGR combine into long-term balance growth.
           </p>
         </header>
 
