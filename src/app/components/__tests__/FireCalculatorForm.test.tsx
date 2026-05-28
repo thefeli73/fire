@@ -140,7 +140,7 @@ describe('FireCalculatorForm', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Financial Projection')).toBeInTheDocument();
-      expect(screen.getByText('Balance and allowance by year.')).toBeInTheDocument();
+      expect(screen.getByText(/Balance and allowance by year\./i)).toBeInTheDocument();
       expect(screen.getByText('FIRE Number')).toBeInTheDocument();
       expect(screen.getAllByText(/Monthly allowance/i).length).toBeGreaterThan(0);
       expect(screen.queryByText(new RegExp(['U', 'S', 'D'].join(''), 'i'))).not.toBeInTheDocument();
@@ -250,10 +250,11 @@ describe('FireCalculatorForm', () => {
     await user.click(monteCarloOption);
     await user.click(screen.getByRole('button', { name: /Calculate/i }));
 
-    await screen.findByText('Financial Projection');
-    const bandLegend = await screen.findByTestId('mc-band-legend');
+    const cardDescription = await screen.findByText(/Balance and allowance by year\./i);
 
-    expect(bandLegend).toHaveTextContent('Shaded band shows 40th–60th percentile across 2000 simulations.');
+    expect(cardDescription).toHaveTextContent(
+      'Shaded band shows 40th–60th percentile across 2000 simulations.',
+    );
   });
 
   it('handles withdrawal strategy selection', async () => {
