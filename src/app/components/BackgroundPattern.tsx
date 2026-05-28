@@ -39,7 +39,74 @@ import {
   Hourglass,
   Sprout,
   Target,
+  TicketsPlane,
+  TreePalm,
+  Flag,
+  Goal,
+  Compass,
+  Egg,
+  PlaneTakeoff,
+  Luggage,
+  MapPinned,
+  Sun,
+  WavesLadder,
+  Sailboat,
+  MountainSnow,
+  TentTree,
 } from 'lucide-react';
+
+export const backgroundIconComponents: LucideIcon[] = [
+  HandCoins,
+  Bitcoin,
+  Coins,
+  DollarSign,
+  Euro,
+  IndianRupee,
+  JapaneseYen,
+  PiggyBank,
+  PoundSterling,
+  Wallet,
+  Banknote,
+  ChartCandlestick,
+  CirclePercent,
+  CreditCard,
+  Gem,
+  Receipt,
+  ShoppingBasket,
+  Rocket,
+  RockingChair,
+  Sparkles,
+  ChartPie,
+  ChartBar,
+  BarChart3,
+  ChartLine,
+  TrendingDown,
+  TrendingUp,
+  Vault,
+  Landmark,
+  Briefcase,
+  Handshake,
+  Shield,
+  Lock,
+  CalendarRange,
+  Hourglass,
+  Sprout,
+  Target,
+  TicketsPlane,
+  TreePalm,
+  Flag,
+  Goal,
+  Compass,
+  Egg,
+  PlaneTakeoff,
+  Luggage,
+  MapPinned,
+  Sun,
+  WavesLadder,
+  Sailboat,
+  MountainSnow,
+  TentTree,
+];
 
 export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
   const [width, setWidth] = useState(0);
@@ -73,46 +140,6 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     setRows(Math.ceil(height / spacing) + 3);
   }, [height, spacing]);
 
-  // Explicitly type the array as LucideIcon[]
-  const iconComponents: LucideIcon[] = [
-    HandCoins,
-    Bitcoin,
-    Coins,
-    DollarSign,
-    Euro,
-    IndianRupee,
-    JapaneseYen,
-    PiggyBank,
-    PoundSterling,
-    Wallet,
-    Banknote,
-    ChartCandlestick,
-    CirclePercent,
-    CreditCard,
-    Gem,
-    Receipt,
-    ShoppingBasket,
-    Rocket,
-    RockingChair,
-    Sparkles,
-    ChartPie,
-    ChartBar,
-    BarChart3,
-    ChartLine,
-    TrendingDown,
-    TrendingUp,
-    Vault,
-    Landmark,
-    Briefcase,
-    Handshake,
-    Shield,
-    Lock,
-    CalendarRange,
-    Hourglass,
-    Sprout,
-    Target,
-  ];
-
   const [icons, setIcons] = useState<React.ReactElement[]>([]);
 
   useEffect(() => {
@@ -125,8 +152,8 @@ export default function MultiIconPattern({ opacity = 0.2, spacing = 160 }) {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < columns; x++) {
         // Pick a random icon component from the array
-        const randomIndex = Math.floor(Math.random() * iconComponents.length);
-        const IconComponent = iconComponents[randomIndex];
+        const randomIndex = Math.floor(Math.random() * backgroundIconComponents.length);
+        const IconComponent = backgroundIconComponents[randomIndex];
 
         // Slightly randomize size and position for more organic feel
         const size = 30 + Math.floor(Math.random() * 8);
