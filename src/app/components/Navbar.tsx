@@ -55,6 +55,13 @@ export function Navbar() {
               <Flame className="h-4 w-4" />
               What is FIRE?
             </Link>
+            <Link
+              href="/learn/cagr-calculator"
+              className="text-foreground/70 hover:bg-primary/10 hover:text-foreground flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors"
+            >
+              <Percent className="size-4" />
+              CAGR Calculator
+            </Link>
           </nav>
         </div>
 
@@ -118,8 +125,15 @@ export function Navbar() {
                 href="/learn/safe-withdrawal-rate-4-percent-rule"
                 className="text-foreground/80 hover:bg-primary/10 hover:text-foreground flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
               >
-                <Percent className="h-4 w-4" />
+                <Percent className="size-4" />
                 The 4% Rule
+              </Link>
+              <Link
+                href="/learn/cagr-calculator"
+                className="text-foreground/80 hover:bg-primary/10 hover:text-foreground flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+              >
+                <Percent className="size-4" />
+                CAGR Calculator
               </Link>
               <Link
                 href="/learn/coast-fire-vs-lean-fire"

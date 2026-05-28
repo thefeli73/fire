@@ -56,6 +56,7 @@ vi.mock('@/app/components/charts/CoastFireChart', () => ({
 import MatrixPage, { metadata as matrixMetadata } from '../safe-withdrawal-rate-matrix/page';
 import { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
 import CoastVsLeanPage from '../coast-fire-vs-lean-fire/page';
+import CagrCalculatorPage, { metadata as cagrCalculatorMetadata } from '../cagr-calculator/page';
 
 const currentYear = String(new Date().getFullYear());
 const hardCodedYear = String(2000 + 26);
@@ -73,11 +74,13 @@ describe('learn page metadata', () => {
     expect(fourPercentMetadata.title).toMatch(/Calculator|FIRE Calculator/);
   });
 
+  it('keeps CAGR calculator SEO metadata aligned', () => {
+    expect(cagrCalculatorMetadata.title).toContain('CAGR Calculator');
+    expect(cagrCalculatorMetadata.description).toMatch(/compound annual growth rate calculator/i);
+  });
+
   it('uses JS current-year values instead of hard-coded year strings', () => {
-    const matrixSource = readFileSync(
-      'src/app/learn/safe-withdrawal-rate-matrix/page.tsx',
-      'utf8',
-    );
+    const matrixSource = readFileSync('src/app/learn/safe-withdrawal-rate-matrix/page.tsx', 'utf8');
     const fourPercentSource = readFileSync(
       'src/app/learn/safe-withdrawal-rate-4-percent-rule/page.tsx',
       'utf8',
@@ -112,5 +115,14 @@ describe('learn page links', () => {
     expect(
       screen.getByText(/The original Trinity Study tested 15-, 20-, 25-, and 30-year periods/i),
     ).toBeInTheDocument();
+  });
+
+  it('renders CAGR calculator CTA and explanatory copy', () => {
+    const { container } = render(createElement(CagrCalculatorPage as any) as unknown as ReactNode);
+    const hrefs = Array.from(container.querySelectorAll('a')).map((link) => link.getAttribute('href'));
+
+    expect(screen.getByText(/CAGR calculator online/i)).toBeInTheDocument();
+    expect(screen.getByText(/compound annual growth rate/i)).toBeInTheDocument();
+    expect(hrefs.some((href) => href?.includes('cagr=7'))).toBe(true);
   });
 });

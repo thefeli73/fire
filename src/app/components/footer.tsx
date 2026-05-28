@@ -70,6 +70,14 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
+                    href="/learn/cagr-calculator"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    CAGR Calculator
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/learn/coast-fire-vs-lean-fire"
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >

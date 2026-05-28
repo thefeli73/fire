@@ -182,6 +182,26 @@ export default function LearnHubPage() {
             </CardContent>
           </Card>
         </Link>
+
+        <Link href="/learn/cagr-calculator" className="transition-transform hover:scale-[1.02]">
+          <Card className="hover:border-primary/50 h-full cursor-pointer border-2">
+            <CardHeader>
+              <div className="mb-2">
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                  Calculator
+                </span>
+              </div>
+              <CardTitle className="text-2xl">CAGR Calculator</CardTitle>
+              <CardDescription>Compound annual growth rate for FIRE projections.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Learn what CAGR means, why it differs from simple average return, and how to test growth
+                assumptions in the FIRE calculator.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="mt-14 space-y-4">
