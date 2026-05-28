@@ -140,10 +140,9 @@ describe('FireCalculatorForm', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Financial Projection')).toBeInTheDocument();
+      expect(screen.getByText('Balance and allowance by year.')).toBeInTheDocument();
       expect(screen.getByText('FIRE Number')).toBeInTheDocument();
-      expect(screen.getByText(/Projection year|Years from today/i)).toBeInTheDocument();
       expect(screen.getAllByText(/Monthly allowance/i).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/Portfolio balance/i).length).toBeGreaterThan(0);
       expect(screen.queryByText(new RegExp(['U', 'S', 'D'].join(''), 'i'))).not.toBeInTheDocument();
     });
   });
@@ -254,7 +253,7 @@ describe('FireCalculatorForm', () => {
     await screen.findByText('Financial Projection');
     const bandLegend = await screen.findByTestId('mc-band-legend');
 
-    expect(bandLegend).toHaveTextContent('40th-60th percentile');
+    expect(bandLegend).toHaveTextContent('Shaded band shows 40th–60th percentile across 2000 simulations.');
   });
 
   it('handles withdrawal strategy selection', async () => {

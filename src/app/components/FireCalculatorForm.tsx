@@ -1071,15 +1071,12 @@ export default function FireCalculatorForm({
                 <Card className="-mx-3 rounded-md shadow-none sm:mx-0">
                   <CardHeader>
                     <CardTitle>Financial Projection</CardTitle>
-                    <CardDescription>
-                      Projected balance growth with your selected retirement age. X-axis: projection
-                      year. Left Y-axis: monthly allowance. Right Y-axis: portfolio balance.
-                    </CardDescription>
+                    <CardDescription>Balance and allowance by year.</CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">
                     {isMonteCarlo && (
                       <p className="text-muted-foreground px-2 text-xs" data-testid="mc-band-legend">
-                        Shaded band shows 40th-60th percentile outcomes across 2000 simulations.
+                        Shaded band shows 40th–60th percentile across 2000 simulations.
                       </p>
                     )}
                     <ChartContainer className="aspect-auto h-80 w-full" config={projectionChartConfig}>
