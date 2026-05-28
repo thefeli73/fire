@@ -2,9 +2,33 @@ import Link from 'next/link';
 import Script from 'next/script';
 import { Button } from '@/components/ui/button';
 import { AuthorBio } from '@/app/components/AuthorBio';
+import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
 
 const currentYear = new Date().getFullYear();
+
+const faqs: FaqItem[] = [
+  {
+    question: 'What do 30, 40, 50, and 60 years mean in the SWR matrix?',
+    answer:
+      'They are retirement horizons, not ages. A 50-year column means the portfolio needs to support 50 years of withdrawals after retirement.',
+  },
+  {
+    question: 'What does success rate mean in a safe withdrawal rate table?',
+    answer:
+      'Success rate is the modeled share of scenarios where the portfolio still has money at the end of the retirement horizon.',
+  },
+  {
+    question: 'What withdrawal rate is safer for long FIRE retirements?',
+    answer:
+      'For 40- to 60-year retirements, many FIRE planners test rates below 4%, such as 3.25% to 3.5%, then stress-test the plan with market volatility.',
+  },
+  {
+    question: 'How should I use this matrix with the calculator?',
+    answer:
+      'Use the matrix to choose a starting withdrawal rate, then run the calculator in Monte Carlo mode to test how that rate behaves with your own timeline and assumptions.',
+  },
+];
 
 export const metadata: Metadata = {
   title: `Safe Withdrawal Rate Calculator & ${currentYear} Matrix | InvestingFIRE`,
@@ -189,6 +213,8 @@ export default function SwrMatrixPage() {
             </Button>
           </Link>
         </div>
+
+        <FaqSection faqs={faqs} title="Safe Withdrawal Rate Matrix FAQ" className="my-12" />
 
         <AuthorBio />
       </div>

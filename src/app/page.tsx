@@ -128,6 +128,14 @@ export default function HomePage() {
           Plan your path to financial independence with transparent math—ad-free and built to teach you
           how FIRE works.
         </p>
+        <section className="bg-background/80 border-primary/15 mt-6 max-w-2xl rounded-2xl border p-5 text-left shadow-sm backdrop-blur">
+          <h2 className="mb-2 text-xl font-bold">What does this FIRE calculator do?</h2>
+          <p className="text-foreground/80 leading-relaxed">
+            This FIRE calculator helps you plan for Financial Independence, Retire Early by estimating
+            your FIRE number, projected FIRE age, and portfolio survival using your current portfolio
+            balance, savings rate, expected returns, retirement spending, inflation, and withdrawal rate.
+          </p>
+        </section>
         <div className="-mx-4 mt-8 w-screen sm:mx-0 sm:w-full sm:max-w-2xl">
           <Suspense fallback={<div>Loading calculator...</div>}>
             <FireCalculatorForm autoCalculate />
@@ -169,12 +177,12 @@ export default function HomePage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="mb-4 text-3xl font-bold">
-            How This FIRE Calculator Provides Investing Insights
-          </h2>
+          <h2 className="mb-4 text-3xl font-bold">How this FIRE calculator works</h2>
           <p className="mb-4 text-lg leading-relaxed">
-            Our interactive tool goes beyond a simple&quot;25x annual spending&quot; rule. It runs a{' '}
-            <strong>year-by-year simulation</strong> of your portfolio, combining:
+            FIRE number = annual spending divided by withdrawal rate. This calculator starts with that
+            rule of thumb, then runs a year-by-year projection so you can test how savings, investment
+            growth, inflation, retirement age, and deterministic or Monte Carlo assumptions change the
+            result.
           </p>
           <ul className="mb-4 ml-6 list-disc space-y-2 text-lg">
             <li>

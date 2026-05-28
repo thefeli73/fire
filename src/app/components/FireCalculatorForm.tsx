@@ -33,6 +33,7 @@ import type { NameType, Payload, ValueType } from 'recharts/types/component/Defa
 import { Calculator, Info, Share2, Check, ChevronDown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurThing from './blur-thing';
+import { getCalculatorNextSteps } from './calculator-next-steps';
 import Link from 'next/link';
 
 import type { FireCalculatorFormValues } from '@/lib/calculator-schema';
@@ -543,11 +544,24 @@ export default function FireCalculatorForm({
     });
   };
 
-  const simulationModeValue = form.watch('simulationMode');
-  const cagrValue = form.watch('cagr') as number | undefined;
-  const inflationRateValue = form.watch('inflationRate') as number | undefined;
-  const lifeExpectancyValue = form.watch('lifeExpectancy') as number | undefined;
+  const simulationModeValue = (form.watch('simulationMode') ?? 'deterministic') as FormValues['simulationMode'];
+  const withdrawalStrategyValue = (form.watch('withdrawalStrategy') ?? 'fixed') as FormValues['withdrawalStrategy'];
+  const retirementAgeValue = Number(form.watch('retirementAge'));
+  const coastFireAgeValue = Number(form.watch('coastFireAge'));
+  const lifeExpectancyValue = Number(form.watch('lifeExpectancy'));
+  const cagrValue = Number(form.watch('cagr'));
+  const inflationRateValue = Number(form.watch('inflationRate'));
+  const retirementDurationYears = Number(lifeExpectancyValue) - Number(retirementAgeValue);
   const isMonteCarlo = simulationModeValue === 'monte-carlo';
+  const nextSteps = result?.error
+    ? []
+    : getCalculatorNextSteps({
+        simulationMode: simulationModeValue,
+        withdrawalStrategy: withdrawalStrategyValue,
+        retirementDurationYears,
+        successRate: result?.successRate,
+        coastFireAge: Number.isFinite(coastFireAgeValue) ? coastFireAgeValue : undefined,
+      });
   const chartData =
     result?.yearlyData.map((row) => ({
       ...row,
@@ -568,6 +582,16 @@ export default function FireCalculatorForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simulationModeValue]);
+
+  const trackNextStepClick = (nextStepId: string, destination: string) => {
+    plausible('calculator_next_step_click', {
+      props: {
+        next_step_id: nextStepId,
+        destination,
+        source_path: safeSourcePath(),
+      },
+    });
+  };
 
   const projectionChartConfig: ChartConfig = {
     year: {
@@ -1270,6 +1294,37 @@ export default function FireCalculatorForm({
             </>
           )}
         </div>
+      )}
+
+      {result && !result.error && nextSteps.length > 0 && (
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Recommended next steps</CardTitle>
+            <CardDescription className="text-xs">
+              Use your result to stress-test risk, compare withdrawal rates, or explore related FIRE paths.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-3">
+              {nextSteps.map((step) => (
+                <Link
+                  key={step.id}
+                  href={step.href}
+                  onClick={() => {
+                    trackNextStepClick(step.id, step.href);
+                  }}
+                  className="border-border bg-background hover:bg-muted block rounded-lg border p-4 transition-colors"
+                >
+                  <p className="font-semibold">{step.title}</p>
+                  <p className="text-muted-foreground mt-1 text-sm">{step.description}</p>
+                  <p className="text-primary mt-3 text-sm font-medium">
+                    {step.cta} →
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </>
   );

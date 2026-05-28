@@ -43,7 +43,15 @@ vi.mock('@/app/components/AuthorBio', () => ({
 }));
 
 vi.mock('@/app/components/FaqSection', () => ({
-  FaqSection: (props: any) => createElement('div', props, 'FaqSection'),
+  FaqSection: ({ faqs, title, ...props }: any) =>
+    createElement(
+      'section',
+      props,
+      createElement('h2', null, title ?? 'Frequently Asked Questions'),
+      faqs.map((faq: { question: string; answer: string }) =>
+        createElement('article', { key: faq.question }, faq.question, ' ', faq.answer),
+      ),
+    ),
 }));
 
 vi.mock('@/app/components/charts/FourPercentRuleChart', () => ({
@@ -64,7 +72,7 @@ vi.mock('recharts', async () => {
 });
 
 import MatrixPage, { metadata as matrixMetadata } from '../safe-withdrawal-rate-matrix/page';
-import { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
+import SafeWithdrawalPage, { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
 import CoastVsLeanPage from '../coast-fire-vs-lean-fire/page';
 import CagrCalculatorPage, { metadata as cagrCalculatorMetadata } from '../cagr-calculator/page';
 
@@ -125,6 +133,23 @@ describe('learn page links', () => {
     expect(
       screen.getByText(/The original Trinity Study tested 15-, 20-, 25-, and 30-year periods/i),
     ).toBeInTheDocument();
+  });
+
+  it('renders matrix FAQs that define horizons and success rates for answer engines', () => {
+    render(createElement(MatrixPage as any) as unknown as ReactNode);
+
+    expect(screen.getByText(/What do 30, 40, 50, and 60 years mean/i)).toBeInTheDocument();
+    expect(screen.getByText(/They are retirement horizons, not ages/i)).toBeInTheDocument();
+    expect(screen.getByText(/What does success rate mean/i)).toBeInTheDocument();
+    expect(screen.getByText(/modeled share of scenarios/i)).toBeInTheDocument();
+  });
+
+  it('renders 4% rule FAQs that answer calculator-oriented search intent', () => {
+    render(createElement(SafeWithdrawalPage as any) as unknown as ReactNode);
+
+    expect(screen.getByText(/Is the 4% rule still safe for FIRE/i)).toBeInTheDocument();
+    expect(screen.getByText(/test a lower withdrawal rate in a Monte Carlo calculator/i)).toBeInTheDocument();
+    expect(screen.getByText(/What withdrawal rate lasts 50 years/i)).toBeInTheDocument();
   });
 
   it('renders CAGR calculator CTA and explanatory copy', () => {

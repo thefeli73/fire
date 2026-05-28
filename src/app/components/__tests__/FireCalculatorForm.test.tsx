@@ -2,6 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import FireCalculatorForm from '../FireCalculatorForm';
+import { fireCalculatorDefaultValues } from '@/lib/calculator-schema';
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
 const { plausibleMock } = vi.hoisted(() => ({
@@ -192,6 +193,51 @@ describe('FireCalculatorForm', () => {
     await user.click(shareButton);
 
     expect(plausibleMock).toHaveBeenCalledWith('calculator_save_share', expect.anything());
+  });
+
+  it('shows contextual next-step cards after calculation', async () => {
+    const user = userEvent.setup();
+    render(
+      (<FireCalculatorForm initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }} />) as unknown as ReactNode,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Calculate/i }));
+
+    expect(await screen.findByText(/Recommended next steps/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Try Monte Carlo/i })).toHaveAttribute(
+      'href',
+      '/?simulationMode=monte-carlo&autoCalculate=true',
+    );
+    expect(screen.getByRole('link', { name: /Read the 4% guide/i })).toHaveAttribute(
+      'href',
+      '/learn/safe-withdrawal-rate-4-percent-rule',
+    );
+  });
+
+  it('tracks calculator next-step clicks', async () => {
+    const user = userEvent.setup();
+    render(
+      (<FireCalculatorForm initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }} />) as unknown as ReactNode,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Calculate/i }));
+    const nextStepLink = await screen.findByRole('link', { name: /Try Monte Carlo/i });
+    nextStepLink.addEventListener('click', (event) => {
+      event.preventDefault();
+    });
+
+    await user.click(nextStepLink);
+
+    expect(plausibleMock).toHaveBeenCalledWith(
+      'calculator_next_step_click',
+      expect.objectContaining({
+        props: expect.objectContaining({
+          next_step_id: 'monte-carlo',
+          destination: '/?simulationMode=monte-carlo&autoCalculate=true',
+          source_path: '/',
+        }),
+      }),
+    );
   });
 
   it('allows changing inputs', async () => {

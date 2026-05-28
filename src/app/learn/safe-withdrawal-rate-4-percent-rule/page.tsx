@@ -17,9 +17,14 @@ const faqs: FaqItem[] = [
       'The 4% rule was popularized by historical withdrawal-rate research, including the Trinity Study (1998). In the Trinity Study, a 50% stock/50% bond portfolio with a 4% initial withdrawal, adjusted annually for inflation or deflation, survived 95% of overlapping 30-year periods from 1926-1995.',
   },
   {
-    question: 'Is 4% still safe for early retirees?',
+    question: 'Is the 4% rule still safe for FIRE?',
     answer:
-      'For early retirees with 40-50+ year horizons, many planners model more conservative rates such as 3.25-3.5%. The Trinity Study tested payout periods up to 30 years, so longer FIRE retirements need extra stress testing.',
+      'For early retirees with 40-50+ year horizons, 4% can be aggressive. Many planners test a lower withdrawal rate in a Monte Carlo calculator, such as 3.25% to 3.5%, because the original Trinity Study focused on payout periods up to 30 years.',
+  },
+  {
+    question: 'What withdrawal rate lasts 50 years?',
+    answer:
+      'No withdrawal rate is guaranteed, but extended FIRE retirements often need more conservative starting rates than a traditional 30-year retirement. A 3.25% to 3.5% starting point gives more margin before you test the plan against your own assumptions.',
   },
   {
     question: 'What is sequence of returns risk?',
