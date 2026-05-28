@@ -1,4 +1,5 @@
 import { createElement, type ReactNode } from 'react';
+import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
@@ -56,17 +57,34 @@ import MatrixPage, { metadata as matrixMetadata } from '../safe-withdrawal-rate-
 import { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
 import CoastVsLeanPage from '../coast-fire-vs-lean-fire/page';
 
+const currentYear = String(new Date().getFullYear());
+const hardCodedYear = String(2000 + 26);
+
 describe('learn page metadata', () => {
   it('keeps SWR matrix SEO metadata aligned', () => {
     expect(matrixMetadata.title).toContain('Safe Withdrawal Rate Calculator');
-    expect(matrixMetadata.title).toContain('2026 Matrix');
+    expect(matrixMetadata.title).toContain(`${currentYear} Matrix`);
     expect(matrixMetadata.description).toContain('30, 40, 50, and 60-year retirements');
   });
 
   it('keeps 4% rule SEO metadata aligned', () => {
     expect(fourPercentMetadata.title).toContain('4% Rule');
-    expect(fourPercentMetadata.title).toContain('2026');
+    expect(fourPercentMetadata.title).toContain(currentYear);
     expect(fourPercentMetadata.title).toMatch(/Calculator|FIRE Calculator/);
+  });
+
+  it('uses JS current-year values instead of hard-coded year strings', () => {
+    const matrixSource = readFileSync(
+      'src/app/learn/safe-withdrawal-rate-matrix/page.tsx',
+      'utf8',
+    );
+    const fourPercentSource = readFileSync(
+      'src/app/learn/safe-withdrawal-rate-4-percent-rule/page.tsx',
+      'utf8',
+    );
+
+    expect(matrixSource).not.toContain(hardCodedYear);
+    expect(fourPercentSource).not.toContain(hardCodedYear);
   });
 });
 

@@ -8,6 +8,8 @@ import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
 
+const currentYear = new Date().getFullYear();
+
 const faqs: FaqItem[] = [
   {
     question: 'What is the 4% rule and where does it come from?',
@@ -42,14 +44,14 @@ const faqs: FaqItem[] = [
 ];
 
 export const metadata: Metadata = {
-  title: '4% Rule in 2026: Safe Withdrawal Rate Calculator | InvestingFIRE',
+  title: `4% Rule in ${currentYear}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
   description:
     'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
   alternates: {
     canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
   },
   openGraph: {
-    title: '4% Rule in 2026: Safe Withdrawal Rate Calculator | InvestingFIRE',
+    title: `4% Rule in ${currentYear}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
     description:
       'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
     type: 'article',
