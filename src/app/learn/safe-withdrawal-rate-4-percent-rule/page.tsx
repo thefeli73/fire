@@ -14,12 +14,12 @@ const faqs: FaqItem[] = [
   {
     question: 'What is the 4% rule and where does it come from?',
     answer:
-      'The 4% rule comes from the Trinity Study (1998), which analyzed historical data to find a sustainable withdrawal rate. It states that withdrawing 4% of your initial portfolio in year one, then adjusting for inflation each year, has historically survived 95% of 30-year periods.',
+      'The 4% rule was popularized by historical withdrawal-rate research, including the Trinity Study (1998). In the Trinity Study, a 50% stock/50% bond portfolio with a 4% initial withdrawal, adjusted annually for inflation or deflation, survived 95% of overlapping 30-year periods from 1926-1995.',
   },
   {
     question: 'Is 4% still safe for early retirees?',
     answer:
-      'For early retirees with 40-50+ year horizons, many experts recommend a more conservative 3.25-3.5% withdrawal rate. The original study only covered 30-year periods, and current market valuations may lead to lower future returns.',
+      'For early retirees with 40-50+ year horizons, many planners model more conservative rates such as 3.25-3.5%. The Trinity Study tested payout periods up to 30 years, so longer FIRE retirements need extra stress testing.',
   },
   {
     question: 'What is sequence of returns risk?',
@@ -120,26 +120,36 @@ export default function SafeWithdrawalPage() {
           <span className="text-primary">Is the 4% Rule Still Safe?</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">
-          The &quot;4% Rule&quot; is the bedrock of the FIRE movement. But originally published in 1994,
-          does it hold up against modern inflation and market valuations? Let&apos;s look at the data.
+          The &quot;4% Rule&quot; is the bedrock of the FIRE movement. The Trinity Study tested
+          how withdrawal rates held up across historical 15- to 30-year retirements. Does that
+          evidence still hold up for modern FIRE timelines?
         </p>
       </header>
 
       <div className="max-w-none">
         <h2>What is the 4% Rule?</h2>
         <p>
-          The rule comes from the <strong>Trinity Study</strong> (1998), which looked at historical
-          stock/bond portfolios to see how often they would last for 30 years given various withdrawal
-          rates.
+          The rule was popularized by historical withdrawal-rate research, including the{' '}
+          <a
+            href="https://www.aaii.com/files/pdf/6794_retirement-savings-choosing-a-withdrawal-rate-that-is-sustainable.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline underline-offset-4"
+          >
+            Trinity Study
+          </a>{' '}
+          (1998), which looked at historical stock/bond portfolios to see how often they would last
+          for 15, 20, 25, or 30 years at different withdrawal rates.
         </p>
         <p>
-          The Conclusion: A portfolio of 50% stocks and 50% bonds survived{' '}
-          <strong>95% of the time</strong> over 30-year periods when the retiree withdrew 4% of the
-          initial balance, adjusted annually for inflation.
+          In the CPI-adjusted table, a portfolio of 50% stocks and 50% bonds survived{' '}
+          <strong>95% of the time</strong> over overlapping 30-year periods from 1926-1995 when
+          the retiree withdrew 4% of the initial balance, then adjusted the dollar withdrawal for
+          inflation or deflation each year.
         </p>
 
         <Alert className="my-6">
-          <Info className="h-4 w-4" />
+          <Info className="size-4" />
           <AlertTitle>Key Distinction</AlertTitle>
           <AlertDescription>
             <span>
@@ -154,15 +164,15 @@ export default function SafeWithdrawalPage() {
           <FourPercentRuleChart />
         </div>
 
-        <h2>The Problem with 4% in {new Date().getFullYear().toString()}</h2>
+        <h2>The Problem with 4% in {currentYear}</h2>
         <p>
           While 4% worked historically, many experts argue it might be too aggressive for early retirees
           today. Why?
         </p>
         <ul className="list-disc pl-5">
           <li>
-            <strong>Longer Horizons:</strong> The Trinity Study looked at 30 years. If you retire at 35,
-            you might need your money to last 50 or 60 years.
+            <strong>Longer Horizons:</strong> The Trinity Study tested payout periods up to 30 years. If
+            you retire at 35, you might need your money to last 50 or 60 years.
           </li>
           <li>
             <strong>Valuations:</strong> When stock market valuations (CAPE ratios) are high, future
@@ -189,8 +199,8 @@ export default function SafeWithdrawalPage() {
         <h3>2. Lower the Initial Rate</h3>
         <p>
           Many cautious early retirees target a <strong>3.25% to 3.5%</strong> withdrawal rate. This
-          virtually guarantees capital preservation across almost all historical scenarios, even extended
-          bear markets.
+          leaves more room for long timelines, bad early returns, and future returns that may not look
+          like the 1926-1995 backtest. No withdrawal rate guarantees success.
         </p>
 
         <h2>Simulate Your Safe Rate</h2>

@@ -37,7 +37,7 @@ export default function SwrMatrixPage() {
     '@type': 'Article',
     headline: `Safe Withdrawal Rates in ${currentYear}: The 30, 40, 50, and 60-Year Matrix`,
     description:
-      'Updated Trinity Study success rates for 40, 50, and 60-year retirement horizons. Find your safe withdrawal rate for early retirement.',
+      'Extended-horizon safe withdrawal rate planning for 30, 40, 50, and 60-year retirement timelines.',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': 'https://investingfire.com/learn/safe-withdrawal-rate-matrix',
@@ -95,8 +95,9 @@ export default function SwrMatrixPage() {
           more risk than the original 30-year framing suggests.
         </p>
         <p className="text-muted-foreground text-sm">
-          30/40/50/60 columns are retirement horizons, not ages; cells show historical success rates
-          (%).
+          30/40/50/60 columns are retirement horizons, not ages; cells show modeled success rates (%).
+          The original Trinity Study tested 15-, 20-, 25-, and 30-year periods from 1926-1995, not
+          40-60-year retirements.
         </p>
 
         <div className="my-8 overflow-x-auto">
@@ -148,10 +149,11 @@ export default function SwrMatrixPage() {
 
         <h2>Why 30 Years Isn&apos;t Enough</h2>
         <p>
-          The &quot;4% Rule&quot; was designed for traditional retirees—people leaving the workforce at
-          65 and planning for a 30-year horizon. If you are part of the FIRE (Financial Independence,
-          Early Retirement) movement and retire at 35 or 45, you need your portfolio to last 50 or even
-          60 years.
+          The popular 4% framing is rooted in traditional retirement planning and the Trinity
+          Study&apos;s maximum 30-year payout period. In that study&apos;s CPI-adjusted results, a 50%
+          stock/50% bond portfolio using a 4% initial withdrawal succeeded in 95% of overlapping
+          30-year periods. If you are part of the FIRE (Financial Independence, Early Retirement)
+          movement and retire at 35 or 45, you may need your portfolio to last 50 or even 60 years.
         </p>
         <p>
           Over these extended timelines, the failure rate of a 4% withdrawal increases significantly.
@@ -162,12 +164,12 @@ export default function SwrMatrixPage() {
         <ul>
           <li>
             <strong>The 3.5% &quot;Safe Haven&quot;:</strong> For those looking for near-certainty over a
-            50-year horizon, 3.5% has historically been the sweet spot.
+            50-year horizon, 3.5% leaves more margin than 4% in this extended-horizon model.
           </li>
           <li>
-            <strong>The 4% Risk:</strong> While 4% is often cited as safe, it carries an ~18% failure
-            risk over 60 years. This is why many FIRE practitioners use &quot;guardrails&quot; to adjust
-            spending during market downturns.
+            <strong>The 4% Risk:</strong> While 4% is often cited as safe for 30-year planning, it carries
+            an ~18% failure risk over 60 years in this model. This is why many FIRE practitioners
+            use &quot;guardrails&quot; to adjust spending during market downturns.
           </li>
           <li>
             <strong>Sequence of Returns:</strong> The biggest threat to a 50-year retirement isn&apos;t

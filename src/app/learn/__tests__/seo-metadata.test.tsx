@@ -104,10 +104,13 @@ describe('learn page links', () => {
     expect(hrefs).toContain('/?coastFireAge=35&autoCalculate=true');
   });
 
-  it('explains matrix horizons and historical success rates', () => {
+  it('explains matrix horizons and modeled success rates', () => {
     render(createElement(MatrixPage as any) as unknown as ReactNode);
 
     expect(screen.getByText(/30\/40\/50\/60 columns are retirement horizons/i)).toBeInTheDocument();
-    expect(screen.getByText(/historical success rates\s*\(%\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/modeled success rates\s*\(%\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/The original Trinity Study tested 15-, 20-, 25-, and 30-year periods/i),
+    ).toBeInTheDocument();
   });
 });

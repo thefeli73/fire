@@ -943,7 +943,7 @@ export default function FireCalculatorForm({
                       <FormItem>
                         <FormLabel>
                           Withdrawal Percentage (%)
-                          <InfoTooltip content="Annual withdrawal rate as percentage of current portfolio. 4% is the classic 'safe' rate from the Trinity Study." />
+                          <InfoTooltip content="Annual withdrawal rate as percentage of current portfolio. Trinity-style 4% studies use fixed inflation-adjusted withdrawals, so percentage-of-portfolio strategies behave differently." />
                         </FormLabel>
                         <FormControl>
                           <Input
