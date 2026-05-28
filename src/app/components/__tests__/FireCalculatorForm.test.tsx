@@ -90,7 +90,9 @@ describe('FireCalculatorForm', () => {
     expect(withdrawalStrategyItem?.parentElement).toHaveClass('grid');
     expect(withdrawalStrategyItem?.parentElement).toHaveClass('md:grid-cols-2');
     expect(
-      screen.getByText(/Assumes 7% growth, 2\.3% inflation, age 84 life expectancy/i),
+      screen.getByText(
+        /Calculate your path to financial independence and retirement\. Assumes 7% growth, 2\.3% inflation, age 84 life expectancy\./i,
+      ),
     ).toBeInTheDocument();
   });
 

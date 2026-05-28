@@ -598,7 +598,8 @@ export default function FireCalculatorForm({
         <CardHeader>
           <CardTitle className="text-2xl">FIRE Calculator</CardTitle>
           <CardDescription className="text-muted-foreground text-sm">
-            Calculate your path to financial independence and retirement.
+            Calculate your path to financial independence and retirement. Assumes {cagrValue}% growth,{' '}
+            {inflationRateValue}% inflation, age {lifeExpectancyValue} life expectancy.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1037,11 +1038,7 @@ export default function FireCalculatorForm({
                     />
                   )}
                 </>
-                <div className="space-y-2 md:col-span-2">
-                  <p className="text-muted-foreground/80 text-xs">
-                    Assumes {cagrValue}% growth, {inflationRateValue}% inflation, age{' '}
-                    {lifeExpectancyValue} life expectancy.
-                  </p>
+                <div className="md:col-span-2">
                   <button
                     type="button"
                     className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition-colors"
