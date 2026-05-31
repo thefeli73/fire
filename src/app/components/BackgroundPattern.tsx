@@ -52,6 +52,7 @@ import {
   WavesLadder,
   Sailboat,
   MountainSnow,
+  Parasol,
   TentTree,
 } from 'lucide-react';
 
@@ -105,6 +106,7 @@ export const backgroundIconComponents: LucideIcon[] = [
   WavesLadder,
   Sailboat,
   MountainSnow,
+  Parasol,
   TentTree,
 ];
 

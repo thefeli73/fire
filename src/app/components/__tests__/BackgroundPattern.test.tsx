@@ -7,6 +7,7 @@ import {
   Luggage,
   MapPinned,
   MountainSnow,
+  Parasol,
   PlaneTakeoff,
   Sailboat,
   Sun,
@@ -39,6 +40,7 @@ describe('BackgroundPattern', () => {
         Sailboat,
         MountainSnow,
         TentTree,
+        Parasol,
       ]),
     );
   });
