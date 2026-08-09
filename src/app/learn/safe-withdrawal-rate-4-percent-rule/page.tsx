@@ -7,8 +7,7 @@ import { FourPercentRuleChart } from '@/app/components/charts/FourPercentRuleCha
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
-
-const currentYear = new Date().getFullYear();
+import { getBuildDate } from '@/lib/build-date';
 
 const faqs: FaqItem[] = [
   {
@@ -48,32 +47,36 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title: `4% Rule in ${currentYear}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
-  description:
-    'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
-  alternates: {
-    canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
-  },
-  openGraph: {
-    title: `4% Rule in ${currentYear}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
+export function generateMetadata(): Metadata {
+  const { year } = getBuildDate();
+  return {
+    title: `4% Rule in ${year}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
     description:
       'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
-    type: 'article',
-    siteName: 'InvestingFIRE',
-    url: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
-    images: [
-      {
-        url: 'https://investingfire.com/apple-icon.png',
-        width: 180,
-        height: 180,
-        alt: 'InvestingFIRE Logo',
-      },
-    ],
-  },
-};
+    alternates: {
+      canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
+    },
+    openGraph: {
+      title: `4% Rule in ${year}: Safe Withdrawal Rate Calculator | InvestingFIRE`,
+      description:
+        'Compare 4% vs 3.5%, understand sequence-of-returns risk, and test safer retirement scenarios with Monte Carlo.',
+      type: 'article',
+      siteName: 'InvestingFIRE',
+      url: 'https://investingfire.com/learn/safe-withdrawal-rate-4-percent-rule',
+      images: [
+        {
+          url: 'https://investingfire.com/apple-icon.png',
+          width: 180,
+          height: 180,
+          alt: 'InvestingFIRE Logo',
+        },
+      ],
+    },
+  };
+}
 
 export default function SafeWithdrawalPage() {
+  const { year, iso } = getBuildDate();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -98,7 +101,7 @@ export default function SafeWithdrawalPage() {
       },
     },
     datePublished: '2025-01-15',
-    dateModified: new Date().toISOString(),
+    dateModified: iso,
   };
 
   return (
@@ -169,7 +172,7 @@ export default function SafeWithdrawalPage() {
           <FourPercentRuleChart />
         </div>
 
-        <h2>The Problem with 4% in {currentYear}</h2>
+        <h2>The Problem with 4% in {year}</h2>
         <p>
           While 4% worked historically, many experts argue it might be too aggressive for early retirees
           today. Why?

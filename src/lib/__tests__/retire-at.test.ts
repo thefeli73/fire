@@ -6,6 +6,7 @@ import {
   calculateNestEggFromSpend,
   deriveDefaultInputs,
   extractCalculatorValuesFromSearch,
+  isRetireAtAgeParam,
   parseAgeParam,
 } from '../retire-at';
 
@@ -40,6 +41,16 @@ describe('retire-at helpers', () => {
   it('exposes preset age list for sitemap/static params', () => {
     expect(RETIRE_AT_AGE_PRESETS).toContain(50);
     expect(Array.isArray(RETIRE_AT_AGE_PRESETS)).toBe(true);
+  });
+
+  it('accepts every preset age as an exact route param', () => {
+    for (const age of RETIRE_AT_AGE_PRESETS) {
+      expect(isRetireAtAgeParam(age.toString())).toBe(true);
+    }
+  });
+
+  it.each(['42', '035', '35.0', '35e0', 'foo', ''])('rejects invalid route param %j', (value) => {
+    expect(isRetireAtAgeParam(value)).toBe(false);
   });
 
   describe('extractCalculatorValuesFromSearch', () => {

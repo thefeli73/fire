@@ -5,6 +5,7 @@ import { FireFlowchart } from '@/app/components/charts/FireFlowchart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
+import { getBuildDate } from '@/lib/build-date';
 
 const faqs: FaqItem[] = [
   {
@@ -39,31 +40,35 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title: `What is FIRE? The Ultimate Guide to Financial Independence (${new Date().getFullYear().toString()})`,
-  description:
-    'Discover the FIRE movement (Financial Independence, Retire Early). Learn how to calculate your FIRE number, savings rate, and retire decades ahead of schedule.',
-  alternates: {
-    canonical: 'https://investingfire.com/learn/what-is-fire',
-  },
-  openGraph: {
-    title: 'What is FIRE? The Ultimate Guide to Financial Independence',
-    description: 'Stop trading time for money. The comprehensive guide to regaining your freedom.',
-    type: 'article',
-    siteName: 'InvestingFIRE',
-    url: 'https://investingfire.com/learn/what-is-fire',
-    images: [
-      {
-        url: 'https://investingfire.com/apple-icon.png',
-        width: 180,
-        height: 180,
-        alt: 'InvestingFIRE Logo',
-      },
-    ],
-  },
-};
+export function generateMetadata(): Metadata {
+  const { year } = getBuildDate();
+  return {
+    title: `What is FIRE? The Ultimate Guide to Financial Independence (${year})`,
+    description:
+      'Discover the FIRE movement (Financial Independence, Retire Early). Learn how to calculate your FIRE number, savings rate, and retire decades ahead of schedule.',
+    alternates: {
+      canonical: 'https://investingfire.com/learn/what-is-fire',
+    },
+    openGraph: {
+      title: 'What is FIRE? The Ultimate Guide to Financial Independence',
+      description: 'Stop trading time for money. The comprehensive guide to regaining your freedom.',
+      type: 'article',
+      siteName: 'InvestingFIRE',
+      url: 'https://investingfire.com/learn/what-is-fire',
+      images: [
+        {
+          url: 'https://investingfire.com/apple-icon.png',
+          width: 180,
+          height: 180,
+          alt: 'InvestingFIRE Logo',
+        },
+      ],
+    },
+  };
+}
 
 export default function WhatIsFirePage() {
+  const { year } = getBuildDate();
   // JSON-LD for SEO
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -207,11 +212,10 @@ export default function WhatIsFirePage() {
           </li>
         </ul>
 
-        <h2>Why {new Date().getFullYear().toString()} Changes Things</h2>
+        <h2>Why {year} Changes Things</h2>
         <p>
-          In {new Date().getFullYear().toString()}, we face unique challenges: higher inflation than the
-          previous decade and potentially lower future stock market returns. This makes{' '}
-          <strong>flexibility</strong> essential.
+          In {year}, we face unique challenges: higher inflation than the previous decade and potentially
+          lower future stock market returns. This makes <strong>flexibility</strong> essential.
         </p>
         <p>
           Static calculators often fail to capture this nuance. That&apos;s why{' '}

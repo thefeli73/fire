@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Script from 'next/script';
+import { cacheLife } from 'next/cache';
+import { Suspense } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,12 +13,11 @@ import {
   buildSpendScenarios,
   calculateNestEggFromSpend,
   extractCalculatorValuesFromSearch,
+  isRetireAtAgeParam,
   parseAgeParam,
 } from '@/lib/retire-at';
 import { BASE_URL } from '@/lib/constants';
-
-export const dynamic = 'force-static';
-export const dynamicParams = false;
+import { getBuildDate } from '@/lib/build-date';
 
 interface RetireAtPageProps {
   params: Promise<{ age: string }>;
@@ -57,8 +59,10 @@ export const generateStaticParams = () =>
     age: age.toString(),
   }));
 
-export const generateMetadata = async ({ params }: RetireAtPageProps): Promise<Metadata> => {
-  const { age: slugAge } = await params;
+async function getRetireAtMetadata(slugAge: string): Promise<Metadata> {
+  'use cache';
+  cacheLife('max');
+
   const age = parseAgeParam(slugAge);
   const ageLabel = age.toString();
   const title = `How Much Do You Need to Retire at ${ageLabel}? | InvestingFIRE`;
@@ -87,13 +91,89 @@ export const generateMetadata = async ({ params }: RetireAtPageProps): Promise<M
       ],
     },
   };
+}
+
+export const generateMetadata = async ({ params }: RetireAtPageProps): Promise<Metadata> => {
+  const { age } = await params;
+  if (!isRetireAtAgeParam(age)) notFound();
+  return getRetireAtMetadata(age);
 };
 
-export default async function RetireAtPage({ params, searchParams }: RetireAtPageProps) {
+function RetireAtPageFallback() {
+  return (
+    <article className="container mx-auto max-w-4xl px-4 py-12" aria-busy="true">
+      <nav className="text-muted-foreground mb-6 text-sm">
+        <Link href="/" className="hover:text-primary">
+          Home
+        </Link>
+        <span className="mx-2">/</span>
+        <Link href="/learn" className="hover:text-primary">
+          Learn
+        </Link>
+        <span className="mx-2">/</span>
+        <span className="text-foreground">Retirement planning</span>
+      </nav>
+
+      <header className="mb-10">
+        <output className="bg-primary/5 text-primary mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium">
+          <span
+            className="bg-primary size-2 animate-pulse rounded-full motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+          Loading age-based plan
+        </output>
+        <h1 className="mb-4 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          How Much Do I Need to Retire?
+        </h1>
+        <p className="text-muted-foreground text-xl leading-relaxed">
+          Your tailored estimate is on its way. Start with the spending-based method below, then refine
+          savings, returns, inflation, and withdrawals when the full guide loads.
+        </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>A Useful Starting Point</CardTitle>
+            <CardDescription>Turn the life you want into a portfolio target.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-primary/5 rounded-lg border px-4 py-3">
+              <p className="font-semibold">
+                Annual spending ÷ withdrawal rate = target portfolio balance
+              </p>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Choose a realistic monthly allowance, convert it to annual spending, then test a
+              withdrawal rate that suits your timeline and risk tolerance.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Plan Will Include</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+              <li>A quick portfolio target</li>
+              <li>Three spending scenarios</li>
+              <li>Key savings and market levers</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    </article>
+  );
+}
+
+async function RetireAtPageContent({ params, searchParams }: RetireAtPageProps) {
   const { age: slugAge } = await params;
+  if (!isRetireAtAgeParam(slugAge)) notFound();
   const resolvedSearch = (await searchParams) ?? {};
   const age = parseAgeParam(slugAge);
   const ageLabel = age.toString();
+  const buildDate = getBuildDate();
   const initialValues = extractCalculatorValuesFromSearch(resolvedSearch, age);
   const monthlySpend = initialValues.desiredMonthlyAllowance ?? 4000;
   const withdrawalRate = 0.04;
@@ -109,7 +189,7 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
       'Detailed guidance plus an interactive calculator showing exactly how much you need saved to retire at your target age.',
     mainEntityOfPage: canonical,
     datePublished: '2025-01-25',
-    dateModified: new Date().toISOString().split('T')[0],
+    dateModified: buildDate.date,
     publisher: {
       '@type': 'Organization',
       name: 'InvestingFIRE',
@@ -285,5 +365,13 @@ export default async function RetireAtPage({ params, searchParams }: RetireAtPag
 
       <FaqSection faqs={faqForAge(age)} className="my-12" />
     </article>
+  );
+}
+
+export default function RetireAtPage(props: RetireAtPageProps) {
+  return (
+    <Suspense fallback={<RetireAtPageFallback />}>
+      <RetireAtPageContent {...props} />
+    </Suspense>
   );
 }

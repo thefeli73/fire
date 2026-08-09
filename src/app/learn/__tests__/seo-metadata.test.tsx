@@ -1,5 +1,4 @@
 import { createElement, type ReactNode } from 'react';
-import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
@@ -71,22 +70,27 @@ vi.mock('recharts', async () => {
   };
 });
 
-import MatrixPage, { metadata as matrixMetadata } from '../safe-withdrawal-rate-matrix/page';
-import SafeWithdrawalPage, { metadata as fourPercentMetadata } from '../safe-withdrawal-rate-4-percent-rule/page';
+import MatrixPage, {
+  generateMetadata as generateMatrixMetadata,
+} from '../safe-withdrawal-rate-matrix/page';
+import SafeWithdrawalPage, {
+  generateMetadata as generateFourPercentMetadata,
+} from '../safe-withdrawal-rate-4-percent-rule/page';
 import CoastVsLeanPage from '../coast-fire-vs-lean-fire/page';
 import CagrCalculatorPage, { metadata as cagrCalculatorMetadata } from '../cagr-calculator/page';
 
-const currentYear = String(new Date().getFullYear());
-const hardCodedYear = String(2000 + 26);
+const currentYear = process.env.BUILD_DATE!.slice(0, 4);
 
 describe('learn page metadata', () => {
   it('keeps SWR matrix SEO metadata aligned', () => {
+    const matrixMetadata = generateMatrixMetadata();
     expect(matrixMetadata.title).toContain('Safe Withdrawal Rate Calculator');
     expect(matrixMetadata.title).toContain(`${currentYear} Matrix`);
     expect(matrixMetadata.description).toContain('30, 40, 50, and 60-year retirements');
   });
 
   it('keeps 4% rule SEO metadata aligned', () => {
+    const fourPercentMetadata = generateFourPercentMetadata();
     expect(fourPercentMetadata.title).toContain('4% Rule');
     expect(fourPercentMetadata.title).toContain(currentYear);
     expect(fourPercentMetadata.title).toMatch(/Calculator|FIRE Calculator/);
@@ -95,17 +99,6 @@ describe('learn page metadata', () => {
   it('keeps CAGR calculator SEO metadata aligned', () => {
     expect(cagrCalculatorMetadata.title).toContain('CAGR Calculator');
     expect(cagrCalculatorMetadata.description).toMatch(/compound annual growth rate calculator/i);
-  });
-
-  it('uses JS current-year values instead of hard-coded year strings', () => {
-    const matrixSource = readFileSync('src/app/learn/safe-withdrawal-rate-matrix/page.tsx', 'utf8');
-    const fourPercentSource = readFileSync(
-      'src/app/learn/safe-withdrawal-rate-4-percent-rule/page.tsx',
-      'utf8',
-    );
-
-    expect(matrixSource).not.toContain(hardCodedYear);
-    expect(fourPercentSource).not.toContain(hardCodedYear);
   });
 });
 

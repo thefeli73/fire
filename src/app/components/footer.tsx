@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { getBuildDate } from '@/lib/build-date';
 
 export default function Footer() {
+  const { year } = getBuildDate();
   return (
     <footer className="bg-background z-10 w-full border-t">
       <div className="from-primary/15 to-secondary/10 bg-gradient-to-b py-12">
@@ -119,7 +121,7 @@ export default function Footer() {
 
           <div className="text-muted-foreground mt-8 border-t pt-8 text-center text-xs">
             <p>
-              © {new Date().getFullYear().toString()} InvestingFIRE. All rights reserved. |{' '}
+              © {year} InvestingFIRE. All rights reserved. |{' '}
               <a
                 href="https://schulze.network"
                 target="_blank"

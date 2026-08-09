@@ -13,6 +13,9 @@ export const numericFromParam = (value: NumericParam) => {
 
 export const RETIRE_AT_AGE_PRESETS = [35, 40, 45, 50, 55, 60, 65, 70] as const;
 
+export const isRetireAtAgeParam = (value: string) =>
+  RETIRE_AT_AGE_PRESETS.some((age) => age.toString() === value);
+
 export interface SpendScenario {
   key: 'lean' | 'baseline' | 'comfortable';
   label: string;

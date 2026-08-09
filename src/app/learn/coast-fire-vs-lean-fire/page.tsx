@@ -7,6 +7,7 @@ import { CoastFireChart } from '@/app/components/charts/CoastFireChart';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
+import { getBuildDate } from '@/lib/build-date';
 
 const faqs: FaqItem[] = [
   {
@@ -67,6 +68,7 @@ export const metadata: Metadata = {
 };
 
 export default function CoastVsLeanPage() {
+  const { iso } = getBuildDate();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -91,7 +93,7 @@ export default function CoastVsLeanPage() {
       },
     },
     datePublished: '2025-01-20',
-    dateModified: new Date().toISOString(),
+    dateModified: iso,
   };
 
   return (

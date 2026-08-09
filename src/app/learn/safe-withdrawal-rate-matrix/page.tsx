@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { AuthorBio } from '@/app/components/AuthorBio';
 import { FaqSection, type FaqItem } from '@/app/components/FaqSection';
 import type { Metadata } from 'next';
-
-const currentYear = new Date().getFullYear();
+import { getBuildDate } from '@/lib/build-date';
 
 const faqs: FaqItem[] = [
   {
@@ -30,36 +29,40 @@ const faqs: FaqItem[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title: `Safe Withdrawal Rate Calculator & ${currentYear} Matrix | InvestingFIRE`,
-  description:
-    'Compare safe withdrawal rates for 30, 40, 50, and 60-year retirements, then test your own FIRE plan with a Monte Carlo calculator.',
-  alternates: {
-    canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-matrix',
-  },
-  openGraph: {
-    title: `Safe Withdrawal Rate Calculator & ${currentYear} Matrix | InvestingFIRE`,
+export function generateMetadata(): Metadata {
+  const { year } = getBuildDate();
+  return {
+    title: `Safe Withdrawal Rate Calculator & ${year} Matrix | InvestingFIRE`,
     description:
       'Compare safe withdrawal rates for 30, 40, 50, and 60-year retirements, then test your own FIRE plan with a Monte Carlo calculator.',
-    type: 'article',
-    siteName: 'InvestingFIRE',
-    url: 'https://investingfire.com/learn/safe-withdrawal-rate-matrix',
-    images: [
-      {
-        url: 'https://investingfire.com/apple-icon.png',
-        width: 180,
-        height: 180,
-        alt: 'InvestingFIRE Logo',
-      },
-    ],
-  },
-};
+    alternates: {
+      canonical: 'https://investingfire.com/learn/safe-withdrawal-rate-matrix',
+    },
+    openGraph: {
+      title: `Safe Withdrawal Rate Calculator & ${year} Matrix | InvestingFIRE`,
+      description:
+        'Compare safe withdrawal rates for 30, 40, 50, and 60-year retirements, then test your own FIRE plan with a Monte Carlo calculator.',
+      type: 'article',
+      siteName: 'InvestingFIRE',
+      url: 'https://investingfire.com/learn/safe-withdrawal-rate-matrix',
+      images: [
+        {
+          url: 'https://investingfire.com/apple-icon.png',
+          width: 180,
+          height: 180,
+          alt: 'InvestingFIRE Logo',
+        },
+      ],
+    },
+  };
+}
 
 export default function SwrMatrixPage() {
+  const { year, iso } = getBuildDate();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `Safe Withdrawal Rates in ${currentYear}: The 30, 40, 50, and 60-Year Matrix`,
+    headline: `Safe Withdrawal Rates in ${year}: The 30, 40, 50, and 60-Year Matrix`,
     description:
       'Extended-horizon safe withdrawal rate planning for 30, 40, 50, and 60-year retirement timelines.',
     mainEntityOfPage: {
@@ -80,7 +83,7 @@ export default function SwrMatrixPage() {
       },
     },
     datePublished: '2025-02-15',
-    dateModified: new Date().toISOString(),
+    dateModified: iso,
   };
 
   return (
@@ -103,7 +106,7 @@ export default function SwrMatrixPage() {
 
       <header className="mb-8">
         <h1 className="mb-6 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Safe Withdrawal Rates in {currentYear}: <br />
+          Safe Withdrawal Rates in {year}: <br />
           <span className="text-primary">The 30, 40, 50, and 60-Year Matrix</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">

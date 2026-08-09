@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+process.env.BUILD_DATE = '2026-08-09T00:00:00.000Z';
+
 // Provide a basic matchMedia mock for jsdom so components using media queries
 // (e.g. pointer detection in Tooltip) do not throw during tests.
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

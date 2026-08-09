@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import BlurThing from '../components/blur-thing';
 import { RETIRE_AT_AGE_PRESETS } from '@/lib/retire-at';
 import type { Metadata } from 'next';
+import { getBuildDate } from '@/lib/build-date';
 
 export const metadata: Metadata = {
   title: 'Learn FIRE | Financial Independence Guides & Resources',
@@ -31,6 +32,7 @@ export const metadata: Metadata = {
 const retireAgeLinks = RETIRE_AT_AGE_PRESETS;
 
 export default function LearnHubPage() {
+  const { year } = getBuildDate();
   return (
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="mb-12 text-center">
@@ -105,8 +107,7 @@ export default function LearnHubPage() {
               </div>
               <CardTitle className="text-2xl">The 4% Rule Explained</CardTitle>
               <CardDescription>
-                Is it still safe in {new Date().getFullYear().toString()}? A data-driven look at
-                withdrawal rates.
+                Is it still safe in {year}? A data-driven look at withdrawal rates.
               </CardDescription>
             </CardHeader>
             <CardContent>
