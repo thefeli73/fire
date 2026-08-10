@@ -127,8 +127,8 @@ export function CoastFireChart() {
         </ChartContainer>
         <CardFooter>
           <p className="text-muted-foreground text-sm">
-            X-axis: age (years). Y-axis: portfolio balance. Simulation assumes 7% returns.
-            Standard: Save 10k/yr (age 25-65). Coast: Save 30k/yr (age 25-35), then 0.
+            X-axis: age (years). Y-axis: portfolio balance. Simulation assumes 7% returns. Standard: Save
+            10k/yr (age 25-65). Coast: Save 30k/yr (age 25-35), then 0.
           </p>
         </CardFooter>
       </CardContent>

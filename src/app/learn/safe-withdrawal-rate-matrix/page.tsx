@@ -178,9 +178,9 @@ export default function SwrMatrixPage() {
         <p>
           The popular 4% framing is rooted in traditional retirement planning and the Trinity
           Study&apos;s maximum 30-year payout period. In that study&apos;s CPI-adjusted results, a 50%
-          stock/50% bond portfolio using a 4% initial withdrawal succeeded in 95% of overlapping
-          30-year periods. If you are part of the FIRE (Financial Independence, Early Retirement)
-          movement and retire at 35 or 45, you may need your portfolio to last 50 or even 60 years.
+          stock/50% bond portfolio using a 4% initial withdrawal succeeded in 95% of overlapping 30-year
+          periods. If you are part of the FIRE (Financial Independence, Early Retirement) movement and
+          retire at 35 or 45, you may need your portfolio to last 50 or even 60 years.
         </p>
         <p>
           Over these extended timelines, the failure rate of a 4% withdrawal increases significantly.
@@ -194,8 +194,8 @@ export default function SwrMatrixPage() {
             50-year horizon, 3.5% leaves more margin than 4% in this extended-horizon model.
           </li>
           <li>
-            <strong>The 4% Risk:</strong> While 4% is often cited as safe for 30-year planning, it carries
-            an ~18% failure risk over 60 years in this model. This is why many FIRE practitioners
+            <strong>The 4% Risk:</strong> While 4% is often cited as safe for 30-year planning, it
+            carries an ~18% failure risk over 60 years in this model. This is why many FIRE practitioners
             use &quot;guardrails&quot; to adjust spending during market downturns.
           </li>
           <li>

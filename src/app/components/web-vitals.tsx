@@ -56,12 +56,7 @@ interface Metric {
    * restored by the user.
    */
   navigationType:
-    | 'navigate'
-    | 'reload'
-    | 'back-forward'
-    | 'back-forward-cache'
-    | 'prerender'
-    | 'restore';
+    'navigate' | 'reload' | 'back-forward' | 'back-forward-cache' | 'prerender' | 'restore';
 }
 
 export function WebVitals() {

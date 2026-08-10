@@ -58,9 +58,7 @@ export function FourPercentRuleChart() {
       <BlurThing />
       <CardHeader>
         <CardTitle>Portfolio Survival Scenarios</CardTitle>
-        <CardDescription>
-          Impact of initial withdrawal rate on portfolio longevity.
-        </CardDescription>
+        <CardDescription>Impact of initial withdrawal rate on portfolio longevity.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">
@@ -113,9 +111,9 @@ export function FourPercentRuleChart() {
         <div>
           <p className="font-medium">4% balances safety and spending power</p>
           <p className="text-muted-foreground leading-none">
-            X-axis: years of retirement. Y-axis: portfolio value (% of initial balance; starting
-            balance = 100). A 5% withdrawal rate risks depleting your portfolio within 30 years, while
-            3% leaves a large surplus.
+            X-axis: years of retirement. Y-axis: portfolio value (% of initial balance; starting balance
+            = 100). A 5% withdrawal rate risks depleting your portfolio within 30 years, while 3% leaves
+            a large surplus.
           </p>
         </div>
       </CardFooter>

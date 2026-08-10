@@ -199,10 +199,9 @@ export default function CoastVsLeanPage() {
           your cost of living, you lower your required FIRE number.
         </p>
         <p>
-          If you can live happily on 35,000 a year, you &quot;only&quot; need 875,000 to retire (based
-          on the 4% rule). Compare that to a &quot;Fat FIRE&quot; lifestyle spending 100,000, which
-          requires 2.5 million. Lean FIRE is the fastest path out of the workforce, but it requires
-          discipline.
+          If you can live happily on 35,000 a year, you &quot;only&quot; need 875,000 to retire (based on
+          the 4% rule). Compare that to a &quot;Fat FIRE&quot; lifestyle spending 100,000, which requires
+          2.5 million. Lean FIRE is the fastest path out of the workforce, but it requires discipline.
         </p>
 
         <Separator className="my-16" />

@@ -56,7 +56,10 @@ export function getCalculatorNextSteps(context: CalculatorNextStepContext): Calc
     steps.push(stepCatalog.swrMatrix);
   }
 
-  if (context.withdrawalStrategy === 'percentage' || (context.successRate !== undefined && context.successRate < 85)) {
+  if (
+    context.withdrawalStrategy === 'percentage' ||
+    (context.successRate !== undefined && context.successRate < 85)
+  ) {
     steps.push(stepCatalog.safeWithdrawal);
   }
 

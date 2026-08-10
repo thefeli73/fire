@@ -544,8 +544,10 @@ export default function FireCalculatorForm({
     });
   };
 
-  const simulationModeValue = (form.watch('simulationMode') ?? 'deterministic') as FormValues['simulationMode'];
-  const withdrawalStrategyValue = (form.watch('withdrawalStrategy') ?? 'fixed') as FormValues['withdrawalStrategy'];
+  const simulationModeValue = (form.watch('simulationMode') ??
+    'deterministic') as FormValues['simulationMode'];
+  const withdrawalStrategyValue = (form.watch('withdrawalStrategy') ??
+    'fixed') as FormValues['withdrawalStrategy'];
   const retirementAgeValue = Number(form.watch('retirementAge'));
   const coastFireAgeValue = Number(form.watch('coastFireAge'));
   const lifeExpectancyValue = Number(form.watch('lifeExpectancy'));
@@ -1094,7 +1096,9 @@ export default function FireCalculatorForm({
                     <CardTitle>Financial Projection</CardTitle>
                     <CardDescription>
                       Balance and allowance by year.
-                      {isMonteCarlo ? ' Shaded band shows 40th–60th percentile across 2000 simulations.' : ''}
+                      {isMonteCarlo
+                        ? ' Shaded band shows 40th–60th percentile across 2000 simulations.'
+                        : ''}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-2">
@@ -1301,7 +1305,8 @@ export default function FireCalculatorForm({
           <CardHeader>
             <CardTitle>Recommended next steps</CardTitle>
             <CardDescription className="text-xs">
-              Use your result to stress-test risk, compare withdrawal rates, or explore related FIRE paths.
+              Use your result to stress-test risk, compare withdrawal rates, or explore related FIRE
+              paths.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1317,9 +1322,7 @@ export default function FireCalculatorForm({
                 >
                   <p className="font-semibold">{step.title}</p>
                   <p className="text-muted-foreground mt-1 text-sm">{step.description}</p>
-                  <p className="text-primary mt-3 text-sm font-medium">
-                    {step.cta} →
-                  </p>
+                  <p className="text-primary mt-3 text-sm font-medium">{step.cta} →</p>
                 </Link>
               ))}
             </div>

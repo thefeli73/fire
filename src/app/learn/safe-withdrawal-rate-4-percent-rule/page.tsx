@@ -128,9 +128,9 @@ export default function SafeWithdrawalPage() {
           <span className="text-primary">Is the 4% Rule Still Safe?</span>
         </h1>
         <p className="text-muted-foreground text-xl leading-relaxed">
-          The &quot;4% Rule&quot; is the bedrock of the FIRE movement. The Trinity Study tested
-          how withdrawal rates held up across historical 15- to 30-year retirements. Does that
-          evidence still hold up for modern FIRE timelines?
+          The &quot;4% Rule&quot; is the bedrock of the FIRE movement. The Trinity Study tested how
+          withdrawal rates held up across historical 15- to 30-year retirements. Does that evidence still
+          hold up for modern FIRE timelines?
         </p>
       </header>
 
@@ -146,14 +146,14 @@ export default function SafeWithdrawalPage() {
           >
             Trinity Study
           </a>{' '}
-          (1998), which looked at historical stock/bond portfolios to see how often they would last
-          for 15, 20, 25, or 30 years at different withdrawal rates.
+          (1998), which looked at historical stock/bond portfolios to see how often they would last for
+          15, 20, 25, or 30 years at different withdrawal rates.
         </p>
         <p>
           In the CPI-adjusted table, a portfolio of 50% stocks and 50% bonds survived{' '}
-          <strong>95% of the time</strong> over overlapping 30-year periods from 1926-1995 when
-          the retiree withdrew 4% of the initial balance, then adjusted the withdrawal amount for
-          inflation or deflation each year.
+          <strong>95% of the time</strong> over overlapping 30-year periods from 1926-1995 when the
+          retiree withdrew 4% of the initial balance, then adjusted the withdrawal amount for inflation
+          or deflation each year.
         </p>
 
         <Alert className="my-6">

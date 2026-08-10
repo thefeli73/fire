@@ -141,7 +141,9 @@ describe('learn page links', () => {
     render(createElement(SafeWithdrawalPage as any) as unknown as ReactNode);
 
     expect(screen.getByText(/Is the 4% rule still safe for FIRE/i)).toBeInTheDocument();
-    expect(screen.getByText(/test a lower withdrawal rate in a Monte Carlo calculator/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/test a lower withdrawal rate in a Monte Carlo calculator/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/What withdrawal rate lasts 50 years/i)).toBeInTheDocument();
   });
 

@@ -144,8 +144,8 @@ function RetireAtPageFallback() {
               </p>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Choose a realistic monthly allowance, convert it to annual spending, then test a
-              withdrawal rate that suits your timeline and risk tolerance.
+              Choose a realistic monthly allowance, convert it to annual spending, then test a withdrawal
+              rate that suits your timeline and risk tolerance.
             </p>
           </CardContent>
         </Card>
@@ -248,8 +248,8 @@ async function RetireAtPageContent({ params, searchParams }: RetireAtPageProps) 
           <CardContent className="space-y-3">
             <p className="text-lg">
               With a monthly spend of <strong>{amountFormatter.format(monthlySpend)}</strong>, you need
-              roughly <strong>{amountFormatter.format(quickNestEgg)}</strong> invested to retire at{' '}
-              {age}.
+              roughly <strong>{amountFormatter.format(quickNestEgg)}</strong>{' '}
+              {`invested to retire at ${age}.`}
             </p>
             <ul className="text-muted-foreground list-disc space-y-2 pl-5">
               <li>Uses the classic&quot;Rule of 25&quot; (annual spend ÷ {withdrawalRate * 100}%)</li>

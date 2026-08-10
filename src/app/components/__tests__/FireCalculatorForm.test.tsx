@@ -129,7 +129,9 @@ describe('FireCalculatorForm', () => {
     expect(screen.getByRole('combobox', { name: /Simulation Mode/i })).toBeInTheDocument();
 
     const advancedControls = Array.from(
-      document.querySelectorAll('#advanced-calculator-options input, #advanced-calculator-options [role="combobox"]'),
+      document.querySelectorAll(
+        '#advanced-calculator-options input, #advanced-calculator-options [role="combobox"]',
+      ),
     );
     expect(advancedControls.at(-1)).toBe(screen.getByRole('spinbutton', { name: /Life Expectancy/i }));
   });
@@ -198,7 +200,11 @@ describe('FireCalculatorForm', () => {
   it('shows contextual next-step cards after calculation', async () => {
     const user = userEvent.setup();
     render(
-      (<FireCalculatorForm initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }} />) as unknown as ReactNode,
+      (
+        <FireCalculatorForm
+          initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }}
+        />
+      ) as unknown as ReactNode,
     );
 
     await user.click(screen.getByRole('button', { name: /Calculate/i }));
@@ -217,7 +223,11 @@ describe('FireCalculatorForm', () => {
   it('tracks calculator next-step clicks', async () => {
     const user = userEvent.setup();
     render(
-      (<FireCalculatorForm initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }} />) as unknown as ReactNode,
+      (
+        <FireCalculatorForm
+          initialValues={{ ...fireCalculatorDefaultValues, simulationMode: 'deterministic' }}
+        />
+      ) as unknown as ReactNode,
     );
 
     await user.click(screen.getByRole('button', { name: /Calculate/i }));

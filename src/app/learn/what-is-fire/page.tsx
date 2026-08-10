@@ -177,10 +177,10 @@ export default function WhatIsFirePage() {
           </p>
         </blockquote>
         <p>
-          For example, if you spend <strong>40,000</strong> per year, you need{' '}
-          <strong>1,000,000</strong> invested. This is based on the <em>4% Rule</em>, which suggests you
-          can withdraw 4% of your portfolio in the first year of retirement (adjusted for inflation
-          thereafter) with a high probability of not running out of money.
+          For example, if you spend <strong>40,000</strong> per year, you need <strong>1,000,000</strong>{' '}
+          invested. This is based on the <em>4% Rule</em>, which suggests you can withdraw 4% of your
+          portfolio in the first year of retirement (adjusted for inflation thereafter) with a high
+          probability of not running out of money.
         </p>
 
         <div className="my-8 text-center">
@@ -199,8 +199,8 @@ export default function WhatIsFirePage() {
             minimalists.
           </li>
           <li>
-            <strong>Fat FIRE:</strong> Retiring with abundance (e.g., 100k+/year). Requires a larger
-            nest egg but offers a luxurious lifestyle.
+            <strong>Fat FIRE:</strong> Retiring with abundance (e.g., 100k+/year). Requires a larger nest
+            egg but offers a luxurious lifestyle.
           </li>
           <li>
             <strong>Barista FIRE:</strong> Reaching a portfolio size where you still work part-time
