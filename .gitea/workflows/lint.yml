@@ -15,7 +15,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          lfs: true
+          lfs: false
+          persist-credentials: false
+
+      # Avoid duplicate Authorization headers from actions/checkout and Gitea's LFS object URLs.
+      # https://github.com/actions/checkout/issues/1830
+      - name: Fetch Git LFS assets
+        env:
+          GITEA_TOKEN: ${{ github.token }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set +x
+          set -eu
+          : "${GITEA_TOKEN:?GITEA_TOKEN is required}"
+
+          credential_url="${GITHUB_SERVER_URL%/}/${GITHUB_REPOSITORY}"
+          git \
+            -c credential.helper= \
+            -c "credential.${credential_url}.helper=!f() { test \"\$1\" = get || exit 0; printf '%s\n' 'username=x-access-token' \"password=\$GITEA_TOKEN\"; }; f" \
+            lfs pull origin
 
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
