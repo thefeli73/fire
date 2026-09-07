@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
 process.env.BUILD_DATE = '2026-08-09T00:00:00.000Z';
