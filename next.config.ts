@@ -16,6 +16,10 @@ const buildDate = parsedBuildDate.toISOString();
 /** @type {import("next").NextConfig} */
 const config = {
   cacheComponents: true,
+  reactCompiler: true,
+  experimental: {
+    turbopackRustReactCompiler: true,
+  },
   env: {
     BUILD_DATE: buildDate,
   },
